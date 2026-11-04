@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07101f">
+<title>NEON CRISIS | Prototype 0.1</title>
+<style>
+:root{--bg:#07101f;--panel:rgba(8,20,39,.88);--cyan:#51e7ff;--pink:#ff4da6;--gold:#ffd166;--green:#72f1b8;--muted:#9bb0c9}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:#eaf7ff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
+button{font:inherit;cursor:pointer;border:1px solid #315477;background:#102944;color:#eaf7ff;border-radius:10px;padding:11px 14px}
+button:active{transform:scale(.98)} button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+#app{max-width:1200px;margin:auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.logo{font-weight:900;letter-spacing:.16em;color:var(--cyan);font-size:clamp(19px,4vw,29px);text-shadow:0 0 18px #19c8ff66}
+.logo small{display:block;font-size:10px;letter-spacing:.32em;color:#9bb0c9;font-weight:600}
+.pill{border:1px solid #315477;border-radius:99px;padding:7px 11px;color:var(--muted);font-size:12px}
+.layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(270px,1fr);gap:12px}
+.scene{position:relative;min-height:390px;height:52vw;max-height:570px;overflow:hidden;border:1px solid #1d4566;border-radius:18px;background:linear-gradient(#101d3b 0%,#17274b 48%,#080f20 49%,#050a14 100%);box-shadow:0 0 35px #00c8ff12}
+#city{position:absolute;inset:0;width:100%;height:100%}
+.hud{position:absolute;inset:12px 12px auto;display:flex;justify-content:space-between;pointer-events:none;gap:8px}
+.hudbox{background:#061426c9;border:1px solid #37617d88;border-radius:10px;padding:8px 11px;font-size:12px;backdrop-filter:blur(6px)}
+.hudbox b{color:var(--cyan);font-size:18px;display:block}
+.center-message{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);text-align:center;width:min(85%,450px);pointer-events:none;text-shadow:0 2px 12px #000}
+.center-message h2{font-size:clamp(24px,5vw,42px);margin:0;color:white;letter-spacing:.08em}
+.center-message p{color:#c2d8ed;margin:8px 0}
+.scanline{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,#8bdcff08 4px)}
+.side{display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--panel);border:1px solid #1e4666;border-radius:16px;padding:14px;box-shadow:0 8px 28px #0003}
+.panel h3{margin:0 0 12px;color:var(--cyan);font-size:13px;letter-spacing:.13em}
+.stat{margin:10px 0}.statline{display:flex;justify-content:space-between;font-size:12px;color:#c2d8ed;margin-bottom:5px}
+.bar{height:9px;background:#14283f;border-radius:99px;overflow:hidden}.fill{height:100%;width:50%;border-radius:99px;transition:width .25s}
+#funds{color:var(--gold)} #score{color:var(--green)}
+.event{font-size:14px;line-height:1.5;color:#d8e9f8;min-height:64px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.actions button{min-height:62px;text-align:left;font-size:13px;background:linear-gradient(135deg,#102b48,#0b1b31)}
+.actions button strong{display:block;color:var(--cyan);font-size:14px;margin-bottom:3px}
+.actions button span{color:#9bb0c9;font-size:11px}
+.actions button:disabled{opacity:.35;cursor:not-allowed}
+.footerline{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#8ea8c2;font-size:11px;margin-top:10px}
+#startOverlay{position:absolute;inset:0;background:#030a16d9;display:grid;place-items:center;padding:20px;z-index:5}
+.startcard{width:min(520px,100%);text-align:center;background:#09182beF;border:1px solid #3c7695;border-radius:18px;padding:24px;box-shadow:0 0 55px #00cfff22}
+.startcard h1{font-size:clamp(28px,6vw,48px);margin:0;color:var(--cyan);letter-spacing:.12em}
+.startcard p{color:#b6cbe0;line-height:1.7}
+.startcard button{background:linear-gradient(90deg,#087eaa,#7447a9);border:0;font-weight:800;padding:13px 28px}
+#result{display:none;position:fixed;inset:0;background:#020711eF;z-index:10;place-items:center;padding:16px}
+.resultcard{max-width:480px;width:100%;background:#0b1b31;border:1px solid #4a7798;border-radius:18px;padding:22px}
+.resultcard h2{color:var(--cyan);margin-top:0}
+.nameinput{width:100%;padding:12px;border-radius:9px;border:1px solid #315477;background:#061426;color:white;margin:8px 0}
+#rankList{padding-left:20px;color:#c8d9e9;line-height:1.8}
+.mobile-actions{display:none}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.scene{height:62vw;min-height:320px}.side{display:grid;grid-template-columns:1fr 1fr}.side .actionpanel{grid-column:1/-1}}
+@media(max-width:520px){#app{padding:9px}header{align-items:flex-start}.side{display:flex}.scene{min-height:300px;height:76vw}.hudbox{font-size:10px;padding:6px 8px}.hudbox b{font-size:15px}.actions button{min-height:58px;padding:8px}.panel{padding:12px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header><div class="logo">NEON CRISIS<small>REALTIME CITY SURVIVAL // PROTOTYPE 0.1</small></div><div class="pill">SOLO SIMULATION · 90 SEC</div></header>
+<div class="layout">
+<section class="scene">
+<canvas id="city"></canvas><div class="scanline"></div>
+<div class="hud"><div class="hudbox">TIME<b id="time">90</b></div><div class="hudbox">SCORE<b id="score">0000</b></div><div class="hudbox">CREDITS<b id="funds">¥ 1,000</b></div></div>
+<div class="center-message"><h2 id="cityState">CITY ONLINE</h2><p id="citySub">3つの危機を管理して都市を守れ。</p></div>
+<div id="startOverlay"><div class="startcard"><h1>NEON CRISIS</h1><p>経済・サイバー・世界情勢。<br>次々に起こる危機を判断し、90秒間、未来都市を守り抜け。<br><b>判断の速さとリソース管理がスコアを左右する。</b></p><button id="startBtn">ゲームスタート</button><p style="font-size:11px">PC：画面の選択肢をクリック ／ スマホ：タップ</p></div></div>
+</section>
+<aside class="side">
+<div class="panel">
+<h3>▼ CITY STATUS</h3>
+<div class="stat"><div class="statline"><span>MARKET / 市場</span><b id="marketN">72%</b></div><div class="bar"><div class="fill" id="marketB" style="background:#ffd166"></div></div></div>
+<div class="stat"><div class="statline"><span>CYBER DEFENSE / 防衛</span><b id="cyberN">68%</b></div><div class="bar"><div class="fill" id="cyberB" style="background:#51e7ff"></div></div></div>
+<div class="stat"><div class="statline"><span>WORLD STABILITY / 安定</span><b id="worldN">75%</b></div><div class="bar"><div class="fill" id="worldB" style="background:#72f1b8"></div></div></div>
+</div>
+<div class="panel">
+<h3>▼ INCOMING INTEL</h3><div class="event" id="eventText">通信を確立中……</div><div class="footerline"><span id="eventType">SYSTEM</span><span id="eventRisk">RISK: --</span></div>
+</div>
+<div class="panel actionpanel">
+<h3>▼ SELECT YOUR RESPONSE</h3>
+<div class="actions">
+<button data-action="invest"><strong>市場に投資</strong><span>市場 + / 資金 −</span></button>
+<button data-action="shield"><strong>防衛を強化</strong><span>防衛 + / 資金 −</span></button>
+<button data-action="diplomacy"><strong>外交交渉</strong><span>安定 + / 資金 −</span></button>
+<button data-action="analyze"><strong>情報を分析</strong><span>情報獲得 / 次の危機を軽減</span></button>
+</div>
+<div class="footerline"><span>各アクションにコストあり</span><span id="combo">COMBO ×1</span></div>
+</div>
+</aside>
+</div>
+<div class="footerline"><span>NEON CRISIS // FICTIONAL WORLD SIMULATION</span><span>Prototype 0.1 · Local high scores</span></div>
+</div>
+<div id="result"><div class="resultcard"><h2>MISSION COMPLETE</h2><p id="resultText"></p><label for="playerName">ランキング用プレイヤー名</label><input id="playerName" class="nameinput" maxlength="12" placeholder="PLAYER"><button id="saveScore">スコアを保存</button><h3>LOCAL TOP 5</h3><ol id="rankList"></ol><button id="again" style="width:100%">もう一度プレイ</button><p style="font-size:11px;color:#91a9c0">現在はこの端末内のローカルランキングです。オンラインランキングは次の開発段階で接続します。</p></div></div>
+<script>
+const canvas=document.getElementById('city'),ctx=canvas.getContext('2d');
+let W=0,H=0,buildings=[],running=false,last=0,timer=90,score=0,funds=1000,market=72,cyber=68,world=75,combo=1,analyzeBoost=0,current=null,eventClock=0,raf=0;
+const $=id=>document.getElementById(id);
+function resize(){const r=canvas.getBoundingClientRect();W=canvas.width=Math.max(1,Math.floor(r.width*devicePixelRatio));H=canvas.height=Math.max(1,Math.floor(r.height*devicePixelRatio));ctx.setTransform(1,0,0,1,0,0);makeBuildings();drawCity()}
+function makeBuildings(){buildings=[];for(let i=0;i<34;i++){let depth=i/34;buildings.push({x:(i/34)*W+(Math.random()-0.5)*18*devicePixelRatio,w:(12+Math.random()*35)*devicePixelRatio,h:(45+Math.random()*180)*(0.35+depth)*devicePixelRatio,z:depth,lights:Math.floor(3+Math.random()*8)})}}
+function drawCity(){if(!W||!H)return;ctx.clearRect(0,0,W,H);let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#111d3c');g.addColorStop(.58,'#17264a');g.addColorStop(.59,'#080f20');g.addColorStop(1,'#030813');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ctx.fillStyle='#a6dfff';ctx.globalAlpha=.55;for(let i=0;i<55;i++){let x=(i*173%W),y=(i*71%Math.floor(H*.45));ctx.fillRect(x,y,2*devicePixelRatio,2*devicePixelRatio)}ctx.globalAlpha=1;
+let horizon=H*.58;buildings.forEach((b,i)=>{let x=b.x,y=horizon-b.h,w=b.w,h=b.h;let grad=ctx.createLinearGradient(x,y,x+w,y+h);grad.addColorStop(0,'#152d50');grad.addColorStop(1,'#071326');ctx.fillStyle=grad;ctx.fillRect(x,y,w,h);ctx.strokeStyle=i%3===0?'#43dcff88':'#31527b88';ctx.lineWidth=devicePixel();ctx.strokeRect(x,y,w,h);for(let n=0;n<b.lights;n++){let lx=x+4*devicePixelRatio+(n%3)*8*devicePixelRatio,ly=y+8*devicePixelRatio+Math.floor(n/3)*13*devicePixelRatio;ctx.fillStyle=(i+n)%4===0?'#ff4da6':'#51e7ff';ctx.globalAlpha=.45+Math.sin(Date.now()/400+i+n)*.2;ctx.fillRect(lx,ly,3*devicePixelRatio,5*devicePixelRatio)}ctx.globalAlpha=1});
+ctx.fillStyle='#0b1930';ctx.beginPath();ctx.moveTo(W*.42,horizon);ctx.lineTo(W*.58,horizon);ctx.lineTo(W*.83,H);ctx.lineTo(W*.17,H);ctx.closePath();ctx.fill();ctx.strokeStyle='#39dfff66';ctx.lineWidth=2*devicePixelRatio;ctx.beginPath();ctx.moveTo(W*.5,horizon);ctx.lineTo(W*.5,H);ctx.stroke();for(let i=1;i<8;i++){let y=horizon+(H-horizon)*i/8;ctx.globalAlpha=.15;ctx.beginPath();ctx.moveTo(W*.5-(y-horizon)*.45,y);ctx.lineTo(W*.5+(y-horizon)*.45,y);ctx.stroke()}ctx.globalAlpha=1;
+}
+function devicePixel(){return devicePixelRatio||1}
+function updateUI(){[['market',market],['cyber',cyber],['world',world]].forEach(([k,v])=>{$(k+'N').textContent=Math.round(v)+'%';$(k+'B').style.width=Math.max(0,Math.min(100,v))+'%'});$('score').textContent=String(score).padStart(4,'0');$('funds').textContent='¥ '+Math.floor(funds).toLocaleString('ja-JP');$('time').textContent=Math.ceil(timer);$('combo').textContent='COMBO ×'+combo}
+const events=[
+{type:'MARKET',risk:'HIGH',text:'大手テック企業の決算が予想を下回った。市場に不安が広がっている。',d:[-13,0,-3],good:'invest'},
+{type:'CYBER',risk:'CRITICAL',text:'都市交通ネットワークで不審なアクセスを検知。防衛チームから支援要請。',d:[0,-17,-4],good:'shield'},
+{type:'WORLD',risk:'HIGH',text:'資源をめぐる国際的な緊張が高まっている。各国との調整が必要だ。',d:[-4,0,-15],good:'diplomacy'},
+{type:'AI BOOM',risk:'MEDIUM',text:'新型AIの発表で関連企業に注目が集まる。市場には追い風か？',d:[-4,0,0],good:'invest'},
+{type:'INFRA',risk:'HIGH',text:'大規模な通信障害が発生。原因の特定と復旧を急げ。',d:[0,-12,-5],good:'analyze'},
+{type:'DIPLOMACY',risk:'MEDIUM',text:'近隣地域から共同エネルギー協定の提案が届いた。',d:[-2,0,-8],good:'diplomacy'},
+{type:'MISINFORMATION',risk:'HIGH',text:'偽情報が拡散し、市民の不安が高まっている。正確な情報を確認しよう。',d:[-4,-3,-10],good:'analyze'}
+];
+function newEvent(){current=events[Math.floor(Math.random()*events.length)];let boost=analyzeBoost>0;analyzeBoost=0;let scale=boost?.45:1;market=Math.max(0,market+current.d[0]*scale);cyber=Math.max(0,cyber+current.d[1]*scale);world=Math.max(0,world+current.d[2]*scale);$('eventText').textContent=current.text;$('eventType').textContent=current.type;$('eventRisk').textContent='RISK: '+current.risk;updateUI()}
+const costs={invest:180,shield:160,diplomacy:150,analyze:90};
+function act(a){if(!running||funds<costs[a])return;funds-=costs[a];let good=current&&current.good===a;let mult=good?1.55:1;let pts=0;
+if(a==='invest'){market=Math.min(100,market+17*mult);world=Math.max(0,world-(good?0:2));pts=good?180:80}
+if(a==='shield'){cyber=Math.min(100,cyber+21*mult);pts=good?190:90}
+if(a==='diplomacy'){world=Math.min(100,world+19*mult);market=Math.min(100,market+(good?4:0));pts=good?180:80}
+if(a==='analyze'){analyzeBoost=1;pts=good?140:110}
+if(good){combo=Math.min(8,combo+1);score+=Math.round(pts*combo)}else{combo=1;score+=pts}
+updateUI();$('cityState').textContent=good?'GOOD CALL':'ACTION LOGGED';$('citySub').textContent=good?'危機に適した対応！ コンボ継続中':'対応を記録。次の情報を待て。';setTimeout(()=>{if(running){$('cityState').textContent='CITY ONLINE';$('citySub').textContent='次の危機に備えろ。'}},750);if(market<=0||cyber<=0||world<=0){endGame('都市機能のいずれかが限界に達した。')}}
+document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.action)));
+function tick(ts){if(!running)return;let dt=Math.min((ts-last)/1000,.1);last=ts;timer-=dt;eventClock+=dt;if(eventClock>7.5){eventClock=0;newEvent()}if(Math.random()<dt*.8){funds+=2}drawCity();updateUI();if(timer<=0){timer=0;endGame('90秒間、都市を守り抜いた！');return}raf=requestAnimationFrame(tick)}
+function start(){cancelAnimationFrame(raf);timer=90;score=0;funds=1000;market=72;cyber=68;world=75;combo=1;analyzeBoost=0;eventClock=0;running=true;$('startOverlay').style.display='none';$('result').style.display='none';$('cityState').textContent='CITY ONLINE';$('citySub').textContent='危機対応を開始。';newEvent();last=performance.now();updateUI();raf=requestAnimationFrame(tick)}
+function endGame(reason){running=false;cancelAnimationFrame(raf);$('resultText').textContent=reason+' 最終スコア：'+score+' ／ 市場 '+Math.round(market)+'%・防衛 '+Math.round(cyber)+'%・安定 '+Math.round(world)+'%。';$('result').style.display='grid';renderRanks()}
+function getRanks(){try{return JSON.parse(localStorage.getItem('neonRanks')||'[]')}catch(e){return []}}
+function renderRanks(){let ranks=getRanks().sort((a,b)=>b.score-a.score).slice(0,5);$('rankList').innerHTML=ranks.length?ranks.map(x=>'<li>'+escapeHTML(x.name)+' — '+x.score+'</li>').join(''):'<li>まだ記録がありません</li>'}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('saveScore').addEventListener('click',()=>{let name=$('playerName').value.trim().slice(0,12)||'PLAYER';let ranks=getRanks();ranks.push({name,score,date:new Date().toISOString()});localStorage.setItem('neonRanks',JSON.stringify(ranks.sort((a,b)=>b.score-a.score).slice(0,20)));renderRanks()});
+$('startBtn').addEventListener('click',start);$('again').addEventListener('click',start);window.addEventListener('resize',resize);resize();updateUI();newEvent();
+</script>
+</body></html>
