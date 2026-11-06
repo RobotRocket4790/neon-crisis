@@ -1,40 +1,403 @@
-<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>CYBER BREAKER</title>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>CYBER BREAKER 0.3</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050b18;color:#eafaff;font-family:system-ui;touch-action:none}canvas{width:100vw;height:100vh;display:block}
-#hud{position:fixed;inset:0;pointer-events:none;padding:14px;display:flex;flex-direction:column;justify-content:space-between}.top,.bottom{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.bottom{align-items:end}.panel{background:#08172be8;border:1px solid #39dffb77;border-radius:12px;padding:9px 12px;box-shadow:0 0 20px #00dfff22}.brand{font-weight:900;letter-spacing:.12em;color:#55edff}.small{font-size:11px;color:#9ab8ca}.num{font-size:20px;font-weight:800}.meter{height:7px;width:min(34vw,180px);background:#1b2b40;border-radius:8px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#32dfff,#68ffd0);width:100%}#fire{pointer-events:auto;width:clamp(76px,15vw,108px);height:clamp(76px,15vw,108px);border-radius:50%;border:2px solid #ff9bed;background:radial-gradient(#ff8be9,#a00091);color:white;font-weight:900;box-shadow:0 0 25px #ff42d788}.help{font-size:11px;color:#b6d0df;max-width:48vw;line-height:1.5}
-#overlay{position:fixed;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;padding:16px;background:#050a17b8}.card{width:min(500px,94vw);padding:26px;background:#081426f5;border:1px solid #49eaff;border-radius:18px;text-align:center;box-shadow:0 0 45px #00cfff33}h1{margin:0;color:#57edff;font-size:clamp(28px,7vw,46px);letter-spacing:.1em}.sub{color:#9bbdce;letter-spacing:.12em;font-size:12px;margin:8px 0 20px}button.action{background:linear-gradient(120deg,#087d9d,#164a83);color:white;border:1px solid #5beaff;border-radius:10px;padding:13px 20px;font-weight:800;margin:6px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.upgrade{background:#10243b;color:white;border:1px solid #4388a4;border-radius:10px;padding:13px;text-align:left}.upgrade b{display:block;color:#5beeff;margin-bottom:5px}.upgrade span{font-size:12px;color:#b5cedc}.hidden{display:none!important}
-</style></head><body><canvas id="c"></canvas>
-<div id="hud"><div class="top"><div class="panel"><div class="brand">CYBER BREAKER</div><div class="small">DEFENSE PROTOCOL · <span id="wave">WAVE 1</span></div></div><div style="display:flex;gap:7px"><div class="panel"><div class="small">SCORE</div><div class="num" id="score">000000</div></div><div class="panel"><div class="small">ACCOUNT LV</div><div class="num" id="lv">01</div></div></div></div>
-<div class="bottom"><div class="panel"><div class="small">CORE INTEGRITY <b id="hp">100</b>%</div><div class="meter"><div class="fill" id="hpbar"></div></div><div class="small" style="margin-top:7px">DATA <span id="xp">0</span> / <span id="need">100</span></div><div class="meter"><div class="fill" id="xpbar" style="width:0%;background:linear-gradient(90deg,#ff4fd8,#887bff)"></div></div></div><div class="help">照準を動かしてFIREで迎撃！<br>PC：マウスで照準・クリック/SPACEで発射<br>スマホ：画面タッチで照準・FIREで発射</div><button id="fire">FIRE</button></div></div>
-<div id="overlay"><div class="card" id="startCard"><h1>CYBER BREAKER</h1><div class="sub">DEFEND YOUR DIGITAL CORE</div><p>四方から迫るデジタル攻撃を迎撃し、データを集めてアカウントを進化させよう。</p><p class="small">敵の攻撃が中央コアに届くと耐久力が減少。レベルアップ時に強化を選択！</p><button class="action" id="start">START DEFENSE</button><p class="small">PC・スマートフォン対応 / PROTOTYPE 0.2</p></div>
-<div class="card hidden" id="upgradeCard"><h1 style="font-size:30px">LEVEL UP</h1><div class="sub">SELECT ONE UPGRADE</div><div class="choices" id="choices"></div></div>
-<div class="card hidden" id="overCard"><h1 style="color:#ff70d8">CORE LOST</h1><div class="sub">DEFENSE SESSION ENDED</div><p>SCORE <b id="final">0</b> · BEST <b id="best">0</b></p><p class="small">ACCOUNT DATA: <b id="credits">0</b></p><div class="choices"><button class="upgrade" id="buyDamage"><b>PERMANENT DAMAGE</b><span>攻撃力 +1 · 300 DATA</span></button><button class="upgrade" id="buyShield"><b>PERMANENT SHIELD</b><span>被ダメージ軽減 · 400 DATA</span></button></div><button class="action" id="retry">RETRY</button><button class="action" id="reset">RESET ACCOUNT</button></div></div>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050b18;color:#e9faff;font-family:Arial,"Noto Sans JP",sans-serif;touch-action:none}
+#game{position:relative;width:100%;height:100%;overflow:hidden;background:radial-gradient(ellipse at center,#102849,#050b18 75%)}
+canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+#hud{position:absolute;top:env(safe-area-inset-top,10px);left:10px;right:10px;display:flex;justify-content:space-between;pointer-events:none;gap:8px}
+.panel{background:#09172bdd;border:1px solid #16dfff66;border-radius:12px;padding:9px 12px;box-shadow:0 0 15px #00dfff18}
+.small{font-size:10px;color:#86b6cc;letter-spacing:1px}
+.value{font-size:20px;font-weight:bold}
+#bars{position:absolute;left:12px;bottom:calc(105px + env(safe-area-inset-bottom,0px));width:min(220px,55vw);pointer-events:none}
+.bar{height:9px;border-radius:10px;background:#15263d;overflow:hidden;margin:5px 0 9px}
+.fill{height:100%;width:100%;background:#24e8d0;transition:width .15s}
+#dataFill{background:#ffcf54}
+#controls{position:absolute;bottom:calc(15px + env(safe-area-inset-bottom,0px));right:18px;display:flex;align-items:center;gap:12px}
+#fire{width:105px;height:105px;border-radius:50%;border:2px solid #ff62c9;background:radial-gradient(#63275f,#28142f);color:#fff;font-weight:bold;font-size:18px;box-shadow:0 0 28px #ff38c866;touch-action:none}
+#fire:active{background:#a42d86;transform:scale(.95)}
+#hint{position:absolute;bottom:calc(25px + env(safe-area-inset-bottom,0px));left:12px;font-size:11px;color:#8daabd;line-height:1.6;pointer-events:none}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:#020817bd;z-index:5}
+.card{width:min(560px,100%);max-height:90%;overflow:auto;text-align:center;padding:25px 20px;border:1px solid #16dfff;border-radius:22px;background:linear-gradient(145deg,#10253d,#071222);box-shadow:0 0 45px #00cfff22}
+h1{font-size:clamp(30px,7vw,52px);letter-spacing:3px;color:#4deaff;margin:5px 0 8px}
+p{color:#b6d5e3;line-height:1.7;font-size:14px}
+.action{border:1px solid #48eaff;background:linear-gradient(120deg,#087caa,#164e9b);color:white;border-radius:12px;padding:14px 28px;font-weight:bold;font-size:16px;margin-top:12px;touch-action:manipulation}
+.action:active{transform:scale(.97)}
+#choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.choice{border:1px solid #28cde9;background:#102b43;color:white;border-radius:12px;padding:15px 8px;min-height:105px;text-align:left;touch-action:manipulation}
+.choice b{display:block;color:#5ceaff;margin-bottom:7px}
+.hidden{display:none!important}
+@media(max-width:500px){#choices{grid-template-columns:1fr 1fr}.card{padding:20px 14px}#fire{width:90px;height:90px}}
+</style>
+</head>
+<body>
+<div id="game">
+<canvas id="c"></canvas>
+
+<div id="hud">
+ <div class="panel"><div class="small">CYBER BREAKER / WAVE</div><div class="value" id="wave">01</div></div>
+ <div class="panel"><div class="small">SCORE</div><div class="value" id="score">000000</div></div>
+ <div class="panel"><div class="small">ACCOUNT LV</div><div class="value" id="level">01</div></div>
+</div>
+
+<div id="bars">
+ <div class="small">CORE INTEGRITY <b id="hpText">100%</b></div>
+ <div class="bar"><div class="fill" id="hpFill"></div></div>
+ <div class="small">DATA <b id="dataText">0 / 100</b></div>
+ <div class="bar"><div class="fill" id="dataFill" style="width:0%"></div></div>
+</div>
+
+<div id="hint">画面をタッチして照準を移動<br>FIREを押して攻撃！</div>
+<div id="controls"><button id="fire">FIRE</button></div>
+
+<div id="overlay">
+ <div class="card" id="startCard">
+  <h1>CYBER BREAKER</h1>
+  <div class="small">DEFEND YOUR DIGITAL CORE</div>
+  <p>四方向から迫るデジタル攻撃を迎撃し、DATAを集めてアカウントを進化させよう。</p>
+  <p>敵が中央コアに到達すると耐久力が減少する。照準を合わせて撃退せよ！</p>
+  <button class="action" id="start">START DEFENSE</button>
+  <p class="small">iPad / SMARTPHONE / PC 対応</p>
+ </div>
+ <div class="card hidden" id="upgradeCard">
+  <h1>LEVEL UP!</h1>
+  <p>強化する能力を1つ選択しよう。</p>
+  <div id="choices"></div>
+ </div>
+ <div class="card hidden" id="endCard">
+  <h1>CORE LOST</h1>
+  <p>デジタルコアが攻撃を受けた！</p>
+  <div class="value" id="finalScore">SCORE 0</div>
+  <p id="bestText"></p>
+  <button class="action" id="retry">RETRY</button>
+ </div>
+</div>
+</div>
+
 <script>
 (()=>{
-const c=document.querySelector('#c'),g=c.getContext('2d'),$=id=>document.getElementById(id);let w,h,dpr,aim={x:0,y:0},en=[],shots=[],fx=[],score=0,hp=100,xp=0,lv=1,wave=1,run=false,pause=false,spawn=0,cd=0,last=0;
-let up={damage:1+save.damage,rate:1,multi:1,shield:0,range:1};let save=JSON.parse(localStorage.getItem('cb_save')||'{"damage":0,"shield":0,"best":0,"credits":0}');
-function size(){w=innerWidth;h=innerHeight;dpr=Math.min(devicePixelRatio||1,2);c.width=w*dpr;c.height=h*dpr;g.setTransform(dpr,0,0,dpr,0,0);aim={x:w/2,y:h*.48}}addEventListener('resize',size);size();
-const arena=()=>({x:w/2,y:h*.5,rx:Math.min(w*.37,330),ry:Math.min(h*.27,190)});
-function proj(x,y){let a=arena();return{x:a.x+x*a.rx/100,y:a.y+y*a.ry/100}}
-function draw(){g.clearRect(0,0,w,h);let bg=g.createRadialGradient(w/2,h*.45,5,w/2,h*.45,Math.max(w,h)*.7);bg.addColorStop(0,'#142a48');bg.addColorStop(1,'#040916');g.fillStyle=bg;g.fillRect(0,0,w,h);
-for(let i=0;i<22;i++){let x=i*w/22,b=30+(i*31%90);g.fillStyle='#0b1c32';g.fillRect(x,h*.25-b,w/25,b);g.fillStyle='#18516a';for(let j=0;j<3;j++)g.fillRect(x+5+j*7,h*.25-b+10+j*15,2,4)}
-let a=arena();g.save();g.translate(a.x,a.y);g.beginPath();g.ellipse(0,18,a.rx+28,a.ry+28,0,0,7);g.fillStyle='#050d1a';g.fill();g.strokeStyle='#147c9b';g.lineWidth=4;g.stroke();g.beginPath();g.ellipse(0,0,a.rx,a.ry,0,0,7);g.fillStyle='#0a1c30';g.fill();g.strokeStyle='#50eaff';g.lineWidth=2;g.shadowColor='#00dfff';g.shadowBlur=18;g.stroke();g.shadowBlur=0;g.save();g.beginPath();g.ellipse(0,0,a.rx,a.ry,0,0,7);g.clip();g.strokeStyle='#1b526d';g.lineWidth=1;for(let i=-7;i<=7;i++){g.beginPath();g.moveTo(i*a.rx/7,-a.ry);g.lineTo(i*a.rx/7,a.ry);g.stroke()}for(let i=1;i<7;i++){g.beginPath();g.ellipse(0,0,a.rx,a.ry*i/6,0,0,7);g.stroke()}g.restore();g.restore();
-g.save();g.translate(w/2,h*.5);g.fillStyle='#102c49';g.beginPath();g.ellipse(0,16,35,14,0,0,7);g.fill();g.shadowColor='#45efff';g.shadowBlur=25;g.fillStyle='#73faff';g.beginPath();g.arc(0,-5,15+Math.sin(Date.now()/200)*2,0,7);g.fill();g.shadowBlur=0;g.strokeStyle='white';g.beginPath();g.arc(0,-5,23,0,7);g.stroke();g.restore();
-for(let e of en){let p=proj(e.x,e.y);g.save();g.translate(p.x,p.y);g.shadowColor=e.color;g.shadowBlur=18;g.fillStyle=e.color;g.beginPath();g.moveTo(0,-12);g.lineTo(12,0);g.lineTo(0,12);g.lineTo(-12,0);g.closePath();g.fill();g.shadowBlur=0;g.fillStyle='#ffe';g.fillRect(-8,-19,16*e.hp/e.max,3);g.restore()}
-for(let s of shots){g.strokeStyle='#d9ffff';g.lineWidth=3;g.shadowColor='#55eaff';g.shadowBlur=15;g.beginPath();g.moveTo(w/2,h*.5-5);g.lineTo(s.x,s.y);g.stroke();g.shadowBlur=0}
-for(let p of fx){g.globalAlpha=Math.max(0,p.life/.5);g.fillStyle=p.color;g.beginPath();g.arc(p.x,p.y,p.r,0,7);g.fill()}g.globalAlpha=1;
-if(run){g.save();g.translate(aim.x,aim.y);g.strokeStyle='white';g.shadowColor='#4deaff';g.shadowBlur=12;g.beginPath();g.arc(0,0,11,0,7);g.moveTo(-18,0);g.lineTo(-6,0);g.moveTo(6,0);g.lineTo(18,0);g.moveTo(0,-18);g.lineTo(0,-6);g.moveTo(0,6);g.lineTo(0,18);g.stroke();g.restore()}requestAnimationFrame(draw)}requestAnimationFrame(draw);
-function hud(){$('score').textContent=String(score).padStart(6,'0');$('hp').textContent=Math.max(0,Math.ceil(hp));$('hpbar').style.width=Math.max(0,hp)+'%';$('lv').textContent=String(lv).padStart(2,'0');$('wave').textContent='WAVE '+wave;$('xp').textContent=xp;$('need').textContent=100+(lv-1)*35;$('xpbar').style.width=xp/(100+(lv-1)*35)*100+'%'}
-function burst(x,y,color){for(let i=0;i<12;i++)fx.push({x,y,vx:(Math.random()-.5)*150,vy:(Math.random()-.5)*150,life:.5,r:Math.random()*3+1,color})}
-function spawnEnemy(){let edge=Math.floor(Math.random()*4),x=edge===1?100:edge===3?-100:Math.random()*170-85,y=edge===0?-100:edge===2?100:Math.random()*150-75,big=Math.random()>.83;en.push({x,y,hp:big?3:1,max:big?3:1,speed:8+Math.random()*5+wave*.5,dmg:big?18:10,color:big?'#ff4fd8':Math.random()>.5?'#ffae45':'#ff536d'})}
-function fire(){if(!run||pause||cd>0)return;cd=Math.max(.12,.42/(up.rate));let target=en.map(e=>({e,p:proj(e.x,e.y)})).sort((a,b)=>Math.hypot(a.p.x-aim.x,a.p.y-aim.y)-Math.hypot(b.p.x-aim.x,b.p.y-aim.y))[0];if(!target)return;let n=up.multi;for(let i=0;i<n;i++)shots.push({x:target.p.x+(Math.random()-.5)*i*13,y:target.p.y+(Math.random()-.5)*i*13,target:target.e,life:.13})}
-const pool=[['DAMAGE','攻撃力 +1',()=>up.damage++],['FIRE RATE','連射速度アップ',()=>up.rate+=.35],['MULTI SHOT','同時発射 +1',()=>up.multi++],['CORE SHIELD','耐久力 +20',()=>hp=Math.min(100,hp+20)],['TARGET LOCK','照準判定範囲アップ',()=>up.range+=.25]];
-function levelup(){pause=true;$('choices').innerHTML='';[...pool].sort(()=>Math.random()-.5).slice(0,4).forEach(v=>{let b=document.createElement('button');b.className='upgrade';b.innerHTML='<b>'+v[0]+'</b><span>'+v[1]+'</span>';b.onclick=()=>{v[2]();$('overlay').classList.add('hidden');pause=false;hud()};$('choices').appendChild(b)});show('upgradeCard')}
-function show(id){['startCard','upgradeCard','overCard'].forEach(x=>$(x).classList.toggle('hidden',x!==id));$('overlay').classList.remove('hidden')}
-function gain(n){xp+=n;while(xp>=100+(lv-1)*35){xp-=100+(lv-1)*35;lv++;levelup()}hud()}
-function start(){score=0;hp=100;xp=0;lv=1;wave=1;en=[];shots=[];fx=[];up={damage:1+save.damage,rate:1,multi:1,shield:0,range:1};spawn=.4;cd=0;run=true;pause=false;$('overlay').classList.add('hidden');hud();last=performance.now()}
-function end(){run=false;save.best=Math.max(save.best,score);save.credits=(save.credits||0)+Math.floor(score/10);localStorage.setItem('cb_save',JSON.stringify(save));$('final').textContent=score;$('best').textContent=save.best;$('credits').textContent=save.credits;show('overCard')}
-function loop(t){let dt=Math.min(.04,(t-last)/1000||0);last=t;if(run&&!pause){spawn-=dt;cd-=dt;if(spawn<=0){spawn=Math.max(.3,1.15-wave*.07);spawnEnemy();if(Math.random()<.15)spawnEnemy()}for(let e of en){let d=Math.hypot(e.x,e.y)||1;e.x-=e.x/d*e.speed*dt;e.y-=e.y/d*e.speed*dt;if(d<12){hp-=e.dmg*(1-save.shield*.06);e.dead=true;burst(w/2,h*.5,'#ff477a')}}for(let s of shots){s.life-=dt;if(s.life<=0&&!s.target.dead){s.target.hp-=up.damage+save.damage;if(s.target.hp<=0){s.target.dead=true;score+=100;gain(18);let p=proj(s.target.x,s.target.y);burst(p.x,p.y,s.target.color)}}}en=en.filter(e=>!e.dead);shots=shots.filter(s=>s.life>0);for(let p of fx){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}fx=fx.filter(p=>p.life>0);if(score>=wave*900)wave++;if(hp<=0)end();hud()}requestAnimationFrame(loop)}requestAnimationFrame(loop);
-function setAim(e){let r=c.getBoundingClientRect();aim={x:e.clientX-r.left,y:e.clientY-r.top}}
-c.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'||e.buttons)setAim(e)});c.addEventListener('pointerdown',e=>{setAim(e);if(e.pointerType==='mouse')fire()});$('fire').addEventListener('pointerdown',e=>{e.preventDefault();fire()});addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();fire()}})$('start').addEventListener('pointerdown', (e) => {e.preventDefault();start();});$('retry').addEventListener('pointerdown', (e) => {e.preventDefault();start();});$('buyDamage').onclick=()=>{if((save.credits||0)>=300){save.credits-=300;save.damage++;localStorage.setItem('cb_save',JSON.stringify(save));$('credits').textContent=save.credits;$('buyDamage').querySelector('span').textContent='購入済み · 次回から攻撃力アップ'}};$('buyShield').onclick=()=>{if((save.credits||0)>=400){save.credits-=400;save.shield=Math.min(5,save.shield+1);localStorage.setItem('cb_save',JSON.stringify(save));$('credits').textContent=save.credits;$('buyShield').querySelector('span').textContent='購入済み · 次回から被ダメージ軽減'}};$('reset').onclick=()=>{save={damage:0,shield:0,best:0};localStorage.setItem('cb_save',JSON.stringify(save))};start()};hud();})();</script></body></html>
+"use strict";
+const $=id=>document.getElementById(id);
+const canvas=$("c"),ctx=canvas.getContext("2d");
+let W=0,H=0,dpr=1;
+let running=false,paused=false,fireHeld=false;
+let score=0,hp=100,data=0,level=1,wave=1;
+let damage=1,rate=260,multi=1,shield=0;
+let enemies=[],bullets=[],particles=[];
+let aim={x:0,y:0},lastShot=0,lastTime=0;
+let spawnLeft=0,spawnTimer=0,cleared=false;
+let best=0;
+try{best=Number(localStorage.getItem("cb_best")||0)}catch(e){}
+
+function resize(){
+ W=window.innerWidth;H=window.innerHeight;
+ dpr=Math.min(window.devicePixelRatio||1,2);
+ canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ aim.x=W/2;aim.y=H*.35;
+}
+window.addEventListener("resize",resize);
+resize();
+
+function core(){return {x:W/2,y:H*.51};}
+function show(id){
+ ["startCard","upgradeCard","endCard"].forEach(x=>$(x).classList.add("hidden"));
+ $("overlay").classList.remove("hidden");
+ $(id).classList.remove("hidden");
+}
+function hideOverlay(){$("overlay").classList.add("hidden");}
+
+function updateHUD(){
+ $("wave").textContent=String(wave).padStart(2,"0");
+ $("score").textContent=String(score).padStart(6,"0");
+ $("level").textContent=String(level).padStart(2,"0");
+ $("hpText").textContent=Math.max(0,Math.ceil(hp))+"%";
+ $("hpFill").style.width=Math.max(0,hp)+"%";
+ $("dataText").textContent=data+" / 100";
+ $("dataFill").style.width=Math.min(100,data)+"%";
+}
+
+function start(){
+ running=true;paused=false;fireHeld=false;
+ score=0;hp=100;data=0;level=1;wave=1;
+ damage=1;rate=260;multi=1;shield=0;
+ enemies=[];bullets=[];particles=[];
+ spawnLeft=5;spawnTimer=.5;cleared=false;
+ lastShot=0;lastTime=0;
+ updateHUD();hideOverlay();
+}
+
+function spawn(){
+ const side=Math.floor(Math.random()*4);
+ const margin=35;
+ let x,y;
+ if(side===0){x=Math.random()*W;y=-margin}
+ if(side===1){x=W+margin;y=Math.random()*H}
+ if(side===2){x=Math.random()*W;y=H+margin}
+ if(side===3){x=-margin;y=Math.random()*H}
+ enemies.push({
+  x,y,r:13+Math.min(wave,8),
+  hp:1+Math.floor(wave/3),
+  speed:35+Math.random()*13+wave*3,
+  color:Math.random()>.5?"#ff4d75":"#ff9c45",
+  hit:0
+ });
+}
+
+function burst(x,y,color){
+ for(let i=0;i<9;i++){
+  const a=Math.random()*Math.PI*2,s=40+Math.random()*130;
+  particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.45,color});
+ }
+}
+
+function shoot(now){
+ const c=core();
+ let dx=aim.x-c.x,dy=aim.y-c.y;
+ const len=Math.hypot(dx,dy)||1;
+ dx/=len;dy/=len;
+ const angle=Math.atan2(dy,dx);
+ const spread=multi===1?[0]:multi===2?[-.13,.13]:[-.23,0,.23];
+ spread.forEach(a=>{
+  const ang=angle+a;
+  bullets.push({x:c.x+Math.cos(ang)*23,y:c.y+Math.sin(ang)*23,
+   vx:Math.cos(ang)*650,vy:Math.sin(ang)*650,life:1.1});
+ });
+ lastShot=now;
+}
+
+function fire(now){
+ if(!running||paused||!fireHeld)return;
+ if(now-lastShot>=rate)shoot(now);
+}
+
+function levelUp(){
+ paused=true;fireHeld=false;
+ level++;
+ const options=[
+  {name:"DAMAGE +1",desc:"攻撃力アップ",fn:()=>damage++},
+  {name:"FIRE RATE",desc:"連射速度アップ",fn:()=>rate=Math.max(90,rate-45)},
+  {name:"MULTI SHOT",desc:"複数方向へ同時発射",fn:()=>multi=Math.min(3,multi+1)},
+  {name:"CORE SHIELD",desc:"コア耐久力を回復",fn:()=>{hp=Math.min(100,hp+30);shield=Math.min(5,shield+1)}}
+ ];
+ const box=$("choices");box.innerHTML="";
+ options.forEach(o=>{
+  const b=document.createElement("button");
+  b.className="choice";
+  b.innerHTML="<b>"+o.name+"</b><span>"+o.desc+"</span>";
+  b.addEventListener("click",()=>{
+   o.fn();paused=false;wave++;spawnLeft=5+wave*2;
+   spawnTimer=.7;cleared=false;updateHUD();hideOverlay();
+  });
+  box.appendChild(b);
+ });
+ show("upgradeCard");
+}
+
+function gameOver(){
+ running=false;paused=false;fireHeld=false;
+ best=Math.max(best,score);
+ try{localStorage.setItem("cb_best",String(best))}catch(e){}
+ $("finalScore").textContent="SCORE "+score;
+ $("bestText").textContent="BEST SCORE "+best;
+ show("endCard");
+}
+
+function update(dt,now){
+ if(!running||paused)return;
+ fire(now);
+
+ if(spawnLeft>0){
+  spawnTimer-=dt;
+  if(spawnTimer<=0){
+   spawn();spawnLeft--;
+   spawnTimer=Math.max(.38,1.15-wave*.035);
+  }
+ }
+
+ const c=core();
+ for(let i=enemies.length-1;i>=0;i--){
+  const e=enemies[i];
+  const dx=c.x-e.x,dy=c.y-e.y;
+  const d=Math.hypot(dx,dy)||1;
+  e.x+=dx/d*e.speed*dt;e.y+=dy/d*e.speed*dt;
+  e.hit=Math.max(0,e.hit-dt);
+  if(d<29){
+   hp-=shield>0?3:8;
+   if(shield>0)shield--;
+   burst(e.x,e.y,"#ff4d75");
+   enemies.splice(i,1);
+   if(hp<=0){hp=0;updateHUD();gameOver();return}
+  }
+ }
+
+ for(let i=bullets.length-1;i>=0;i--){
+  const b=bullets[i];
+  b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;
+  let remove=b.life<=0||b.x<-30||b.x>W+30||b.y<-30||b.y>H+30;
+  if(!remove){
+   for(let j=enemies.length-1;j>=0;j--){
+    const e=enemies[j];
+    if(Math.hypot(e.x-b.x,e.y-b.y)<e.r+5){
+     e.hp--;e.hit=.1;remove=true;
+     if(e.hp<=0){
+      burst(e.x,e.y,e.color);
+      enemies.splice(j,1);
+      score+=100;data+=25;
+     }
+     break;
+    }
+   }
+  }
+  if(remove)bullets.splice(i,1);
+ }
+
+ for(let i=particles.length-1;i>=0;i--){
+  const p=particles[i];
+  p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;
+  if(p.life<=0)particles.splice(i,1);
+ }
+
+ if(spawnLeft===0&&enemies.length===0&&!cleared){
+  cleared=true;
+  updateHUD();
+  setTimeout(()=>{if(running)levelUp()},250);
+ }
+ updateHUD();
+}
+
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ const c=core();
+
+ // Digital grid
+ ctx.save();
+ ctx.strokeStyle="#16415b55";ctx.lineWidth=1;
+ const step=38;
+ for(let x=(W%step);x<W;x+=step){
+  ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+ }
+ for(let y=(H%step);y<H;y+=step){
+  ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+ }
+ ctx.restore();
+
+ // Isometric-style arena
+ ctx.save();
+ ctx.translate(c.x,c.y);
+ ctx.strokeStyle="#16dfff55";ctx.lineWidth=2;
+ ctx.beginPath();
+ ctx.moveTo(0,-Math.min(H*.34,210));
+ ctx.lineTo(Math.min(W*.43,260),0);
+ ctx.lineTo(0,Math.min(H*.34,210));
+ ctx.lineTo(-Math.min(W*.43,260),0);
+ ctx.closePath();ctx.stroke();
+ ctx.restore();
+
+ // Core
+ ctx.save();
+ ctx.shadowBlur=30;ctx.shadowColor="#00eaff";
+ ctx.fillStyle="#123f63";
+ ctx.beginPath();ctx.arc(c.x,c.y,25,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle="#53f5ff";ctx.lineWidth=3;
+ ctx.beginPath();ctx.arc(c.x,c.y,29,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle="#b8ffff";
+ ctx.beginPath();ctx.arc(c.x,c.y,8,0,Math.PI*2);ctx.fill();
+ ctx.restore();
+
+ // Bullets
+ bullets.forEach(b=>{
+  ctx.save();ctx.fillStyle="#65faff";ctx.shadowColor="#00dfff";ctx.shadowBlur=15;
+  ctx.beginPath();ctx.arc(b.x,b.y,4,0,Math.PI*2);ctx.fill();ctx.restore();
+ });
+
+ // Enemies
+ enemies.forEach(e=>{
+  ctx.save();ctx.translate(e.x,e.y);
+  ctx.shadowColor=e.color;ctx.shadowBlur=18;
+  ctx.fillStyle=e.hit>0?"white":e.color;
+  ctx.beginPath();ctx.moveTo(0,-e.r);ctx.lineTo(e.r,e.r*.65);
+  ctx.lineTo(0,e.r*.35);ctx.lineTo(-e.r,e.r*.65);
+  ctx.closePath();ctx.fill();
+  ctx.strokeStyle="#fff";ctx.lineWidth=1;ctx.stroke();
+  ctx.restore();
+ });
+
+ // Effects
+ particles.forEach(p=>{
+  ctx.globalAlpha=Math.max(0,p.life/.45);
+  ctx.fillStyle=p.color;
+  ctx.fillRect(p.x,p.y,4,4);
+ });
+ ctx.globalAlpha=1;
+
+ // Aim
+ if(running){
+  ctx.save();ctx.translate(aim.x,aim.y);
+  ctx.strokeStyle="#d8ffff";ctx.lineWidth=2;
+  ctx.shadowColor="#00eaff";ctx.shadowBlur=12;
+  ctx.beginPath();ctx.arc(0,0,13,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-21,0);ctx.lineTo(-7,0);
+  ctx.moveTo(7,0);ctx.lineTo(21,0);
+  ctx.moveTo(0,-21);ctx.lineTo(0,-7);
+  ctx.moveTo(0,7);ctx.lineTo(0,21);ctx.stroke();
+  ctx.restore();
+ }
+}
+
+function loop(now){
+ if(!lastTime)lastTime=now;
+ const dt=Math.min(.04,(now-lastTime)/1000);
+ lastTime=now;
+ update(dt,now);
+ draw();
+ requestAnimationFrame(loop);
+}
+
+function setAim(e){
+ const r=canvas.getBoundingClientRect();
+ aim.x=e.clientX-r.left;
+ aim.y=e.clientY-r.top;
+}
+canvas.addEventListener("pointerdown",e=>{
+ setAim(e);
+});
+canvas.addEventListener("pointermove",e=>{
+ if(e.pointerType!=="mouse"||e.buttons)setAim(e);
+});
+
+const fireButton=$("fire");
+fireButton.addEventListener("pointerdown",e=>{
+ e.preventDefault();e.stopPropagation();
+ fireHeld=true;
+ fire(performance.now());
+});
+function releaseFire(){fireHeld=false}
+fireButton.addEventListener("pointerup",releaseFire);
+fireButton.addEventListener("pointercancel",releaseFire);
+fireButton.addEventListener("lostpointercapture",releaseFire);
+window.addEventListener("pointerup",releaseFire);
+window.addEventListener("blur",releaseFire);
+
+$("start").addEventListener("click",start);
+$("retry").addEventListener("click",start);
+
+window.addEventListener("keydown",e=>{
+ if(e.code==="Space"){
+  e.preventDefault();fireHeld=true;
+ }
+});
+window.addEventListener("keyup",e=>{
+ if(e.code==="Space")releaseFire();
+});
+
+updateHUD();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
