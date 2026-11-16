@@ -3,587 +3,705 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>CYBER BREAKER 1.0</title>
+<title>CYBER BREAKER 1.1</title>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030817;color:#e9faff;font-family:Arial,"Noto Sans JP",sans-serif;touch-action:none}
-button{font:inherit;cursor:pointer}
-#app{position:relative;width:100%;height:100%;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#123253,#030817 78%)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#030817;color:#e9faff;font-family:Arial,"Noto Sans JP",sans-serif;touch-action:none}
+button{font:inherit;cursor:pointer;border:none}
+#app{position:relative;width:100%;height:100%;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#0a2a4a,#030817 75%)}
 canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
-.screen{position:absolute;inset:0;z-index:5;overflow:auto;padding:22px;background:linear-gradient(145deg,#061426ed,#030817f5)}
+.screen{position:absolute;inset:0;z-index:10;overflow:auto;padding:20px;background:linear-gradient(160deg,#061426f2,#030817f8);display:flex;align-items:flex-start;justify-content:center}
 .hidden{display:none!important}
-.wrap{width:min(850px,100%);margin:auto}
-.logo{text-align:center;margin:4vh 0 25px}
-.logo h1{font-size:clamp(32px,8vw,64px);letter-spacing:4px;color:#54efff;text-shadow:0 0 25px #00cfff88;margin:0}
-.logo p,.muted{color:#86aabd;font-size:12px;letter-spacing:2px}
-.panel{background:#0b1c30dd;border:1px solid #1a6680;border-radius:16px;padding:16px;box-shadow:0 0 22px #00cfff12}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.menuBtn,.action,.choice{border:1px solid #26cce9;background:linear-gradient(135deg,#103c59,#102344);color:#eaffff;border-radius:13px;padding:16px;text-align:left}
-.menuBtn{min-height:85px}
-.menuBtn b{display:block;color:#5ceaff;font-size:17px;margin-bottom:5px}
-.menuBtn span{font-size:11px;color:#9bbccc}
-.action{display:inline-block;text-align:center;padding:13px 22px;margin:5px 3px;font-weight:bold}
-.action.primary{background:linear-gradient(120deg,#087caa,#164e9b)}
-.action:active,.menuBtn:active,.choice:active{transform:scale(.98)}
-h2{color:#55eaff;letter-spacing:2px;font-size:23px}
+.wrap{width:min(860px,100%);margin:auto}
+.logo{text-align:center;margin:3vh 0 22px}
+.logo h1{font-size:clamp(34px,9vw,68px);letter-spacing:5px;color:#54efff;text-shadow:0 0 30px #00cfff99;margin-bottom:6px}
+.logo p{color:#7eb8d0;font-size:13px;letter-spacing:3px}
+.muted{color:#6a94a8;font-size:12px}
+.panel{background:#0b1c30ee;border:1px solid #1a6680;border-radius:18px;padding:18px;box-shadow:0 0 30px #00cfff15}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.menuBtn,.action,.choice{border:1px solid #26cce9;background:linear-gradient(135deg,#103c59,#0d2a44);color:#eaffff;border-radius:14px;padding:16px;text-align:left;transition:.15s}
+.menuBtn{min-height:88px}
+.menuBtn b{display:block;color:#5ceaff;font-size:18px;margin-bottom:6px}
+.menuBtn span{font-size:12px;color:#9bbccc}
+.action{display:inline-block;text-align:center;padding:13px 24px;margin:6px 4px;font-weight:bold}
+.action.primary{background:linear-gradient(120deg,#087caa,#164e9b);border-color:#3adfff}
+.action:active,.menuBtn:active,.choice:active{transform:scale(.97)}
+h2{color:#55eaff;letter-spacing:2px;font-size:24px;margin-bottom:8px}
 h3{color:#a7f5ff}
-p{color:#b8d2df;line-height:1.6;font-size:14px}
-.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0}
-.stat{text-align:center;padding:12px 5px;background:#0c2138;border:1px solid #24516a;border-radius:12px}
-.stat strong{display:block;font-size:22px;color:#60edff}
-.stat small{font-size:10px;color:#8daec1}
-.item{padding:13px;margin:9px 0;border:1px solid #28556d;background:#0a1d32;border-radius:12px}
-.item b{color:#60eaff}
-.item small{display:block;color:#a4bfce;margin:5px 0}
-.item button{margin-top:8px}
-.locked{opacity:.48}
-.bar{height:9px;background:#1b3044;border-radius:10px;overflow:hidden;margin:7px 0}
-.fill{height:100%;background:#27e5d2;width:100%}
-#hud{position:absolute;z-index:2;top:env(safe-area-inset-top,8px);left:8px;right:8px;display:flex;justify-content:space-between;gap:5px;pointer-events:none}
-.hudbox{background:#07182cdd;border:1px solid #1b7890;border-radius:10px;padding:7px 10px;min-width:75px}
-.hudbox small{display:block;font-size:9px;color:#86b7ca}
-.hudbox strong{font-size:17px}
-#battleBars{position:absolute;z-index:2;left:12px;bottom:calc(105px + env(safe-area-inset-bottom));width:min(210px,52vw);pointer-events:none}
-#fire{position:absolute;z-index:3;right:18px;bottom:calc(14px + env(safe-area-inset-bottom));width:95px;height:95px;border-radius:50%;border:2px solid #ff62c9;background:radial-gradient(#712b69,#24142e);color:white;font-weight:bold;font-size:18px;box-shadow:0 0 25px #ff38c866;touch-action:none}
-#hint{position:absolute;z-index:2;left:12px;bottom:calc(20px + env(safe-area-inset-bottom));font-size:10px;color:#8daabd;pointer-events:none}
-#bossBar{position:absolute;z-index:2;top:65px;left:12%;width:76%;pointer-events:none}
-#bossBar .fill{background:#ff477c}
-#battleMenu{position:absolute;z-index:4;top:65px;right:10px}
-#toast{position:absolute;z-index:8;left:50%;top:35%;transform:translate(-50%,-50%);background:#071a2eee;border:1px solid #55eaff;padding:15px 24px;border-radius:14px;text-align:center;pointer-events:none;display:none}
+p{color:#b8d2df;line-height:1.65;font-size:14px}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.stat{text-align:center;padding:14px 6px;background:#0c2138;border:1px solid #24516a;border-radius:14px}
+.stat strong{display:block;font-size:24px;color:#60edff}
+.stat small{font-size:11px;color:#8daec1}
+.item{padding:14px;margin:10px 0;border:1px solid #28556d;background:#0a1d32;border-radius:13px}
+.item b{color:#60eaff;font-size:16px}
+.item small{display:block;color:#a4bfce;margin:6px 0 0}
+.locked{opacity:.45}
+.bar{height:10px;background:#1b3044;border-radius:10px;overflow:hidden;margin:6px 0}
+.fill{height:100%;background:linear-gradient(90deg,#27e5d2,#4af);width:100%;transition:width .15s}
+#hud{position:absolute;z-index:5;top:env(safe-area-inset-top,10px);left:10px;right:10px;display:flex;justify-content:space-between;gap:6px;pointer-events:none}
+.hudbox{background:#07182cee;border:1px solid #1b7890;border-radius:12px;padding:8px 12px;min-width:78px;text-align:center}
+.hudbox small{display:block;font-size:10px;color:#86b7ca;letter-spacing:1px}
+.hudbox strong{font-size:18px;color:#7ef}
+#combo{position:absolute;z-index:5;top:70px;left:50%;transform:translateX(-50%);font-size:22px;font-weight:bold;color:#ff6;text-shadow:0 0 12px #ff0;pointer-events:none;opacity:0;transition:opacity .2s}
+#battleBars{position:absolute;z-index:5;left:12px;bottom:calc(110px + env(safe-area-inset-bottom));width:min(220px,55vw);pointer-events:none}
+#fire{position:absolute;z-index:6;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));width:100px;height:100px;border-radius:50%;border:3px solid #ff62c9;background:radial-gradient(circle at 35% 35%,#a33,#3a1a32);color:#fff;font-weight:bold;font-size:20px;box-shadow:0 0 30px #ff38c888;touch-action:none}
+#fire:active{transform:scale(.94);box-shadow:0 0 18px #ff38c8}
+#hint{position:absolute;z-index:5;left:14px;bottom:calc(22px + env(safe-area-inset-bottom));font-size:11px;color:#8daabd;pointer-events:none}
+#bossBar{position:absolute;z-index:5;top:72px;left:10%;width:80%;pointer-events:none}
+#bossBar .fill{background:linear-gradient(90deg,#ff477c,#ff2a6d)}
+#battleMenu{position:absolute;z-index:6;top:70px;right:12px;padding:10px 16px;font-size:14px}
+#toast{position:absolute;z-index:20;left:50%;top:32%;transform:translate(-50%,-50%);background:#071a2ef5;border:1px solid #55eaff;padding:16px 28px;border-radius:16px;text-align:center;pointer-events:none;display:none;font-size:18px}
+#flash{position:absolute;inset:0;background:#ff2244;opacity:0;pointer-events:none;z-index:4;transition:opacity .08s}
 @media(max-width:520px){
- .screen{padding:15px}
- .grid{gap:8px}
- .menuBtn{padding:12px;min-height:78px}
- .stat strong{font-size:18px}
- #fire{width:86px;height:86px}
+  .screen{padding:14px}
+  .grid{gap:9px}
+  .menuBtn{padding:13px;min-height:80px}
+  .stat strong{font-size:20px}
+  #fire{width:90px;height:90px;font-size:18px}
 }
 </style>
 </head>
 <body>
 <div id="app">
 <canvas id="gameCanvas"></canvas>
+<div id="flash"></div>
 
 <div id="hud" class="hidden">
- <div class="hudbox"><small>WAVE</small><strong id="uiWave">01</strong></div>
- <div class="hudbox"><small>SCORE</small><strong id="uiScore">0</strong></div>
- <div class="hudbox"><small>LEVEL</small><strong id="uiLevel">1</strong></div>
- <div class="hudbox"><small>DATA</small><strong id="uiData">0</strong></div>
+  <div class="hudbox"><small>WAVE</small><strong id="uiWave">01</strong></div>
+  <div class="hudbox"><small>SCORE</small><strong id="uiScore">0</strong></div>
+  <div class="hudbox"><small>LEVEL</small><strong id="uiLevel">1</strong></div>
+  <div class="hudbox"><small>DATA</small><strong id="uiData">0</strong></div>
 </div>
+<div id="combo">COMBO x2</div>
+
 <div id="battleBars" class="hidden">
- <small>CORE INTEGRITY <b id="hpText">100</b></small>
- <div class="bar"><div class="fill" id="hpFill"></div></div>
- <div id="bossBar" class="hidden">
-  <small id="bossName">BOSS</small>
-  <div class="bar"><div class="fill" id="bossFill"></div></div>
- </div>
+  <small>CORE INTEGRITY <b id="hpText">100</b></small>
+  <div class="bar"><div class="fill" id="hpFill"></div></div>
+  <div id="id="bossBar" class="hidden">
+    <small id="bossName">BOSS</small>
+    <div class="bar"><div class="fill" id="bossFill"></div></div>
+  </div>
 </div>
-<div id="hint" class="hidden">画面をタッチして照準を移動 / FIREで攻撃</div>
+
+<div id="hint" class="hidden">画面をドラッグで照準 / FIRE長押しで攻撃</div>
 <button id="fire" class="hidden">FIRE</button>
 <button id="battleMenu" class="action hidden">PAUSE</button>
 <div id="toast"></div>
 
 <!-- HOME -->
 <section class="screen" id="home">
- <div class="wrap">
-  <div class="logo">
-   <h1>CYBER BREAKER</h1>
-   <p>DEFEND YOUR DIGITAL CORE</p>
-   <div class="muted">VERSION 1.0 / SYSTEM ONLINE</div>
+  <div class="wrap">
+    <div class="logo">
+      <h1>CYBER BREAKER</h1>
+      <p>DEFEND YOUR DIGITAL CORE</p>
+      <div class="muted">VERSION 1.1 / SYSTEM ONLINE</div>
+    </div>
+    <div class="panel">
+      <div class="topline"><b>PLAYER STATUS</b><span class="muted" id="homeRank">ROOKIE</span></div>
+      <div class="statgrid">
+        <div class="stat"><strong id="homeBest">0</strong><small>BEST SCORE</small></div>
+        <div class="stat"><strong id="homeKills">0</strong><small>TOTAL KILLS</small></div>
+        <div class="stat"><strong id="homeData">0</strong><small>DATA</small></div>
+      </div>
+      <div class="grid">
+        <button class="menuBtn" id="goBattle"><b>▶ BATTLE</b><span>防衛戦を開始する</span></button>
+        <button class="menuBtn" id="goSkills"><b>✦ SKILL TREE</b><span>恒久スキルを強化する</span></button>
+        <button class="menuBtn" id="goCore"><b>◈ CORE LAB</b><span>デジタルコアを研究する</span></button>
+        <button class="menuBtn" id="goDatabase"><b>▤ DATABASE</b><span>敵の情報を確認する</span></button>
+        <button class="menuBtn" id="goRecords"><b>▣ RECORD</b><span>戦績・プレイ記録</span></button>
+        <button class="menuBtn" id="goHow"><b>? HOW TO PLAY</b><span>操作方法とルール</span></button>
+      </div>
+    </div>
+    <p class="muted" style="text-align:center;margin-top:18px">PROGRESS IS SAVED AUTOMATICALLY ON THIS DEVICE</p>
   </div>
-  <div class="panel">
-   <div class="topline"><b>PLAYER STATUS</b><span class="muted" id="homeRank">ROOKIE</span></div>
-   <div class="statgrid">
-    <div class="stat"><strong id="homeBest">0</strong><small>BEST SCORE</small></div>
-    <div class="stat"><strong id="homeKills">0</strong><small>TOTAL KILLS</small></div>
-    <div class="stat"><strong id="homeData">0</strong><small>DATA</small></div>
-   </div>
-   <div class="grid">
-    <button class="menuBtn" id="goBattle"><b>▶ BATTLE</b><span>防衛戦を開始する</span></button>
-    <button class="menuBtn" id="goSkills"><b>✦ SKILL TREE</b><span>恒久スキルを強化する</span></button>
-    <button class="menuBtn" id="goCore"><b>◈ CORE LAB</b><span>デジタルコアを研究する</span></button>
-    <button class="menuBtn" id="goDatabase"><b>▤ DATABASE</b><span>敵の情報を確認する</span></button>
-    <button class="menuBtn" id="goRecords"><b>▣ RECORD</b><span>戦績・プレイ記録</span></button>
-    <button class="menuBtn" id="goHow"><b>? HOW TO PLAY</b><span>操作方法とルール</span></button>
-   </div>
-  </div>
-  <p class="muted" style="text-align:center">PROGRESS IS SAVED AUTOMATICALLY ON THIS DEVICE</p>
- </div>
 </section>
 
 <!-- SKILLS -->
 <section class="screen hidden" id="skills">
- <div class="wrap">
-  <div class="topline"><h2>SKILL TREE</h2><b>DATA: <span id="skillData">0</span></b></div>
-  <p>戦闘で獲得したDATAを使って、アカウントの能力を恒久的に強化する。</p>
-  <div id="skillList"></div>
-  <button class="action" data-home>BACK TO HOME</button>
- </div>
+  <div class="wrap">
+    <div class="topline"><h2>SKILL TREE</h2><b>DATA: <span id="skillData">0</span></b></div>
+    <p>戦闘で獲得したDATAを使って、アカウントの能力を恒久的に強化する。</p>
+    <div id="skillList"></div>
+    <button class="action" data-home>BACK TO HOME</button>
+  </div>
 </section>
 
 <!-- CORE LAB -->
 <section class="screen hidden" id="coreLab">
- <div class="wrap">
-  <div class="topline"><h2>CORE LAB</h2><b>DATA: <span id="coreData">0</span></b></div>
-  <p>防衛の中心となるデジタルコアを研究・強化する。</p>
-  <div id="coreList"></div>
-  <button class="action" data-home>BACK TO HOME</button>
- </div>
+  <div class="wrap">
+    <div class="topline"><h2>CORE LAB</h2><b>DATA: <span id="coreData">0</span></b></div>
+    <p>防衛の中心となるデジタルコアを研究・強化する。</p>
+    <div id="coreList"></div>
+    <button class="action" data-home>BACK TO HOME</button>
+  </div>
 </section>
 
 <!-- DATABASE -->
 <section class="screen hidden" id="database">
- <div class="wrap">
-  <h2>ENEMY DATABASE</h2>
-  <p>遭遇した敵の情報が記録される。まだ発見していない敵はUNKNOWN。</p>
-  <div id="enemyList"></div>
-  <button class="action" data-home>BACK TO HOME</button>
- </div>
+  <div class="wrap">
+    <h2>EN DATABASE</h2>
+    <p>遭遇した敵の情報が記録される。まだ発見していない敵はUNKNOWN。</p>
+    <div id="enemyList"></div>
+    <button class="action" data-home>BACK TO HOME</button>
+  </div>
 </section>
 
 <!-- RECORDS -->
 <section class="screen hidden" id="records">
- <div class="wrap">
-  <h2>RECORD</h2>
-  <div class="statgrid">
-   <div class="stat"><strong id="recBest">0</strong><small>BEST SCORE</small></div>
-   <div class="stat"><strong id="recWave">0</strong><small>BEST WAVE</small></div>
-   <div class="stat"><strong id="recKills">0</strong><small>TOTAL KILLS</small></div>
+  <div class="wrap">
+    <h2>RECORD</h2>
+    <div class="statgrid">
+      <div class="stat"><strong id="recBest">0</strong><small>BEST SCORE</small></div>
+      <div class="stat"><strong id="recWave">0</strong><small>BEST WAVE</small></div>
+      <div class="stat"><strong id="recKills">0</strong><small>TOTAL KILLS</small></div>
+    </div>
+    <div class="panel">
+      <p>プレイ回数： <b id="recRuns">0</b></p>
+      <p>ボス撃破数： <b id="recBoss">0</b></p>
+      <p>累計獲得DATA： <b id="recEarned">0</b></p>
+      <p>現在のスキルポイント： <b id="recData">0</b></p>
+    </div>
+    <button class="action" data-home>BACK TO HOME</button>
   </div>
-  <div class="panel">
-   <p>プレイ回数：<b id="recRuns">0</b></p>
-   <p>ボス撃破数：<b id="recBoss">0</b></p>
-   <p>累計獲得DATA：<b id="recEarned">0</b></p>
-   <p>現在のスキルポイント：<b id="recData">0</b></p>
-  </div>
-  <button class="action" data-home>BACK TO HOME</button>
- </div>
 </section>
 
 <!-- HOW TO -->
 <section class="screen hidden" id="how">
- <div class="wrap">
-  <h2>HOW TO PLAY</h2>
-  <div class="item"><b>01 / AIM</b><small>画面をタッチ・ドラッグして照準を移動。敵に照準を合わせよう。</small></div>
-  <div class="item"><b>02 / FIRE</b><small>FIREボタンを押している間、連続で弾を発射する。</small></div>
-  <div class="item"><b>03 / DEFEND</b><small>敵が中央のコアに到達すると、コアの耐久力が減少する。</small></div>
-  <div class="item"><b>04 / GROW</b><small>敵を倒してDATAを獲得。戦闘中のLEVEL UPと、HOMEのスキル強化を使い分けよう。</small></div>
-  <div class="item"><b>05 / BOSS</b><small>一定のWAVEごとに強力なボスが出現する。攻撃を集中させよう。</small></div>
-  <button class="action" data-home>BACK TO HOME</button>
- </div>
+  <div class="wrap">
+    <h2>HOW TO PLAY</h2>
+    <div class="item"><b>01 / AIM</b><small>画面をタッチ・ドラッグして照準を移動。敵に照準を合わせよう。</small></div>
+    <div class="item"><b>02 / FIRE</b><small>FIREボタンを押している間、連続で弾を発射する。スペースキーでも可。</small></div>
+    <div class="item"><b>03 / DEFEND</b><small>敵が中央のコアに到達すると、コアの耐久力が減少する。</small></div>
+    <div class="item"><b>04 / GROW</b><small>敵を倒してDATAを獲得。戦闘中のLEVEL UPと、HOMEのスキル強化を使い分けよう。</small></div>
+    <div class="item"><b>05 / COMBO</b><small>連続撃破でコンボが繋がり、スコア倍率が上がる。</small></div>
+    <div class="item"><b>06 / BOSS</b><small>5ウェーブごとに強力なボスが出現する。</small></div>
+    <button class="action" data-home>BACK TO HOME</button>
+  </div>
 </section>
 
 <!-- LEVEL UP -->
 <section class="screen hidden" id="levelScreen">
- <div class="wrap">
-  <h2>LEVEL UP!</h2>
-  <p>戦闘中に獲得したレベルアップ。能力を1つ選択しよう。</p>
-  <div id="levelChoices" class="grid"></div>
- </div>
+  <div class="wrap" style="padding-top:8vh">
+    <h2 style="text-align:center">LEVEL UP!</h2>
+    <p style="text-align:center;margin-bottom:20px">能力を1つ選択しよう</p>
+    <div id="levelChoices" class="grid"></div>
+  </div>
 </section>
 
 <!-- GAME OVER -->
 <section class="screen hidden" id="gameOver">
- <div class="wrap" style="text-align:center;padding-top:10vh">
-  <h1 style="color:#ff6387">CORE LOST</h1>
-  <h2>DEFENSE FAILED</h2>
-  <div class="panel">
-   <p>FINAL SCORE</p><h1 id="finalScore">0</h1>
-   <p id="finalInfo"></p>
+  <div class="wrap" style="text-align:center;padding-top:12vh">
+    <h1 style="color:#ff6387;font-size:42px;margin-bottom:8px">CORE LOST</h1>
+    <h2>DEFENSE FAILED</h2>
+    <div class="panel" style="margin:24px 0">
+      <p>FINAL SCORE</p>
+      <h1 id="finalScore" style="font-size:48px;color:#60edff">0</h1>
+      <p id="finalInfo" style="margin-top:10px"></p>
+    </div>
+    <button class="action primary" id="again">RETRY</button>
+    <button class="action" data-home>HOME</button>
   </div>
-  <button class="action primary" id="again">RETRY</button>
-  <button class="action" data-home>HOME</button>
- </div>
 </section>
 
 <!-- PAUSE -->
 <section class="screen hidden" id="pauseScreen">
- <div class="wrap" style="text-align:center;padding-top:12vh">
-  <h1>PAUSED</h1>
-  <p>防衛戦を一時停止中。</p>
-  <button class="action primary" id="resume">RESUME</button>
-  <button class="action" id="quitBattle">QUIT TO HOME</button>
- </div>
+  <div class="wrap" style="text-align:center;padding-top:18vh">
+    <h1 style="font-size:40px">PAUSED</h1>
+    <p style="margin:16px 0 28px">防衛戦を一時停止中</p>
+    <button class="action primary" id="resume">RESUME</button>
+    <button class="action" id="quitBattle">QUIT TO HOME</button>
+  </div>
 </section>
 </div>
 
 <script>
-(()=>{
+(() => {
 "use strict";
-const $=id=>document.getElementById(id);
-const canvas=$("gameCanvas"),ctx=canvas.getContext("2d");
-const screens=["home","skills","coreLab","database","records","how","levelScreen","gameOver","pauseScreen"];
-let W=innerWidth,H=innerHeight,dpr=1;
-let mode="home",running=false,paused=false,fireHeld=false;
-let enemies=[],bullets=[],particles=[];
-let aim={x:0,y:0},lastShot=0,lastTime=0;
-let score=0,hp=100,data=0,level=1,wave=1,kills=0;
-let spawnLeft=0,spawnTimer=0,cleared=false;
-let damage=1,rate=280,multi=1,pierce=0;
-let boss=null,bossHits=0;
+const $ = id => document.getElementById(id);
+const canvas = $("gameCanvas");
+const ctx = canvas.getContext("2d");
+const screens = ["home","skills","coreLab","database","records","how","levelScreen","gameOver","pauseScreen"];
 
-const enemyTypes=[
- {id:"basic",name:"SCOUT",desc:"標準的な侵入型。能力は平均的。",color:"#ff9b55",hp:1,speed:55,score:100},
- {id:"swift",name:"RUSHER",desc:"高速でコアへ接近する。",color:"#ffdf59",hp:1,speed:105,score:130},
- {id:"tank",name:"TANK",desc:"耐久力が高く、撃破に時間がかかる。",color:"#e95b8b",hp:5,speed:28,score:220},
- {id:"splitter",name:"SPLITTER",desc:"撃破時に小型の敵を残す。",color:"#ba82ff",hp:2,speed:48,score:180},
- {id:"sniper",name:"GLITCH",desc:"不規則な動きで照準を惑わせる。",color:"#53e9ff",hp:2,speed:60,score:190},
- {id:"boss",name:"OVERLORD",desc:"巨大な耐久力を持つボス。",color:"#ff3f75",hp:35,speed:22,score:1500}
+let W = innerWidth, H = innerHeight, dpr = 1;
+let running = false, paused = false, fireHeld = false;
+let enemies = [], bullets = [], particles = [], pops = [];
+let aim = {x:0, y:0}, lastShot = 0, lastTime = 0;
+let score = 0, hp = 100, level = 1, wave = 1, kills = 0;
+let spawnLeft = 0, spawnTimer = 0, cleared = false;
+let damage = 1, rate = 280, multi = 1, pierce = 0;
+let boss = null;
+let combo = 0, comboTimer = 0, maxCombo = 0;
+let shake = 0, flash = 0;
+let coreAngle = 0;
+
+const enemyTypes = [
+  {id:"basic",   name:"SCOUT",    desc:"標準的な侵入型。能力は平均的。", color:"#ff9b55", hp:1, speed:58, score:100, r:13},
+  {id:"swift",   name:"RUSHER",   desc:"高速でコアへ接近する。", color:"#ffdf59", hp:1, speed:115, score:140, r:11},
+  {id:"tank",    name:"TANK",     desc:"耐久力が高く、撃破に時間がかかる。", color:"#e95b8b", hp:6, speed:26, score:260, r:20},
+  {id:"splitter",name:"SPLITTER", desc:"撃破時に小型の敵を残す。", color:"#ba82ff", hp:3, speed:50, score:200, r:15},
+  {id:"sniper",  name:"GLITCH",   desc:"不規則な動きで照準を惑わせる。", color:"#53e9ff", hp:2, speed:62, score:210, r:13},
+  {id:"boss",    name:"OVERLORD", desc:"巨大な耐久力を持つボス。", color:"#ff3f75", hp:40, speed:20, score:2000, r:32}
 ];
 
-const defaultSave={
- data:0,best:0,bestWave:0,totalKills:0,runs:0,bossKills:0,totalEarned:0,
- discovered:[],skills:{damage:0,rate:0,multi:0,pierce:0},
- core:{integrity:0,armor:0}
+const defaultSave = {
+  data:0, best:0, bestWave:0, totalKills:0, runs:0, bossKills:0, totalEarned:0,
+  discovered:[], skills:{damage:0, rate:0, multi:0, pierce:0},
+  core:{integrity:0, armor:0}
 };
-let save=loadSave();
+let save = loadSave();
 
 function loadSave(){
- try{
-  const old=JSON.parse(localStorage.getItem("cb_save_v1")||"null");
-  if(!old)return structuredClone(defaultSave);
-  return {...structuredClone(defaultSave),...old,
-   skills:{...defaultSave.skills,...old.skills},
-   core:{...defaultSave.core,...old.core},
-   discovered:Array.isArray(old.discovered)?old.discovered:[]
-  };
- }catch(e){return structuredClone(defaultSave)}
+  try{
+    const old = JSON.parse(localStorage.getItem("cb_save_v1") || "null");
+    if(!old) return structuredClone(defaultSave);
+    return {
+      ...structuredClone(defaultSave), ...old,
+      skills:{...defaultSave.skills, ...old.skills},
+      core:{...defaultSave.core, ...old.core},
+      discovered: Array.isArray(old.discovered) ? old.discovered : []
+    };
+  }catch(e){ return structuredClone(defaultSave); }
 }
 function saveGame(){
- try{localStorage.setItem("cb_save_v1",JSON.stringify(save))}catch(e){}
+  try{ localStorage.setItem("cb_save_v1", JSON.stringify(save)); }catch(e){}
 }
+
 function resize(){
- W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);
- canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
- ctx.setTransform(dpr,0,0,dpr,0,0);
- aim.x=W/2;aim.y=H*.3;
+  W = innerWidth; H = innerHeight;
+  dpr = Math.min(devicePixelRatio || 1, 2);
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  aim.x = W/2; aim.y = H * 0.32;
 }
-addEventListener("resize",resize);resize();
+addEventListener("resize", resize);
+resize();
 
 function showScreen(id){
- screens.forEach(s=>$(s).classList.toggle("hidden",s!==id));
- const battle=id==="home"||id==="skills"||id==="coreLab"||id==="database"||id==="records"||id==="how"||id==="levelScreen"||id==="gameOver"||id==="pauseScreen";
- $("hud").classList.toggle("hidden",!running||!battle||id==="levelScreen"||id==="gameOver"||id==="pauseScreen");
- $("battleBars").classList.toggle("hidden",!running||id!=="pauseScreen"&&id!=="levelScreen"&&id!=="gameOver"&&id!=="home");
- $("fire").classList.toggle("hidden",!running||id!=="home");
- $("hint").classList.toggle("hidden",!running||id!=="home");
- $("battleMenu").classList.toggle("hidden",!running||id!=="home");
+  screens.forEach(s => $(s).classList.toggle("hidden", s !== id));
 }
+
+function hideAllScreens(){
+  screens.forEach(s => $(s).classList.add("hidden"));
+}
+
 function home(){
- running=false;paused=false;fireHeld=false;mode="home";
- showScreen("home");renderHome();
+  running = false; paused = false; fireHeld = false;
+  hideBattleUI();
+  showScreen("home");
+  renderHome();
 }
+
+function hideBattleUI(){
+  $("hud").classList.add("hidden");
+  $("battleBars").classList.add("hidden");
+  $("fire").classList.add("hidden");
+  $("hint").classList.add("hidden");
+  $("battleMenu").classList.add("hidden");
+  $("bossBar").classList.add("hidden");
+  $("combo").style.opacity = 0;
+}
+
+function showBattleUI(){
+  $("hud").classList.remove("hidden");
+  $("battleBars").classList.remove("hidden");
+  $("fire").classList.remove("hidden");
+  $("hint").classList.remove("hidden");
+  $("battleMenu").classList.remove("hidden");
+}
+
 function renderHome(){
- $("homeBest").textContent=save.best;
- $("homeKills").textContent=save.totalKills;
- $("homeData").textContent=save.data;
- const total=save.skills.damage+save.skills.rate+save.skills.multi+save.skills.pierce;
- $("homeRank").textContent=total>=12?"ELITE":total>=6?"VETERAN":total>=2?"OPERATIVE":"ROOKIE";
+  $("homeBest").textContent = save.best;
+  $("homeKills").textContent = save.totalKills;
+  $("homeData").textContent = save.data;
+  const total = save.skills.damage + save.skills.rate + save.skills.multi + save.skills.pierce;
+  $("homeRank").textContent = total >= 12 ? "ELITE" : total >= 6 ? "VETERAN" : total >= 2 ? "OPERATIVE" : "ROOKIE";
 }
-function core(){return {x:W/2,y:H*.51}}
+
+function core(){ return {x: W/2, y: H * 0.52}; }
+
 function updateHUD(){
- $("uiWave").textContent=String(wave).padStart(2,"0");
- $("uiScore").textContent=score;
- $("uiLevel").textContent=level;
- $("uiData").textContent=save.data;
- $("hpText").textContent=Math.max(0,Math.ceil(hp));
- $("hpFill").style.width=Math.max(0,hp)+"%";
- $("bossBar").classList.toggle("hidden",!boss);
- if(boss){
-  $("bossName").textContent="BOSS / "+Math.ceil(boss.hp)+" HP";
-  $("bossFill").style.width=Math.max(0,boss.hp/boss.maxHp*100)+"%";
- }
+  $("uiWave").textContent = String(wave).padStart(2,"0");
+  $("uiScore").textContent = score;
+  $("uiLevel").textContent = level;
+  $("uiData").textContent = save.data;
+  $("hpText").textContent = Math.max(0, Math.ceil(hp));
+  $("hpFill").style.width = Math.max(0, hp) + "%";
+  $("bossBar").classList.toggle("hidden", !boss);
+  if(boss){
+    $("bossName").textContent = `BOSS / ${Math.ceil(boss.hp)} HP`;
+    $("bossFill").style.width = Math.max(0, boss.hp / boss.maxHp * 100) + "%";
+  }
+  // combo
+  if(combo >= 2){
+    $("combo").textContent = `COMBO x${combo}`;
+    $("combo").style.opacity = 1;
+  } else {
+    $("combo").style.opacity = 0;
+  }
 }
-function makeEnemy(type){
- const side=Math.floor(Math.random()*4),m=30;
- let x,y;
- if(side===0){x=Math.random()*W;y=-m}
- if(side===1){x=W+m;y=Math.random()*H}
- if(side===2){x=Math.random()*W;y=H+m}
- if(side===3){x=-m;y=Math.random()*H}
- const def=enemyTypes.find(t=>t.id===type)||enemyTypes[0];
- const scale=1+Math.max(0,wave-1)*.12;
- const e={...def,x,y,r:type==="boss"?29: type==="tank"?19:13,
-  hp:type==="boss"?def.hp+wave*3:Math.ceil(def.hp*scale),
-  maxHp:type==="boss"?def.hp+wave*3:Math.ceil(def.hp*scale),
-  speed:def.speed+Math.min(wave*2,35),hit:0,phase:Math.random()*6};
- if(type==="boss"){boss=e}
- enemies.push(e);
- if(!save.discovered.includes(type)){save.discovered.push(type);saveGame()}
+
+function makeEnemy(type, forcePos){
+  const def = enemyTypes.find(t => t.id === type) || enemyTypes[0];
+  const scale = 1 + Math.max(0, wave - 1) * 0.11;
+  let x, y;
+  if(forcePos){
+    x = forcePos.x; y = forcePos.y;
+  } else {
+    const side = Math.floor(Math.random() * 4);
+    const m = 40;
+    if(side === 0){ x = Math.random()*W; y = -m; }
+    if(side === 1){ x = W + m; y = Math.random()*H; }
+    if(side === 2){ x = Math.random()*W; y = H + m; }
+    if(side === 3){ x = -m; y = Math.random()*H; }
+  }
+  const e = {
+    ...def,
+    x, y,
+    r: def.r,
+    hp: type === "boss" ? def.hp + wave * 4 : Math.ceil(def.hp * scale),
+    maxHp: type === "boss" ? def.hp + wave * 4 : Math.ceil(def.hp * scale),
+    speed: def.speed + Math.min(wave * 1.8, 32),
+    hit: 0,
+    phase: Math.random() * 6.28
+  };
+  if(type === "boss") boss = e;
+  enemies.push(e);
+  if(!save.discovered.includes(type)){
+    save.discovered.push(type);
+    saveGame();
+  }
 }
+
 function chooseType(){
- const pool=["basic","basic","swift"];
- if(wave>=2)pool.push("tank");
- if(wave>=3)pool.push("splitter");
- if(wave>=4)pool.push("sniper");
- return pool[Math.floor(Math.random()*pool.length)];
+  const pool = ["basic","basic","swift"];
+  if(wave >= 2) pool.push("tank");
+  if(wave >= 3) pool.push("splitter","swift");
+  if(wave >= 4) pool.push("sniper");
+  if(wave >= 6) pool.push("tank","splitter");
+  return pool[Math.floor(Math.random() * pool.length)];
 }
+
 function startBattle(){
- score=0;hp=Math.min(100+save.core.integrity*8,140);
- data=0;level=1;wave=1;kills=0;
- damage=1+save.skills.damage;
- rate=Math.max(95,280-save.skills.rate*18);
- multi=Math.min(3,1+save.skills.multi);
- pierce=save.skills.pierce;
- enemies=[];bullets=[];particles=[];boss=null;
- spawnLeft=6;spawnTimer=.6;cleared=false;
- running=true;paused=false;fireHeld=false;lastShot=0;lastTime=0;
- mode="battle";save.runs++;saveGame();
- showScreen("home");updateHUD();
+  score = 0; hp = Math.min(100 + save.core.integrity * 8, 145);
+  level = 1; wave = 1; kills = 0; combo = 0; maxCombo = 0;
+  damage = 1 + save.skills.damage;
+  rate = Math.max(90, 280 - save.skills.rate * 18);
+  multi = Math.min(3, 1 + save.skills.multi);
+  pierce = save.skills.pierce;
+  enemies = []; bullets = []; particles = []; pops = [];
+  boss = null; cleared = false;
+  spawnLeft = 7; spawnTimer = 0.5;
+  running = true; paused = false; fireHeld = false;
+  lastShot = 0; lastTime = 0; shake = 0; flash = 0;
+  save.runs++;
+  saveGame();
+  hideAllScreens();
+  showBattleUI();
+  updateHUD();
 }
-function burst(x,y,color,n=12){
- for(let i=0;i<n;i++){
-  const a=Math.random()*Math.PI*2,s=35+Math.random()*150;
-  particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.55,color});
- }
+
+function burst(x, y, color, n = 14, speed = 160){
+  for(let i = 0; i < n; i++){
+    const a = Math.random() * Math.PI * 2;
+    const s = 40 + Math.random() * speed;
+    particles.push({
+      x, y,
+      vx: Math.cos(a) * s,
+      vy: Math.sin(a) * s,
+      life: 0.45 + Math.random() * 0.3,
+      maxLife: 0.7,
+      color,
+      size: 2 + Math.random() * 3
+    });
+  }
 }
+
+function addPop(x, y, text, color = "#fff"){
+  pops.push({x, y, text, color, life: 0.9, vy: -40});
+}
+
 function shoot(now){
- const c=core(),dx=aim.x-c.x,dy=aim.y-c.y;
- const base=Math.atan2(dy,dx);
- const angles=multi===1?[0]:multi===2?[-.13,.13]:[-.24,0,.24];
- angles.forEach(a=>{
-  const ang=base+a;
-  bullets.push({x:c.x+Math.cos(ang)*25,y:c.y+Math.sin(ang)*25,
-   vx:Math.cos(ang)*700,vy:Math.sin(ang)*700,life:1.25,hit:0});
- });
- lastShot=now;
+  const c = core();
+  const dx = aim.x - c.x, dy = aim.y - c.y;
+  const base = Math.atan2(dy, dx);
+  const angles = multi === 1 ? [0] : multi === 2 ? [-0.14, 0.14] : [-0.26, 0, 0.26];
+  angles.forEach(a => {
+    const ang = base + a;
+    bullets.push({
+      x: c.x + Math.cos(ang) * 28,
+      y: c.y + Math.sin(ang) * 28,
+      vx: Math.cos(ang) * 780,
+      vy: Math.sin(ang) * 780,
+      life: 1.3,
+      trail: []
+    });
+  });
+  lastShot = now;
 }
+
 function fire(now){
- if(!running||paused||!fireHeld)return;
- if(now-lastShot>=rate)shoot(now);
+  if(!running || paused || !fireHeld) return;
+  if(now - lastShot >= rate) shoot(now);
 }
+
 function gainData(amount){
- save.data+=amount;save.totalEarned+=amount;saveGame();
+  save.data += amount;
+  save.totalEarned += amount;
+  saveGame();
 }
+
 function addKill(e){
- score+=e.score;kills++;save.totalKills++;
- gainData(e.id==="boss"?35:8);
- burst(e.x,e.y,e.color,18);
- if(e.id==="boss"){save.bossKills++;boss=null}
- if(e.id==="splitter"&&wave>=3){
-  for(let i=0;i<2;i++){
-   enemies.push({id:"fragment",name:"FRAGMENT",x:e.x+(Math.random()-.5)*25,y:e.y+(Math.random()-.5)*25,
-    r:8,hp:1,maxHp:1,speed:100,color:"#cf9cff",score:50,hit:0,phase:0});
+  combo++;
+  comboTimer = 1.8;
+  maxCombo = Math.max(maxCombo, combo);
+  const mult = 1 + Math.min(combo * 0.12, 1.5);
+  const gained = Math.floor(e.score * mult);
+  score += gained;
+  kills++;
+  save.totalKills++;
+  gainData(e.id === "boss" ? 40 : 9);
+  burst(e.x, e.y, e.color, e.id === "boss" ? 40 : 18, e.id === "boss" ? 220 : 170);
+  addPop(e.x, e.y - 10, `+${gained}`, combo >= 5 ? "#ff6" : "#9ff");
+  if(e.id === "boss"){
+    save.bossKills++;
+    boss = null;
+    addPop(e.x, e.y - 30, "BOSS DOWN", "#ff5");
   }
- }
- enemies.splice(enemies.indexOf(e),1);
- saveGame();
-}
-function levelUp(){
- paused=true;fireHeld=false;level++;
- const options=[
-  {name:"DAMAGE +1",desc:"攻撃力を上げる",fn:()=>damage++},
-  {name:"FIRE RATE",desc:"連射速度を上げる",fn:()=>rate=Math.max(75,rate-35)},
-  {name:"MULTI SHOT",desc:"最大3方向へ同時発射",fn:()=>multi=Math.min(3,multi+1)},
-  {name:"CORE REPAIR",desc:"コア耐久力を25回復",fn:()=>hp=Math.min(100+save.core.integrity*8,hp+25)},
-  {name:"PIERCE",desc:"弾が敵を貫通しやすくなる",fn:()=>pierce=Math.min(3,pierce+1)}
- ];
- const box=$("levelChoices");box.innerHTML="";
- options.forEach(o=>{
-  const b=document.createElement("button");b.className="choice";
-  b.innerHTML="<b>"+o.name+"</b><br><small>"+o.desc+"</small>";
-  b.onclick=()=>{o.fn();paused=false;nextWave();showScreen("home");updateHUD()};
-  box.appendChild(b);
- });
- showScreen("levelScreen");
-}
-function nextWave(){
- wave++;cleared=false;
- const bossWave=wave%5===0;
- spawnLeft=bossWave?0:5+Math.min(wave*2,24);
- spawnTimer=.7;
- if(bossWave){setTimeout(()=>{if(running&&!paused)makeEnemy("boss")},700)}
- updateHUD();
-}
-function gameOver(){
- running=false;paused=false;fireHeld=false;
- save.best=Math.max(save.best,score);
- save.bestWave=Math.max(save.bestWave,wave);
- saveGame();
- $("finalScore").textContent=score;
- $("finalInfo").textContent="到達 WAVE "+wave+" / 撃破 "+kills+"体";
- showScreen("gameOver");
-}
-function update(dt,now){
- if(!running||paused)return;
- fire(now);
- if(spawnLeft>0){
-  spawnTimer-=dt;
-  if(spawnTimer<=0){makeEnemy(chooseType());spawnLeft--;spawnTimer=Math.max(.28,.95-wave*.025)}
- }
- const c=core();
- for(let i=enemies.length-1;i>=0;i--){
-  const e=enemies[i];
-  const dx=c.x-e.x,dy=c.y-e.y,d=Math.hypot(dx,dy)||1;
-  let vx=dx/d,vy=dy/d;
-  if(e.id==="sniper"||e.id==="GLITCH"){
-   e.phase+=dt*4;vx+=Math.sin(e.phase)*.55;vy+=Math.cos(e.phase)*.55;
-   const l=Math.hypot(vx,vy)||1;vx/=l;vy/=l;
-  }
-  e.x+=vx*e.speed*dt;e.y+=vy*e.speed*dt;
-  e.hit=Math.max(0,e.hit-dt);
-  if(d<34){
-   hp-=e.id==="boss"?20:e.id==="tank"?13:8;
-   burst(e.x,e.y,e.color,8);
-   if(e.id==="boss")boss=null;
-   enemies.splice(i,1);
-   if(hp<=0){hp=0;updateHUD();gameOver();return}
-  }
- }
- for(let i=bullets.length-1;i>=0;i--){
-  const b=bullets[i];b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;
-  let remove=b.life<=0||b.x<-40||b.x>W+40||b.y<-40||b.y>H+40;
-  if(!remove){
-   for(let j=enemies.length-1;j>=0;j--){
-    const e=enemies[j];
-    if(Math.hypot(e.x-b.x,e.y-b.y)<e.r+6){
-     e.hp-=damage;e.hit=.12;
-     if(e.hp<=0)addKill(e);
-     if(pierce>0){pierce--; }else{remove=true}
-     break;
+  if(e.id === "splitter"){
+    for(let i = 0; i < 2; i++){
+      makeEnemy("basic", {
+        x: e.x + (Math.random() - 0.5) * 30,
+        y: e.y + (Math.random() - 0.5) * 30
+      });
+      enemies[enemies.length - 1].r = 8;
+      enemies[enemies.length - 1].hp = 1;
+      enemies[enemies.length - 1].maxHp = 1;
+      enemies[enemies.length - 1].speed = 105;
+      enemies[enemies.length - 1].color = "#cf9cff";
+      enemies[enemies.length - 1].score = 40;
+      enemies[enemies.length - 1].id = "fragment";
     }
-   }
   }
-  if(remove)bullets.splice(i,1);
- }
- for(let i=particles.length-1;i>=0;i--){
-  const p=particles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;
-  if(p.life<=0)particles.splice(i,1);
- }
- if(spawnLeft===0&&enemies.length===0&&!cleared){
-  cleared=true;
-  setTimeout(()=>{if(running&&!paused)levelUp()},450);
- }
- updateHUD();
+  const idx = enemies.indexOf(e);
+  if(idx > -1) enemies.splice(idx, 1);
+  saveGame();
 }
+
+function levelUp(){
+  paused = true;
+  fireHeld = false;
+  level++;
+  const options = [
+    {name:"DAMAGE +1", desc:"攻撃力を上げる", fn:() => damage++},
+    {name:"FIRE RATE", desc:"連射速度を上げる", fn:() => rate = Math.max(70, rate - 32)},
+    {name:"MULTI SHOT", desc:"最大3方向へ同時発射", fn:() => multi = Math.min(3, multi + 1)},
+    {name:"CORE REPAIR", desc:"コア耐久力を30回復", fn:() => hp = Math.min(100 + save.core.integrity * 8, hp + 30)},
+    {name:"PIERCE", desc:"弾が敵を貫通しやすくなる", fn:() => pierce = Math.min(3, pierce + 1)}
+  ];
+  // shuffle lightly
+  options.sort(() => Math.random() - 0.5);
+  const box = $("levelChoices");
+  box.innerHTML = "";
+  options.slice(0, 3).forEach(o => {
+    const b = document.createElement("button");
+    b.className = "choice";
+    b.innerHTML = `<b>${o.name}</b><br><small>${o.desc}</small>`;
+    b.onclick = () => {
+      o.fn();
+      paused = false;
+      nextWave();
+      hideAllScreens();
+      showBattleUI();
+      updateHUD();
+    };
+    box.appendChild(b);
+  });
+  showScreen("levelScreen");
+}
+
+function nextWave(){
+  wave++;
+  cleared = false;
+  const bossWave = wave % 5 === 0;
+  spawnLeft = bossWave ? 0 : 6 + Math.min(wave * 1.8, 22);
+  spawnTimer = 0.55;
+  if(bossWave){
+    setTimeout(() => {
+      if(running && !paused) makeEnemy("boss");
+    }, 600);
+  }
+  updateHUD();
+}
+
+function gameOver(){
+  running = false;
+  paused = false;
+  fireHeld = false;
+  save.best = Math.max(save.best, score);
+  save.bestWave = Math.max(save.bestWave, wave);
+  saveGame();
+  $("finalScore").textContent = score;
+  $("finalInfo").textContent = `到達 WAVE ${wave}  /  撃破 ${kills}体  /  MAX COMBO x${maxCombo}`;
+  hideBattleUI();
+  showScreen("gameOver");
+}
+
+function takeDamage(amount){
+  const reduced = Math.max(1, amount - save.core.armor * 1.2);
+  hp -= reduced;
+  shake = 14;
+  flash = 0.35;
+  $("flash").style.opacity = 0.28;
+  setTimeout(() => $("flash").style.opacity = 0, 80);
+  if(hp <= 0){
+    hp = 0;
+    updateHUD();
+    gameOver();
+  }
+}
+
+function update(dt, now){
+  if(!running || paused) return;
+
+  // combo decay
+  if(combo > 0){
+    comboTimer -= dt;
+    if(comboTimer <= 0) combo = 0;
+  }
+
+  fire(now);
+
+  // spawn
+  if(spawnLeft > 0){
+    spawnTimer -= dt;
+    if(spawnTimer <= 0){
+      makeEnemy(chooseType());
+      spawnLeft--;
+      spawnTimer = Math.max(0.25, 0.9 - wave * 0.03);
+    }
+  }
+
+  const c = core();
+  coreAngle += dt * 1.2;
+
+  // enemies
+  for(let i = enemies.length - 1; i >= 0; i--){
+    const e = enemies[i];
+    const dx = c.x - e.x, dy = c.y - e.y;
+    const d = Math.hypot(dx, dy) || 1;
+    let vx = dx / d, vy = dy / d;
+
+    if(e.id === "sniper" || e.id === "GLITCH"){
+      e.phase += dt * 5;
+      vx += Math.sin(e.phase) * 0.7;
+      vy += Math.cos(e.phase) * 0.7;
+      const l = Math.hypot(vx, vy) || 1;
+      vx /= l; vy /= l;
+    }
+
+    e.x += vx * e.speed * dt;
+    e.y += vy * e.speed * dt;
+    e.hit = Math.max(0, e.hit - dt);
+
+    if(d < 36){
+      takeDamage(e.id === "boss" ? 22 : e.id === "tank" ? 14 : 8);
+      burst(e.x, e.y, e.color, 10);
+      if(e.id === "boss") boss = null;
+      enemies.splice(i, 1);
+      if(hp <= 0) return;
+    }
+  }
+
+  // bullets
+  for(let i = bullets.length - 1; i >= 0; i--){
+    const b = bullets[i];
+    b.trail.push({x: b.x, y: b.y});
+    if(b.trail.length > 6) b.trail.shift();
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+    b.life -= dt;
+    let remove = b.life <= 0 || b.x < -50 || b.x > W + 50 || b.y < -50 || b.y > H + 50;
+
+    if(!remove){
+      for(let j = enemies.length - 1; j >= 0; j--){
+        const e = enemies[j];
+        if(Math.hypot(e.x - b.x, e.y - b.y) < e.r + 7){
+          e.hp -= damage;
+          e.hit = 0.15;
+          burst(b.x, b.y, "#9ff", 5, 80);
+          if(e.hp <= 0) addKill(e);
+          if(pierce > 0){
+            // keep going but reduce pierce a bit conceptually
+          } else {
+            remove = true;
+          }
+          break;
+        }
+      }
+    }
+    if(remove) bullets.splice(i, 1);
+  }
+
+  // particles
+  for(let i = particles.length - 1; i >= 0; i--){
+    const p = particles[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vx *= 0.96;
+    p.vy *= 0.96;
+    p.life -= dt;
+    if(p.life <= 0) particles.splice(i, 1);
+  }
+
+  // score pops
+  for(let i = pops.length - 1; i >= 0; i--){
+    const p = pops[i];
+    p.y += p.vy * dt;
+    p.life -= dt;
+    if(p.life <= 0) pops.splice(i, 1);
+  }
+
+  // wave clear
+  if(spawnLeft === 0 && enemies.length === 0 && !cleared){
+    cleared = true;
+    setTimeout(() => {
+      if(running && !paused) levelUp();
+    }, 500);
+  }
+
+  // shake decay
+  if(shake > 0) shake = Math.max(0, shake - dt * 45);
+
+  updateHUD();
+}
+
 function draw(){
- ctx.clearRect(0,0,W,H);
- const c=core();
- // background grid
- ctx.save();ctx.strokeStyle="#17435a55";ctx.lineWidth=1;
- for(let x=W%38;x<W;x+=38){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
- for(let y=H%38;y<H;y+=38){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
- ctx.restore();
- // arena
- ctx.save();ctx.translate(c.x,c.y);ctx.strokeStyle="#16dfff55";ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(0,-Math.min(H*.34,210));ctx.lineTo(Math.min(W*.43,260),0);
- ctx.lineTo(0,Math.min(H*.34,210));ctx.lineTo(-Math.min(W*.43,260),0);ctx.closePath();ctx.stroke();ctx.restore();
- // core
- ctx.save();ctx.shadowBlur=30;ctx.shadowColor="#00eaff";ctx.fillStyle="#123f63";
- ctx.beginPath();ctx.arc(c.x,c.y,25,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle="#53f5ff";ctx.lineWidth=3;ctx.beginPath();ctx.arc(c.x,c.y,30,0,Math.PI*2);ctx.stroke();
- ctx.fillStyle="#b8ffff";ctx.beginPath();ctx.arc(c.x,c.y,8,0,Math.PI*2);ctx.fill();ctx.restore();
- // bullets
- bullets.forEach(b=>{ctx.save();ctx.fillStyle="#65faff";ctx.shadowColor="#00dfff";ctx.shadowBlur=15;ctx.beginPath();ctx.arc(b.x,b.y,4,0,Math.PI*2);ctx.fill();ctx.restore()});
- // enemies
- enemies.forEach(e=>{
-  ctx.save();ctx.translate(e.x,e.y);ctx.shadowColor=e.color;ctx.shadowBlur=18;
-  ctx.fillStyle=e.hit>0?"white":e.color;
-  if(e.id==="boss"){
-   ctx.rotate(Math.PI/4);ctx.fillRect(-e.r,-e.r,e.r*2,e.r*2);
-  }else{
-   ctx.beginPath();ctx.moveTo(0,-e.r);ctx.lineTo(e.r,e.r*.65);ctx.lineTo(0,e.r*.35);ctx.lineTo(-e.r,e.r*.65);ctx.closePath();ctx.fill();
+  ctx.save();
+  // screen shake
+  if(shake > 0){
+    ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
   }
-  ctx.strokeStyle="#fff";ctx.lineWidth=1;ctx.stroke();ctx.restore();
-  if(e.id==="boss"){
-   ctx.fillStyle="#ffb2c8";ctx.fillRect(e.x-30,e.y-42,60,4);
-   ctx.fillStyle="#ff477c";ctx.fillRect(e.x-30,e.y-42,60*e.hp/e.maxHp,4);
+
+  ctx.clearRect(-20, -20, W + 40, H + 40);
+
+  const c = core();
+
+  // background grid
+  ctx.strokeStyle = "#0e3a4f44";
+  ctx.lineWidth = 1;
+  const grid = 42;
+  for(let x = (W % grid) - grid; x < W + grid; x += grid){
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
   }
- });
- particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life/.55);ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,4,4)});
- ctx.globalAlpha=1;
- if(running&&!paused){
-  ctx.save();ctx.translate(aim.x,aim.y);ctx.strokeStyle="#d8ffff";ctx.lineWidth=2;ctx.shadowColor="#00eaff";ctx.shadowBlur=12;
-  ctx.beginPath();ctx.arc(0,0,13,0,Math.PI*2);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(-21,0);ctx.lineTo(-7,0);ctx.moveTo(7,0);ctx.lineTo(21,0);
-  ctx.moveTo(0,-21);ctx.lineTo(0,-7);ctx.moveTo(0,7);ctx.lineTo(0,21);ctx.stroke();ctx.restore();
- }
-}
-function loop(now){
- if(!lastTime)lastTime=now;
- const dt=Math.min(.04,(now-lastTime)/1000);lastTime=now;
- update(dt,now);draw();requestAnimationFrame(loop);
-}
-function setAim(e){
- const r=canvas.getBoundingClientRect();aim.x=e.clientX-r.left;aim.y=e.clientY-r.top;
-}
-canvas.addEventListener("pointerdown",e=>{if(running&&!paused)setAim(e)});
-canvas.addEventListener("pointermove",e=>{if(running&&!paused&&(e.pointerType!=="mouse"||e.buttons))setAim(e)});
-const fireButton=$("fire");
-fireButton.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();fireHeld=true;fire(performance.now())});
-function releaseFire(){fireHeld=false}
-fireButton.addEventListener("pointerup",releaseFire);
-fireButton.addEventListener("pointercancel",releaseFire);
-fireButton.addEventListener("lostpointercapture",releaseFire);
-addEventListener("pointerup",releaseFire);
-addEventListener("blur",releaseFire);
-addEventListener("keydown",e=>{if(e.code==="Space"){e.preventDefault();fireHeld=true}});
-addEventListener("keyup",e=>{if(e.code==="Space")releaseFire()});
+  for(let y = (H % grid) - grid; y < H + grid; y += grid){
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
 
-// skill tree
-const skills=[
- {id:"damage",name:"POWER CORE",desc:"攻撃力を恒久的に上げる",cost:30,max:5},
- {id:"rate",name:"RAPID SYSTEM",desc:"連射速度を恒久的に上げる",cost:35,max:5},
- {id:"multi",name:"MULTI TARGET",desc:"初期の同時発射数を増やす",cost:65,max:2},
- {id:"pierce",name:"PENETRATION",desc:"弾の貫通能力を強化する",cost:80,max:3}
-];
-function renderSkills(){
- $("skillData").textContent=save.data;const box=$("skillList");box.innerHTML="";
- skills.forEach(s=>{
-  const lv=save.skills[s.id],cost=s.cost*(lv+1),max=lv>=s.max;
-  const el=document.createElement("div");el.className="item";
-  el.innerHTML="<b>"+s.name+"</b><small>"+s.desc+"</small><small>LEVEL "+lv+" / "+s.max+"　"+(max?"MAX":"NEXT COST: "+cost+" DATA")+"</small>";
-  const b=document.createElement("button");b.className="action";b.textContent=max?"MAX LEVEL":"UPGRADE";
-  b.disabled=max||save.data<cost;
-  b.onclick=()=>{if(save.data>=cost&&!max){save.data-=cost;save.skills[s.id]++;saveGame();renderSkills();renderHome()}};
-  el.appendChild(b);box.appendChild(el);
- });
-}
-const cores=[
- {id:"integrity",name:"CORE CAPACITY",desc:"最大耐久力を8増加",cost:45,max:5},
- {id:"armor",name:"CORE ARMOR",desc:"コアへのダメージを少し軽減",cost:60,max:5}
-];
-function renderCore(){
- $("coreData").textContent=save.data;const box=$("coreList");box.innerHTML="";
- cores.forEach(s=>{
-  const lv=save.core[s.id],cost=s.cost*(lv+1),max=lv>=s.max;
-  const el=document.createElement("div");el.className="item";
-  el.innerHTML="<b>"+s.name+"</b><small>"+s.desc+"</small><small>LEVEL "+lv+" / "+s.max+"　"+(max?"MAX":"NEXT COST: "+cost+" DATA")+"</small>";
-  const b=document.createElement("button");b.className="action";b.textContent=max?"MAX LEVEL":"RESEARCH";
-  b.disabled=max||save.data<cost;
-  b.onclick=()=>{if(save.data>=cost&&!max){save.data-=cost;save.core[s.id]++;saveGame();renderCore();renderHome()}};
-  el.appendChild(b);box.appendChild(el);
- });
-}
-function renderDatabase(){
- const box=$("enemyList");box.innerHTML="";
- enemyTypes.forEach(e=>{
-  const found=save.discovered.includes(e.id),el=document.createElement("div");
-  el.className="item"+(found?"":" locked");
-  el.innerHTML="<b>"+(found?e.name:"UNKNOWN SIGNAL")+"</b><small>"+(found?e.desc:"未確認の敵。戦闘で遭遇すると情報が解放される。")+"</small><small>"+(found?"THREAT DATA UNLOCKED":"DATA LOCKED")+"</small>";
-  box.appendChild(el);
- });
-}
-function renderRecords(){
- $("recBest").textContent=save.best;$("recWave").textContent=save.bestWave;
- $("recKills").textContent=save.totalKills;$("recRuns").textContent=save.runs;
- $("recBoss").textContent=save.bossKills;$("recEarned").textContent=save.totalEarned;
- $("recData").textContent=save.data;
-}
-$("goBattle").onclick=startBattle;
-$("goSkills").onclick=()=>{renderSkills();showScreen("skills")};
-$("goCore").onclick=()=>{renderCore();showScreen("coreLab")};
-$("goDatabase").onclick=()=>{renderDatabase();showScreen("database")};
-$("goRecords").onclick=()=>{renderRecords();showScreen("records")};
-$("goHow").onclick=()=>showScreen("how");
-document.querySelectorAll("[data-home]").forEach(b=>b.onclick=home);
-$("again").onclick=startBattle;
-$("battleMenu").onclick=()=>{if(running){paused=true;fireHeld=false;showScreen("pauseScreen")}};
-$("resume").onclick=()=>{paused=false;showScreen("home")};
-$("quitBattle").onclick=home;
-
-renderHome();showScreen("home");requestAnimationFrame(loop);
-})();
-</script>
-</body>
-</html>
+  // arena diamond
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.strokeStyle = "#16dfff33";
+  ctx
