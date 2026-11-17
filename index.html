@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CYBER BREAKER 1.4</title>
+<title>CYBER BREAKER 1.5</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#030817;color:#e9faff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation}
@@ -86,7 +87,7 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
     <div class="logo">
       <h1>CYBER BREAKER</h1>
       <p>DEFEND YOUR DIGITAL CORE</p>
-      <div class="muted">VERSION 1.4 / ENDLESS</div>
+      <div class="muted">VERSION 1.5 / ENDLESS</div>
     </div>
     <div class="panel">
       <div class="topline"><b>PLAYER STATUS</b><span class="muted" id="homeRank">ROOKIE</span></div>
@@ -97,8 +98,8 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
       </div>
       <div class="grid">
         <button class="menuBtn" id="goBattle"><b>▶ BATTLE</b><span>防衛戦を開始する</span></button>
-        <button class="menuBtn" id="goSkills"><b>✦ SKILL TREE</b><span>恒久スキルを強化する</span></button>
-        <button class="menuBtn" id="goCore"><b>◈ CORE LAB</b><span>デジタルコアを研究する</span></button>
+        <button class="menuBtn" id="goSkills"><b>✦ SKILL TREE</b><span>新システム・弾種を解放する</span></button>
+        <button class="menuBtn" id="goCore"><b>◈ CORE LAB</b><span>コア防衛機能を研究・強化する</span></button>
         <button class="menuBtn" id="goDatabase"><b>▤ DATABASE</b><span>敵の情報を確認する</span></button>
         <button class="menuBtn" id="goRecords"><b>▣ RECORD</b><span>戦績・プレイ記録</span></button>
         <button class="menuBtn" id="goHow"><b>? HOW TO PLAY</b><span>操作方法とルール</span></button>
@@ -110,8 +111,9 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
 <section class="screen hidden" id="skills">
   <div class="wrap">
     <div class="topline"><h2>SKILL TREE</h2><b>DATA: <span id="skillData">0</span></b></div>
-    <p>戦闘で獲得したDATAを使って能力を恒久的に強化する。</p>
+    <p>新しい戦闘システムや弾種を解放する。ここで解放した機能は出撃前に選択できる。</p>
     <div id="skillList"></div>
+    <div class="panel" style="margin-top:14px"><h2 style="font-size:18px">AMMO LOADOUT</h2><p>出撃時に使用する弾種を選択。</p><div id="ammoList"></div></div>
     <button class="action" id="backFromSkills">BACK TO HOME</button>
   </div>
 </section>
@@ -157,7 +159,7 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
     <div class="item"><b>01 / AIM</b><small>画面をドラッグして照準を移動</small></div>
     <div class="item"><b>02 / FIRE</b><small>FIREボタンを長押しで連続攻撃</small></div>
     <div class="item"><b>03 / DEFEND</b><small>敵がコアに到達するとダメージを受ける</small></div>
-    <div class="item"><b>04 / GROW</b><small>ウェーブクリアとボス撃破でDATAを獲得</small></div>
+    <div class="item"><b>04 / GROW</b><small>敵撃破・ウェーブクリア・ボス撃破でDATAを獲得</small></div>
     <div class="item"><b>05 / ENDLESS</b><small>どこまで生き残れるかに挑戦</small></div>
     <button class="action" id="backFromHow">BACK TO HOME</button>
   </div>
@@ -215,6 +217,7 @@ let boss = null;
 let combo = 0, comboTimer = 0, maxCombo = 0;
 let shake = 0, coreAngle = 0;
 let bossPending = false, isBossWave = false;
+let shieldCharges = 0, supportTimer = 0;
 
 // 戦闘中の強化レベル
 let runUpgrades = {
@@ -237,10 +240,10 @@ const enemyTypes = [
 ];
 
 const defaultSave = {
-  data:0, best:0, bestWave:0, totalKills:0, runs:0, bossKills:0, totalEarned:0,
+  version:2, data:0, dataProgress:0, best:0, bestWave:0, totalKills:0, runs:0, bossKills:0, totalEarned:0,
   discovered:[],
-  skills:{damage:0, rate:0, multi:0, pierce:0},
-  core:{integrity:0, armor:0}
+  skills:{damage:0, rate:0, multi:0, pierce:0, intercept:0, explosive:0, emp:0, ricochet:0, split:0, dataBonus:0, activeAmmo:"standard"},
+  core:{integrity:0, armor:0, shield:0, supportFire:0}
 };
 let save = loadSave();
 
@@ -249,11 +252,21 @@ function loadSave(){
     const raw = localStorage.getItem("cb_save_v1");
     if(!raw) return structuredClone(defaultSave);
     const old = JSON.parse(raw);
-    return Object.assign({}, defaultSave, old, {
-      skills: Object.assign({}, defaultSave.skills, old.skills||{}),
+    const oldSkills = old.skills||{};
+    const migrated = Object.assign({}, defaultSave, old, {
+      version:2,
+      skills: Object.assign({}, defaultSave.skills, oldSkills),
       core: Object.assign({}, defaultSave.core, old.core||{}),
       discovered: Array.isArray(old.discovered) ? old.discovered : []
     });
+    // 旧SKILL TREEで購入した戦闘ステータス強化分はDATAに返還する
+    if((old.version||1)<2){
+      const refund = (oldSkills.damage||0)*55 + (oldSkills.rate||0)*60 + (oldSkills.multi||0)*75 + (oldSkills.pierce||0)*80;
+      migrated.data = (old.data||0) + refund;
+      migrated.skills.damage=0; migrated.skills.rate=0; migrated.skills.multi=0; migrated.skills.pierce=0;
+      try{ localStorage.setItem("cb_save_v1", JSON.stringify(migrated)); }catch(e){}
+    }
+    return migrated;
   }catch(e){ return structuredClone(defaultSave); }
 }
 function saveGame(){
@@ -309,8 +322,8 @@ function renderHome(){
   $("homeBest").textContent = save.best;
   $("homeKills").textContent = save.totalKills;
   $("homeData").textContent = save.data;
-  const total = (save.skills.damage||0)+(save.skills.rate||0)+(save.skills.multi||0)+(save.skills.pierce||0);
-  $("homeRank").textContent = total>=12?"ELITE":total>=6?"VETERAN":total>=2?"OPERATIVE":"ROOKIE";
+  const total = ["intercept","explosive","emp","ricochet","split"].filter(k=>save.skills[k]).length + (save.skills.dataBonus||0) + (save.core.shield||0) + (save.core.supportFire||0);
+  $("homeRank").textContent = total>=10?"ELITE":total>=6?"VETERAN":total>=2?"OPERATIVE":"ROOKIE";
 }
 function corePos(){ return {x:W/2, y:H*0.52}; }
 
@@ -327,7 +340,7 @@ function updateHUD(){
   $("uiScore").textContent = score;
   $("uiLevel").textContent = level;
   $("uiData").textContent = save.data;
-  $("hpText").textContent = Math.max(0, Math.ceil(hp));
+  $("hpText").textContent = Math.max(0, Math.ceil(hp)) + ((save.core.shield||0)>0 ? "  /  SHIELD "+shieldCharges : "");
   $("hpFill").style.width = Math.max(0, hp) + "%";
   if(boss){
     $("bossBar").classList.remove("hidden");
@@ -341,10 +354,10 @@ function updateHUD(){
 }
 
 function applyRunStats(){
-  damage = 1 + (save.skills.damage||0) + runUpgrades.damage;
-  rate = Math.max(70, 280 - (save.skills.rate||0)*16 - runUpgrades.rate*28);
-  multi = Math.min(3, 1 + (save.skills.multi||0) + runUpgrades.multi);
-  pierce = Math.min(3, (save.skills.pierce||0) + runUpgrades.pierce);
+  damage = 1 + runUpgrades.damage;
+  rate = Math.max(70, 280 - runUpgrades.rate*28);
+  multi = Math.min(3, 1 + runUpgrades.multi);
+  pierce = Math.min(3, runUpgrades.pierce);
   bulletSpeed = 700 + runUpgrades.speed * 90;
 }
 
@@ -357,6 +370,7 @@ function startBattle(){
   applyRunStats();
   enemies = []; bullets = []; particles = []; enemyBullets = [];
   boss = null; cleared = false; bossPending = false; isBossWave = false;
+  shieldCharges = save.core.shield||0; supportTimer = 0;
   spawnLeft = 7; spawnTimer = 0.55;
   running = true; paused = false; fireHeld = false;
   lastShot = 0; lastTime = performance.now(); shake = 0;
@@ -424,6 +438,7 @@ function shoot(now){
   const c = corePos();
   const base = Math.atan2(aim.y - c.y, aim.x - c.x);
   const angles = multi===1 ? [0] : multi===2 ? [-0.13,0.13] : [-0.22,0,0.22];
+  const ammo = save.skills.activeAmmo || "standard";
   angles.forEach(a=>{
     const ang = base + a;
     bullets.push({
@@ -431,7 +446,7 @@ function shoot(now){
       y: c.y + Math.sin(ang)*26,
       vx: Math.cos(ang)*bulletSpeed,
       vy: Math.sin(ang)*bulletSpeed,
-      life: 1.3
+      life: 1.3, age:0, ammo, chain:0, splitDone:false, damageScale:1
     });
   });
   lastShot = now;
@@ -443,6 +458,13 @@ function tryFire(now){
 }
 
 function takeDamage(amount){
+  if(shieldCharges > 0){
+    shieldCharges--;
+    announce("SHIELD BLOCK", "#65f5ff");
+    for(let i=0;i<12;i++) particles.push({x:W/2,y:H*0.52,vx:(Math.random()-0.5)*180,vy:(Math.random()-0.5)*180,life:0.45,color:"#55eaff"});
+    updateHUD();
+    return false;
+  }
   const reduced = Math.max(1, amount - (save.core.armor||0)*1.4);
   hp -= reduced;
   shake = 13;
@@ -452,6 +474,15 @@ function takeDamage(amount){
     hp = 0;
     gameOver();
   }
+  return true;
+}
+
+function grantData(baseAmount){
+  const multiplier = 1 + (save.skills.dataBonus||0)*0.1;
+  const total = (save.dataProgress||0) + baseAmount*multiplier;
+  const whole = Math.floor(total + 1e-9);
+  save.dataProgress = total - whole;
+  if(whole > 0){ save.data += whole; save.totalEarned += whole; }
 }
 
 function addKill(e){
@@ -462,10 +493,10 @@ function addKill(e){
   score += Math.floor(e.score * mult);
   kills++;
   save.totalKills++;
+  if(e.id !== "boss") grantData(1);
 
   if(e.id === "boss"){
-    save.data += 3;
-    save.totalEarned += 3;
+    grantData(3);
     save.bossKills++;
     boss = null;
   }
@@ -492,8 +523,7 @@ function addKill(e){
 function giveWaveReward(){
   let gain = 1;
   if(isBossWave) gain += 2;
-  save.data += gain;
-  save.totalEarned += gain;
+  grantData(gain);
   saveGame();
 }
 
@@ -580,6 +610,7 @@ function levelUp(){
 
 function nextWave(){
   wave++;
+  if((wave-1)%5===0) shieldCharges = save.core.shield||0;
   cleared = false;
   isBossWave = (wave % 5 === 0);
   bossPending = false;
@@ -644,6 +675,18 @@ function update(dt, now){
   const c = corePos();
   coreAngle += dt * 1.15;
 
+  // CORE LAB: SUPPORT FIRE
+  const supportLv = save.core.supportFire||0;
+  if(supportLv > 0){
+    supportTimer -= dt;
+    if(supportTimer <= 0 && enemies.length){
+      const target = enemies.reduce((a,b)=>Math.hypot(a.x-c.x,a.y-c.y)<Math.hypot(b.x-c.x,b.y-c.y)?a:b);
+      const ang = Math.atan2(target.y-c.y,target.x-c.x);
+      bullets.push({x:c.x+Math.cos(ang)*28,y:c.y+Math.sin(ang)*28,vx:Math.cos(ang)*bulletSpeed*0.82,vy:Math.sin(ang)*bulletSpeed*0.82,life:1.5,age:0,ammo:"support",chain:0,splitDone:true,damageScale:0.75});
+      supportTimer = Math.max(5, 10-(supportLv-1)*1.25);
+    }
+  }
+
   // 敵の移動と攻撃
   for(let i = enemies.length-1; i >= 0; i--){
     const e = enemies[i];
@@ -663,8 +706,10 @@ function update(dt, now){
       vx /= l; vy /= l;
     }
 
-    e.x += vx * e.speed * dt;
-    e.y += vy * e.speed * dt;
+    e.empTimer = Math.max(0, (e.empTimer||0)-dt);
+    const empScale = e.empTimer>0 ? 0.08 : 1;
+    e.x += vx * e.speed * empScale * dt;
+    e.y += vy * e.speed * empScale * dt;
     e.hit = Math.max(0, e.hit - dt);
 
     // シューターの攻撃
@@ -702,27 +747,68 @@ function update(dt, now){
     }
   }
 
-  // プレイヤー弾
+  // プレイヤー弾（弾種ごとの固有効果）
   for(let i = bullets.length-1; i >= 0; i--){
     const b = bullets[i];
     b.x += b.vx * dt;
     b.y += b.vy * dt;
     b.life -= dt;
+    b.age = (b.age||0) + dt;
     let remove = b.life <= 0 || b.x < -50 || b.x > W+50 || b.y < -50 || b.y > H+50;
+
+    // INTERCEPT SHOT：自弾で敵弾を打ち消す
+    if(!remove && save.skills.intercept){
+      for(let k=enemyBullets.length-1;k>=0;k--){
+        const eb=enemyBullets[k];
+        if(Math.hypot(eb.x-b.x,eb.y-b.y)<11){
+          enemyBullets.splice(k,1); remove=true;
+          for(let n=0;n<5;n++) particles.push({x:b.x,y:b.y,vx:(Math.random()-0.5)*100,vy:(Math.random()-0.5)*100,life:0.25,color:"#65f5ff"});
+          break;
+        }
+      }
+    }
+
+    // SPLIT SHOT：一定距離進んだ弾が3方向へ分散
+    if(!remove && b.ammo==="split" && !b.splitDone && b.age>=0.34){
+      const ang=Math.atan2(b.vy,b.vx), speed=Math.hypot(b.vx,b.vy);
+      [-0.34,0,0.34].forEach(off=>bullets.push({x:b.x,y:b.y,vx:Math.cos(ang+off)*speed,vy:Math.sin(ang+off)*speed,life:b.life,age:0,ammo:"splitChild",chain:0,splitDone:true,damageScale:0.72}));
+      remove=true;
+    }
 
     if(!remove){
       for(let j = enemies.length-1; j >= 0; j--){
         const e = enemies[j];
         if(Math.hypot(e.x-b.x, e.y-b.y) < e.r+6){
-          e.hp -= damage;
+          const hitDamage = damage * (b.damageScale||1);
+          e.hp -= hitDamage;
           e.hit = 0.12;
+          if(b.ammo==="explosive"){
+            for(let k=enemies.length-1;k>=0;k--){
+              const other=enemies[k];
+              if(other!==e && Math.hypot(other.x-b.x,other.y-b.y)<76){
+                other.hp -= hitDamage*0.8; other.hit=0.12;
+                if(other.hp<=0) addKill(other);
+              }
+            }
+            for(let n=0;n<16;n++){const a=Math.random()*Math.PI*2;particles.push({x:b.x,y:b.y,vx:Math.cos(a)*100,vy:Math.sin(a)*100,life:0.35,color:"#ffad55"});}
+          }else if(b.ammo==="emp"){
+            e.empTimer=Math.max(e.empTimer||0,1.35);
+          }else if(b.ammo==="ricochet" && b.chain<2){
+            const next=enemies.filter(other=>other!==e).sort((a,c)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(c.x-e.x,c.y-e.y))[0];
+            if(next && Math.hypot(next.x-e.x,next.y-e.y)<250){
+              const ang=Math.atan2(next.y-e.y,next.x-e.x), speed=Math.hypot(b.vx,b.vy);
+              b.x=e.x; b.y=e.y; b.vx=Math.cos(ang)*speed; b.vy=Math.sin(ang)*speed; b.chain++; b.damageScale=(b.damageScale||1)*0.72;
+              if(e.hp<=0) addKill(e);
+              break;
+            }
+          }
           if(e.hp <= 0) addKill(e);
-          if(pierce <= 0) remove = true;
+          if(pierce <= 0 && !(b.ammo==="ricochet" && b.chain<2 && bullets[i]===b)) remove = true;
           break;
         }
       }
     }
-    if(remove) bullets.splice(i,1);
+    if(remove){ const idx=bullets.indexOf(b); if(idx!==-1) bullets.splice(idx,1); }
   }
 
   for(let i = particles.length-1; i >= 0; i--){
@@ -778,13 +864,11 @@ function draw(){
   ctx.restore();
 
   // プレイヤー弾
-  ctx.fillStyle = "#6ff";
   ctx.shadowBlur = 12;
-  ctx.shadowColor = "#0ff";
   bullets.forEach(b=>{
-    ctx.beginPath();
-    ctx.arc(b.x,b.y,4,0,Math.PI*2);
-    ctx.fill();
+    const colors={standard:"#6ff",explosive:"#ffad55",emp:"#8b9dff",ricochet:"#7dffa3",split:"#e6a0ff",splitChild:"#e6a0ff",support:"#fff08a"};
+    ctx.fillStyle=colors[b.ammo]||"#6ff"; ctx.shadowColor=ctx.fillStyle;
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.ammo==="explosive"?5:4,0,Math.PI*2); ctx.fill();
   });
   ctx.shadowBlur = 0;
 
@@ -903,67 +987,71 @@ $("quitBattle").onclick = goHome;
 // 恒久強化（コスト高め）
 function renderSkills(){
   $("skillData").textContent = save.data;
-  const box = $("skillList");
-  box.innerHTML = "";
-  [
-    {id:"damage", name:"POWER CORE", desc:"攻撃力を恒久的に上げる", cost:55, max:5},
-    {id:"rate", name:"RAPID SYSTEM", desc:"連射速度を恒久的に上げる", cost:60, max:5},
-    {id:"multi", name:"MULTI TARGET", desc:"初期弾数を増やす", cost:75, max:2},
-    {id:"pierce", name:"PENETRATION", desc:"貫通を恒久強化", cost:80, max:3}
-  ].forEach(s=>{
-    const lv = save.skills[s.id]||0;
-    const cost = s.cost + lv*15;
-    const maxed = lv >= s.max;
-    const el = document.createElement("div");
-    el.className = "item";
-    el.innerHTML = `<b>${s.name}</b><small>${s.desc}</small><small>Lv ${lv}/${s.max} ${maxed?"MAX":"次:"+cost+" DATA"}</small>`;
-    const btn = document.createElement("button");
-    btn.className = "action";
-    btn.textContent = maxed ? "MAX" : "UPGRADE";
-    btn.disabled = maxed || save.data < cost;
-    btn.onclick = ()=>{
-      if(save.data >= cost && !maxed){
-        save.data -= cost;
-        save.skills[s.id] = lv+1;
-        saveGame();
-        renderSkills();
-        renderHome();
-      }
-    };
-    el.appendChild(btn);
-    box.appendChild(el);
+  const box = $("skillList"); box.innerHTML = "";
+  const systems = [
+    {id:"intercept",name:"INTERCEPT SHOT",desc:"自分の弾で敵の弾を打ち消すシステムを解放",cost:110,kind:"unlock"},
+    {id:"explosive",name:"EXPLOSIVE SHOT",desc:"命中時に周囲の敵も巻き込む爆発弾を解放",cost:95,kind:"ammo"},
+    {id:"emp",name:"EMP SHOT",desc:"命中した敵の動きを一時停止させる弾を解放",cost:115,kind:"ammo"},
+    {id:"ricochet",name:"RICOCHET SHOT",desc:"敵に当たると別の敵へ跳ね返る弾を解放",cost:130,kind:"ammo"},
+    {id:"split",name:"SPLIT SHOT",desc:"飛行中に複数方向へ分散する弾を解放",cost:145,kind:"ammo"},
+    {id:"dataBonus",name:"DATA BONUS",desc:"敵撃破・ウェーブ報酬のDATA獲得量 +10% / Lv",cost:80,kind:"upgrade",max:5}
+  ];
+  systems.forEach(item=>{
+    const lv=save.skills[item.id]||0;
+    const unlocked=item.kind==="upgrade"?lv>0:!!lv;
+    const cost=item.kind==="upgrade"?item.cost+lv*55:item.cost;
+    const maxed=item.kind==="upgrade"?lv>=item.max:unlocked;
+    const el=document.createElement("div"); el.className="item"+(unlocked?"":" locked");
+    el.innerHTML=`<b>${item.name}</b><small>${item.desc}</small><small>${item.kind==="upgrade"?`Lv ${lv}/${item.max}`:(unlocked?"UNLOCKED":"LOCKED")}${maxed?"  /  COMPLETE":"  /  "+cost+" DATA"}</small>`;
+    const btn=document.createElement("button"); btn.className="action"; btn.textContent=maxed?"UNLOCKED":(item.kind==="upgrade"&&lv>0?"UPGRADE":"UNLOCK");
+    btn.disabled=maxed||save.data<cost;
+    btn.onclick=()=>{if(maxed||save.data<cost)return;save.data-=cost;save.skills[item.id]=lv+1;saveGame();renderSkills();renderHome();};
+    el.appendChild(btn); box.appendChild(el);
   });
+  renderAmmoLoadout();
+}
+
+function renderAmmoLoadout(){
+  const box=$("ammoList"); if(!box)return; box.innerHTML="";
+  const ammo=[
+    {id:"standard",name:"STANDARD",desc:"安定した標準弾",unlocked:true},
+    {id:"explosive",name:"EXPLOSIVE",desc:"範囲爆発",unlocked:!!save.skills.explosive},
+    {id:"emp",name:"EMP",desc:"敵を一時停止",unlocked:!!save.skills.emp},
+    {id:"ricochet",name:"RICOCHET",desc:"敵から敵へ跳ね返る",unlocked:!!save.skills.ricochet},
+    {id:"split",name:"SPLIT",desc:"飛行中に3方向へ分散",unlocked:!!save.skills.split}
+  ];
+  if(!ammo.some(a=>a.id===(save.skills.activeAmmo||"standard")&&a.unlocked)) save.skills.activeAmmo="standard";
+  ammo.forEach(a=>{
+    const btn=document.createElement("button"); btn.className="action";
+    btn.textContent=(a.id===(save.skills.activeAmmo||"standard")?"✓ ":"")+a.name+(a.unlocked?"":" / LOCKED");
+    btn.disabled=!a.unlocked;
+    btn.style.opacity=a.unlocked?"1":".35";
+    btn.onclick=()=>{save.skills.activeAmmo=a.id;saveGame();renderAmmoLoadout();};
+    box.appendChild(btn);
+  });
+  saveGame();
 }
 
 function renderCore(){
-  $("coreData").textContent = save.data;
-  const box = $("coreList");
-  box.innerHTML = "";
-  [
-    {id:"integrity", name:"CORE CAPACITY", desc:"最大耐久を+8", cost:60, max:6},
-    {id:"armor", name:"CORE ARMOR", desc:"被ダメージを軽減", cost:65, max:5}
-  ].forEach(s=>{
-    const lv = save.core[s.id]||0;
-    const cost = s.cost + lv*12;
-    const maxed = lv >= s.max;
-    const el = document.createElement("div");
-    el.className = "item";
-    el.innerHTML = `<b>${s.name}</b><small>${s.desc}</small><small>Lv ${lv}/${s.max} ${maxed?"MAX":"次:"+cost+" DATA"}</small>`;
-    const btn = document.createElement("button");
-    btn.className = "action";
-    btn.textContent = maxed ? "MAX" : "RESEARCH";
-    btn.disabled = maxed || save.data < cost;
-    btn.onclick = ()=>{
-      if(save.data >= cost && !maxed){
-        save.data -= cost;
-        save.core[s.id] = lv+1;
-        saveGame();
-        renderCore();
-        renderHome();
-      }
-    };
-    el.appendChild(btn);
-    box.appendChild(el);
+  $("coreData").textContent=save.data;
+  const box=$("coreList"); box.innerHTML="";
+  const research=[
+    {id:"integrity",name:"CORE CAPACITY",desc:"最大耐久を +8",cost:60,max:6,unlockFirst:false},
+    {id:"armor",name:"CORE ARMOR",desc:"受けるダメージを軽減",cost:70,max:5,unlockFirst:false},
+    {id:"shield",name:"EMERGENCY SHIELD",desc:"5ウェーブごとに被ダメージを防ぐ。Lvごとに発動回数 +1（最大5回）",cost:150,max:5,unlockFirst:true},
+    {id:"supportFire",name:"SUPPORT FIRE",desc:"コアから自動支援射撃。Lvが上がるほど発射間隔が短縮（Lv5で5秒）",cost:170,max:5,unlockFirst:true}
+  ];
+  research.forEach(item=>{
+    const lv=save.core[item.id]||0;
+    const cost=item.cost+Math.max(0,lv-(item.unlockFirst?1:0))*35;
+    const maxed=lv>=item.max;
+    const el=document.createElement("div"); el.className="item"+(lv===0&&item.unlockFirst?" locked":"");
+    const status=item.unlockFirst?(lv===0?"LOCKED":"UNLOCKED"):`Lv ${lv}/${item.max}`;
+    el.innerHTML=`<b>${item.name}</b><small>${item.desc}</small><small>${status}${maxed?"  /  MAX":"  /  "+cost+" DATA"}</small>`;
+    const btn=document.createElement("button"); btn.className="action"; btn.textContent=maxed?"MAX":(item.unlockFirst&&lv===0?"UNLOCK":"RESEARCH");
+    btn.disabled=maxed||save.data<cost;
+    btn.onclick=()=>{if(maxed||save.data<cost)return;save.data-=cost;save.core[item.id]=lv+1;if(item.id==="shield"&&lv===0&&running)shieldCharges=1;saveGame();renderCore();renderHome();};
+    el.appendChild(btn); box.appendChild(el);
   });
 }
 
