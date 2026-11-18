@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CYBER BREAKER 1.8 - WORLD CHAOS</title>
+<title>CYBER BREAKER 1.9 - WORLD CHAOS</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#030817;color:#e9faff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation}
@@ -93,7 +93,7 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
     <div class="logo">
       <h1>CYBER BREAKER</h1>
       <p>DEFEND YOUR DIGITAL CORE</p>
-      <div class="muted">VERSION 1.8 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD: ANIMAL RIOT</div>
+      <div class="muted">VERSION 1.9 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD: ANIMAL RIOT</div>
     </div>
     <div class="panel">
       <div class="topline"><b>PLAYER STATUS</b><span class="muted" id="homeRank">ROOKIE</span></div>
@@ -400,9 +400,9 @@ function applyRunStats(){
 }
 
 const WORLD_DATA = {
-  animal:{id:"animal",name:"ANIMAL RIOT",tag:"THE GREAT ZOO ESCAPE",cost:0,desc:"動物たちが大脱走。中央の飼育ロボットと檻を守れ。",bg1:"#142d37",bg2:"#07131e",grid:"#5a9b7750",center:"🧑‍🌾",boss:"🦍"},
-  food:{id:"food",name:"FOOD CHAOS",tag:"THE FOOD COURT MELTDOWN",cost:10000,desc:"ピザ・寿司・バーガーが大暴走。巨大フードプレートが戦場の中心。",bg1:"#43251d",bg2:"#170d17",grid:"#ffb45a45",center:"🍽️",boss:"👨‍🍳"},
-  stationery:{id:"stationery",name:"STATIONERY WAR",tag:"THE DESK IS UNDER ATTACK",cost:10000,desc:"鉛筆・消しゴム・定規が反乱。巨大な筆箱を防衛せよ。",bg1:"#26304b",bg2:"#101326",grid:"#91aaff45",center:"🧰",boss:"✏️"}
+  animal:{id:"animal",name:"ANIMAL RIOT",tag:"THE GREAT ZOO ESCAPE",cost:0,desc:"草原の動物園で大脱走。中央のドジなハンターを守り抜け。",bg1:"#a9dc75",bg2:"#e9f5ad",grid:"#ffffff22",center:"🧑‍🌾",boss:"🦍"},
+  food:{id:"food",name:"FOOD CHAOS",tag:"THE DINNER TABLE DISASTER",cost:10000,desc:"食卓の上で料理が大暴走。中央の食いしん坊シェフロボを守れ。",bg1:"#f4b66d",bg2:"#8e492e",grid:"#fff1c833",center:"🤖",boss:"👨‍🍳"},
+  stationery:{id:"stationery",name:"STATIONERY WAR",tag:"THE DESK IS UNDER ATTACK",cost:10000,desc:"机の上で文房具が反乱。巨大な筆箱を防衛せよ。",bg1:"#a8c8ed",bg2:"#536d9e",grid:"#ffffff33",center:"🧰",boss:"✏️"}
 };
 function currentWorld(){
   const id=save.vip.selectedWorld||"animal";
@@ -410,7 +410,7 @@ function currentWorld(){
 }
 function worldEnemyArt(id){
   const maps={
-    animal:{basic:"🐰",swift:"🐿️",tank:"🐢",splitter:"🦎",zigzag:"🦊",pair:"🐥",shooter:"🐧",shielder:"🦔",spawner:"🦘",sniper:"🦉",repairer:"🐒",turret:"🦀",boss:"🦍",fragment:"🐣"},
+    animal:{basic:"🐰",swift:"🐿️",tank:"🐢",splitter:"🦎",zigzag:"🦊",pair:"🐥",shooter:"🦨",shielder:"🦔",spawner:"🦘",sniper:"🦉",repairer:"🐒",turret:"🦀",boss:"🦍",fragment:"🐣"},
     food:{basic:"🍔",swift:"🍟",tank:"🥔",splitter:"🍩",zigzag:"🌮",pair:"🍣",shooter:"🥤",shielder:"🥑",spawner:"🍿",sniper:"🌶️",repairer:"🍅",turret:"🥨",boss:"👨‍🍳",fragment:"🍬"},
     stationery:{basic:"✏️",swift:"🖊️",tank:"📚",splitter:"🖍️",zigzag:"📐",pair:"📝",shooter:"🖋️",shielder:"📏",spawner:"📎",sniper:"✒️",repairer:"🩹",turret:"📌",boss:"✏️",fragment:"✂️"}
   };
@@ -419,20 +419,60 @@ function worldEnemyArt(id){
 function drawWorldBackdrop(){
   const world=currentWorld();
   const grad=ctx.createLinearGradient(0,0,W,H);grad.addColorStop(0,world.bg1);grad.addColorStop(1,world.bg2);ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle=world.grid;ctx.lineWidth=1;
-  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
-  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-  // 世界観を伝える中央ランドマーク（コアの背後）
-  const c=corePos();ctx.save();ctx.globalAlpha=.24;ctx.textAlign="center";ctx.textBaseline="middle";
-  ctx.font=`${Math.min(118,Math.max(76,W*.22))}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
-  ctx.fillText(world.center,c.x,c.y-4);
+  const c=corePos();
   if(world.id==="animal"){
-    ctx.globalAlpha=.42;ctx.strokeStyle="#b7e8ff";ctx.lineWidth=3;
-    for(let k=-2;k<=2;k++){ctx.beginPath();ctx.moveTo(c.x+k*15,c.y-68);ctx.lineTo(c.x+k*15,c.y+60);ctx.stroke();}
-    ctx.beginPath();ctx.moveTo(c.x-40,c.y-58);ctx.lineTo(c.x+40,c.y-58);ctx.moveTo(c.x-40,c.y+52);ctx.lineTo(c.x+40,c.y+52);ctx.stroke();
+    // 明るい草原：丘・太陽・草むら・遠景の木
+    ctx.fillStyle="#ffe98a";ctx.beginPath();ctx.arc(W*.84,H*.13,Math.min(42,W*.07),0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#79bd68";ctx.beginPath();ctx.ellipse(W*.18,H*.42,W*.48,H*.17,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#5fae62";ctx.beginPath();ctx.ellipse(W*.83,H*.47,W*.55,H*.19,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#a4d66e";ctx.fillRect(0,H*.48,W,H*.52);
+    for(let i=0;i<Math.ceil(W/34);i++){let x=(i*67+19)%W,y=H*.55+(i*43%(Math.max(1,H*.4)));ctx.strokeStyle=i%2?"#397c43":"#e7d96d";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y+7);ctx.lineTo(x-4,y-3);ctx.moveTo(x,y+7);ctx.lineTo(x+5,y-5);ctx.stroke();}
+    // 木と簡易フェンスで動物園らしさ
+    [W*.12,W*.9].forEach(x=>{ctx.fillStyle="#76502f";ctx.fillRect(x-5,H*.31,10,75);ctx.fillStyle="#3d914c";ctx.beginPath();ctx.arc(x,H*.29,28,0,Math.PI*2);ctx.fill();});
+    ctx.strokeStyle="#ead8a4";ctx.lineWidth=4;for(let y=H*.61;y<H*.72;y+=24){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  }else if(world.id==="food"){
+    // 食卓：木目とチェック柄クロス
+    ctx.fillStyle="#9a542f";ctx.fillRect(0,0,W,H);
+    for(let y=0;y<H;y+=38){ctx.strokeStyle=y%76===0?"#e7a66b55":"#542b2455";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y+8);ctx.stroke();}
+    ctx.fillStyle="#fff1d7";ctx.globalAlpha=.23;ctx.fillRect(0,H*.12,W,H*.76);ctx.globalAlpha=1;
+    for(let y=0;y<H;y+=32)for(let x=0;x<W;x+=32){if((Math.floor(x/32)+Math.floor(y/32))%2===0){ctx.fillStyle="#fff0d0";ctx.globalAlpha=.16;ctx.fillRect(x,y,32,32);}}
+    ctx.globalAlpha=1;
+    // 皿・カトラリーの大きな飾り
+    ctx.strokeStyle="#fff4df88";ctx.lineWidth=5;ctx.beginPath();ctx.arc(W*.13,H*.22,38,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle="#d7e7f0aa";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(W*.88,H*.12);ctx.lineTo(W*.88,H*.38);ctx.moveTo(W*.85,H*.12);ctx.lineTo(W*.85,H*.22);ctx.moveTo(W*.91,H*.12);ctx.lineTo(W*.91,H*.22);ctx.stroke();
+  }else{
+    // ノートの罫線が走る巨大な机
+    ctx.fillStyle="#d7e7f7";ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle="#5c8bc044";ctx.lineWidth=2;for(let y=28;y<H;y+=34){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    ctx.strokeStyle="#e66f7b66";ctx.beginPath();ctx.moveTo(W*.12,0);ctx.lineTo(W*.12,H);ctx.stroke();
+    ctx.fillStyle="#d9b17b";ctx.fillRect(0,H*.84,W,H*.16);
+    // 端に転がった消しゴムとクリップ
+    ctx.save();ctx.translate(W*.13,H*.78);ctx.rotate(-.22);ctx.fillStyle="#f28ca8";ctx.fillRect(-28,-9,56,18);ctx.restore();
+    ctx.strokeStyle="#e5a84f";ctx.lineWidth=4;ctx.beginPath();ctx.arc(W*.87,H*.22,15,0,Math.PI*1.7);ctx.stroke();
+  }
+  // 中央の世界観キャラクター。コアより少し上に置き、ゲームプレイを邪魔しない
+  ctx.save();ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowColor="#17212a88";ctx.shadowBlur=12;
+  if(world.id==="animal"){
+    // ドジなハンター＋捕獲用ネットの檻
+    ctx.globalAlpha=.9;ctx.font=`${Math.min(76,Math.max(54,W*.14))}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
+    ctx.fillText("🧑‍🌾",c.x,c.y-76);
+    ctx.globalAlpha=.8;ctx.strokeStyle="#f4f0d2";ctx.lineWidth=4;ctx.strokeRect(c.x-53,c.y-119,106,91);
+    ctx.lineWidth=2;for(let k=-2;k<=2;k++){ctx.beginPath();ctx.moveTo(c.x+k*17,c.y-119);ctx.lineTo(c.x+k*17,c.y-28);ctx.stroke();}
+    ctx.fillStyle="#6b4a2b";ctx.fillRect(c.x+28,c.y-87,32,7);ctx.fillStyle="#f7e3a1";ctx.beginPath();ctx.arc(c.x+62,c.y-83,5,0,Math.PI*2);ctx.fill();
+    ctx.font="bold 10px Arial";ctx.fillStyle="#fff";ctx.fillText("ZOO KEEPER",c.x,c.y-130);
+  }else if(world.id==="food"){
+    ctx.globalAlpha=.92;ctx.font=`${Math.min(76,Math.max(54,W*.14))}px system-ui, Apple Color Emoji, Segoe UI Emoji`;ctx.fillText("🤖",c.x,c.y-76);
+    ctx.strokeStyle="#fff4dc";ctx.lineWidth=7;ctx.beginPath();ctx.ellipse(c.x,c.y-23,72,18,0,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle="#d9e5ef";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(c.x-87,c.y-113);ctx.lineTo(c.x-87,c.y-35);ctx.moveTo(c.x-96,c.y-113);ctx.lineTo(c.x-96,c.y-87);ctx.moveTo(c.x-78,c.y-113);ctx.lineTo(c.x-78,c.y-87);ctx.stroke();
+    ctx.font="bold 10px Arial";ctx.fillStyle="#fff";ctx.fillText("SNACK COMMANDER",c.x,c.y-130);
+  }else{
+    ctx.globalAlpha=.95;ctx.font=`${Math.min(78,Math.max(56,W*.15))}px system-ui, Apple Color Emoji, Segoe UI Emoji`;ctx.fillText("🧰",c.x,c.y-75);
+    ctx.strokeStyle="#f7d36a";ctx.lineWidth=4;ctx.strokeRect(c.x-57,c.y-119,114,86);
+    ctx.font="bold 10px Arial";ctx.fillStyle="#fff";ctx.fillText("PENCIL CASE HQ",c.x,c.y-130);
   }
   ctx.restore();
 }
+
 function drawThemedEnemy(e){
   const emoji=worldEnemyArt(e.id);
   const size=e.id==="boss"?e.r*2.25:Math.max(27,e.r*2.05);
@@ -450,7 +490,12 @@ function drawThemedEnemy(e){
       ctx.strokeStyle="#ff485e";ctx.lineWidth=2.5;ctx.globalAlpha=e.shootTimer<.85?.8:.22;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(c.x-e.x,c.y-e.y);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
     }
   }
+  ctx.save();
+  const wobble=Math.sin(performance.now()/145+(e.phase||0))*0.075;
+  if(e.id==="swift"||e.id==="zigzag")ctx.rotate(wobble*2.2);
+  else if(e.id==="boss")ctx.rotate(wobble*.45);
   ctx.font=`${size}px system-ui, Apple Color Emoji, Segoe UI Emoji`;ctx.fillText(emoji,0,2);
+  ctx.restore();
   ctx.shadowBlur=0;
   // enemy health strip
   if(e.id!=="boss"){
@@ -853,7 +898,7 @@ function update(dt, now){
       if(e.shootTimer <= 0){
         const ang = Math.atan2(c.y - e.y, c.x - e.x);
         enemyBullets.push({
-          x: e.x, y: e.y,
+          x: e.x, y: e.y, sourceId:e.id, worldId:currentWorld().id, age:0,
           vx: Math.cos(ang)*(e.id==="sniper"?360:e.id==="turret"?260:220),
           vy: Math.sin(ang)*(e.id==="sniper"?360:e.id==="turret"?260:220),
           life: 3
@@ -875,6 +920,7 @@ function update(dt, now){
     const b = enemyBullets[i];
     b.x += b.vx * dt;
     b.y += b.vy * dt;
+    b.age = (b.age||0) + dt;
     b.life -= dt;
     if(b.life <= 0 || Math.hypot(b.x-c.x, b.y-c.y) < 28){
       if(Math.hypot(b.x-c.x, b.y-c.y) < 28) takeDamage(6);
@@ -887,8 +933,8 @@ function update(dt, now){
     const b = bullets[i];
     b.x += b.vx * dt;
     b.y += b.vy * dt;
-    b.life -= dt;
     b.age = (b.age||0) + dt;
+    b.life -= dt;
     let remove = b.life <= 0 || b.x < -50 || b.x > W+50 || b.y < -50 || b.y > H+50;
 
     // INTERCEPT SHOT：自弾で敵弾を打ち消す
@@ -1005,11 +1051,22 @@ function draw(){
   ctx.shadowBlur = 0;
 
   // 敵弾：ワールドごとに色を変え、攻撃の視認性を維持
-  const enemyShotColor=currentWorld().id==="animal"?"#ffd166":currentWorld().id==="food"?"#ff7043":"#a8baff";
-  ctx.fillStyle = enemyShotColor;ctx.shadowColor=enemyShotColor;ctx.shadowBlur=10;
   enemyBullets.forEach(b=>{
-    ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle="#ffffff";ctx.lineWidth=1;ctx.stroke();
+    const wid=b.worldId||currentWorld().id;const source=b.sourceId||"basic";
+    ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy,b.vx));ctx.shadowBlur=12;
+    if(wid==="animal"){
+      // 動物園：狙撃手は麻酔カプセル、ゴリラはバナナを投げる
+      if(source==="boss"){
+        ctx.shadowColor="#ffe36a";ctx.font="22px system-ui, Apple Color Emoji, Segoe UI Emoji";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("🍌",0,0);
+      }else{
+        ctx.shadowColor="#a9f3ff";ctx.fillStyle="#d9fbff";ctx.beginPath();ctx.roundRect(-8,-3,16,6,3);ctx.fill();ctx.fillStyle="#55d8a7";ctx.fillRect(4,-3,4,6);ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-5,0,1.5,0,Math.PI*2);ctx.fill();
+      }
+    }else if(wid==="food"){
+      ctx.shadowColor="#fff0d0";ctx.font="21px system-ui, Apple Color Emoji, Segoe UI Emoji";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(source==="boss"?"🥄":source==="sniper"?"🌶️":"🍴",0,0);
+    }else{
+      ctx.shadowColor="#f7d36a";ctx.font="21px system-ui, Apple Color Emoji, Segoe UI Emoji";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(source==="boss"?"✏️":source==="sniper"?"📌":"🖊️",0,0);
+    }
+    ctx.restore();
   });ctx.shadowBlur=0;
 
   // 敵：選択中のワールドに合わせたキャラクター表現
