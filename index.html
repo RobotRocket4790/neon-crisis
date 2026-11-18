@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CYBER BREAKER 1.9 - WORLD CHAOS</title>
+<title>CYBER BREAKER 1.9.1 - WORLD CHAOS</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#030817;color:#e9faff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation}
@@ -93,7 +93,7 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
     <div class="logo">
       <h1>CYBER BREAKER</h1>
       <p>DEFEND YOUR DIGITAL CORE</p>
-      <div class="muted">VERSION 1.9 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD: ANIMAL RIOT</div>
+      <div class="muted">VERSION 1.9.1 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD: ANIMAL RIOT</div>
     </div>
     <div class="panel">
       <div class="topline"><b>PLAYER STATUS</b><span class="muted" id="homeRank">ROOKIE</span></div>
@@ -373,13 +373,16 @@ function stageSpawnCount(w){
   return Math.min(70,base+tier+Math.floor(Math.max(0,w-50)*0.18));
 }
 
+function getMaxHP(){ return Math.min(100 + (save.core.integrity||0)*8, 155); }
+
 function updateHUD(){
   $("uiWave").textContent = String(wave).padStart(2,"0") + " " + getDifficulty(wave);
   $("uiScore").textContent = score;
   $("uiLevel").textContent = level;
   $("uiData").textContent = save.data;
-  $("hpText").textContent = Math.max(0, Math.ceil(hp)) + ((save.core.shield||0)>0 ? "  /  SHIELD "+shieldCharges : "");
-  $("hpFill").style.width = Math.max(0, hp) + "%";
+  const maxHP = getMaxHP();
+  $("hpText").textContent = Math.max(0, Math.ceil(hp)) + " / " + maxHP + ((save.core.shield||0)>0 ? "  /  SHIELD "+shieldCharges : "");
+  $("hpFill").style.width = (Math.max(0, Math.min(hp, maxHP)) / maxHP * 100) + "%";
   if(boss){
     $("bossBar").classList.remove("hidden");
     $("bossName").textContent = "BOSS / " + Math.ceil(boss.hp) + " HP";
@@ -511,7 +514,7 @@ function drawThemedEnemy(e){
 function startBattle(special=false){
   vipRun = !!special && !!save.vip.specialStage;
   score = 0;
-  hp = Math.min(100 + (save.core.integrity||0)*8, 155);
+  hp = getMaxHP();
   level = 1; wave = 1; kills = 0;
   combo = 0; maxCombo = 0; repairCount = 0; overdriveTimer=0; overdriveUsed=false;
   runUpgrades = {damage:0, rate:0, multi:0, pierce:0, speed:0};
@@ -644,6 +647,17 @@ function grantData(baseAmount){
   const whole = Math.floor(total + 1e-9);
   save.dataProgress = total - whole;
   if(whole > 0){ save.data += whole; save.totalEarned += whole; }
+  return whole;
+}
+
+function addDataPopup(x,y,amount){
+  if(amount<=0)return;
+  particles.push({x,y,vx:0,vy:-34,life:0.95,maxLife:0.95,color:"#ffe36a",text:"+"+amount+" DATA"});
+}
+
+function killDataReward(e){
+  const rewards={basic:12,swift:14,tank:28,splitter:18,zigzag:18,pair:15,shooter:22,shielder:28,spawner:32,sniper:30,repairer:28,turret:26,boss:250,fragment:2};
+  return rewards[e.id] ?? 12;
 }
 
 function addKill(e){
@@ -654,10 +668,10 @@ function addKill(e){
   score += Math.floor(e.score * mult);
   kills++;
   save.totalKills++;
-  if(e.id !== "boss") grantData(1);
+  const dataGained = grantData(killDataReward(e));
+  addDataPopup(e.x, e.y-18, dataGained);
 
   if(e.id === "boss"){
-    grantData(3);
     save.bossKills++;
     boss = null;
   }
@@ -682,9 +696,10 @@ function addKill(e){
 }
 
 function giveWaveReward(){
-  let gain = 1;
-  if(isBossWave) gain += 2;
-  grantData(gain);
+  let gain = 35 + Math.min(wave*4, 200);
+  if(isBossWave) gain += 150;
+  const received = grantData(gain);
+  addDataPopup(W/2, H*0.43, received);
   saveGame();
 }
 
@@ -740,7 +755,7 @@ function levelUp(){
       max:99,
       desc:()=> `コア耐久を最大HPの${[30,25,20,15,10][Math.min(repairCount,4)]}%回復（今回${repairCount+1}回目）`,
       can:()=> true,
-      fn:()=> { const pct=[0.30,0.25,0.20,0.15,0.10][Math.min(repairCount,4)]; const maxHp=Math.min(100+(save.core.integrity||0)*8,155); hp=Math.min(maxHp,hp+maxHp*pct); repairCount++; }
+      fn:()=> { const pct=[0.30,0.25,0.20,0.15,0.10][Math.min(repairCount,4)]; const maxHp=getMaxHP(); hp=Math.min(maxHp,hp+maxHp*pct); repairCount++; }
     }
   ];
 
@@ -1006,7 +1021,7 @@ function update(dt, now){
     giveWaveReward();
     setTimeout(function(){
       if(running && !paused){
-        if(vipRun) grantData(8+Math.floor(wave*0.25));
+        if(vipRun){const bonus=grantData(60+Math.floor(wave*6));addDataPopup(W/2,H*0.39,bonus);}
         if(shouldLevelUp()) levelUp();
         else nextWave();
       }
@@ -1083,9 +1098,16 @@ function draw(){
   });
 
   particles.forEach(p=>{
-    ctx.globalAlpha = Math.max(0,p.life/0.5);
-    ctx.fillStyle = p.color;
-    ctx.fillRect(p.x-2,p.y-2,4,4);
+    if(p.text){
+      ctx.save();ctx.globalAlpha=Math.max(0,p.life/(p.maxLife||0.95));
+      ctx.font="bold 13px Arial";ctx.textAlign="center";ctx.textBaseline="middle";
+      ctx.lineWidth=3;ctx.strokeStyle="#342600";ctx.strokeText(p.text,p.x,p.y);
+      ctx.fillStyle=p.color;ctx.fillText(p.text,p.x,p.y);ctx.restore();
+    }else{
+      ctx.globalAlpha = Math.max(0,p.life/0.5);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x-2,p.y-2,4,4);
+    }
   });
   ctx.globalAlpha = 1;
 
