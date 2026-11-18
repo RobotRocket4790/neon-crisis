@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CYBER BREAKER 1.6</title>
+<title>CYBER BREAKER 1.8 - WORLD CHAOS</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#030817;color:#e9faff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation}
@@ -92,7 +93,7 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
     <div class="logo">
       <h1>CYBER BREAKER</h1>
       <p>DEFEND YOUR DIGITAL CORE</p>
-      <div class="muted">VERSION 1.6 / ENDLESS</div>
+      <div class="muted">VERSION 1.8 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD: ANIMAL RIOT</div>
     </div>
     <div class="panel">
       <div class="topline"><b>PLAYER STATUS</b><span class="muted" id="homeRank">ROOKIE</span></div>
@@ -267,7 +268,7 @@ const defaultSave = {
   discovered:[],
   skills:{damage:0, rate:0, multi:0, pierce:0, intercept:0, explosive:0, emp:0, ricochet:0, split:0, dataBonus:0, activeAmmo:"standard"},
   core:{integrity:0, armor:0, shield:0, supportFire:0},
-  vip:{specialStage:false,coreSkin:"default",bgSkin:"default",overdrive:false}
+  vip:{specialStage:false,coreSkin:"default",bgSkin:"default",overdrive:false,worlds:{animal:true,food:false,stationery:false},selectedWorld:"animal"}
 };
 let save = loadSave();
 
@@ -281,7 +282,7 @@ function loadSave(){
       version:2,
       skills: Object.assign({}, defaultSave.skills, oldSkills),
       core: Object.assign({}, defaultSave.core, old.core||{}),
-      vip: Object.assign({}, defaultSave.vip, old.vip||{}),
+      vip: Object.assign({}, defaultSave.vip, old.vip||{}, {worlds:Object.assign({}, defaultSave.vip.worlds, (old.vip||{}).worlds||{})}),
       discovered: Array.isArray(old.discovered) ? old.discovered : []
     });
     // 旧SKILL TREEで購入した戦闘ステータス強化分はDATAに返還する
@@ -347,6 +348,7 @@ function renderHome(){
   $("homeBest").textContent = save.best;
   $("homeKills").textContent = save.totalKills;
   $("homeData").textContent = save.data;
+  const hw=$("homeWorld");if(hw)hw.textContent="WORLD: "+currentWorld().name;
   const total = ["intercept","explosive","emp","ricochet","split"].filter(k=>save.skills[k]).length + (save.skills.dataBonus||0) + (save.core.shield||0) + (save.core.supportFire||0);
   $("homeRank").textContent = total>=10?"ELITE":total>=6?"VETERAN":total>=2?"OPERATIVE":"ROOKIE";
 }
@@ -397,6 +399,70 @@ function applyRunStats(){
   bulletSpeed = 700 + runUpgrades.speed * 90;
 }
 
+const WORLD_DATA = {
+  animal:{id:"animal",name:"ANIMAL RIOT",tag:"THE GREAT ZOO ESCAPE",cost:0,desc:"動物たちが大脱走。中央の飼育ロボットと檻を守れ。",bg1:"#142d37",bg2:"#07131e",grid:"#5a9b7750",center:"🧑‍🌾",boss:"🦍"},
+  food:{id:"food",name:"FOOD CHAOS",tag:"THE FOOD COURT MELTDOWN",cost:10000,desc:"ピザ・寿司・バーガーが大暴走。巨大フードプレートが戦場の中心。",bg1:"#43251d",bg2:"#170d17",grid:"#ffb45a45",center:"🍽️",boss:"👨‍🍳"},
+  stationery:{id:"stationery",name:"STATIONERY WAR",tag:"THE DESK IS UNDER ATTACK",cost:10000,desc:"鉛筆・消しゴム・定規が反乱。巨大な筆箱を防衛せよ。",bg1:"#26304b",bg2:"#101326",grid:"#91aaff45",center:"🧰",boss:"✏️"}
+};
+function currentWorld(){
+  const id=save.vip.selectedWorld||"animal";
+  return WORLD_DATA[id] && (id==="animal" || save.vip.worlds[id]) ? WORLD_DATA[id] : WORLD_DATA.animal;
+}
+function worldEnemyArt(id){
+  const maps={
+    animal:{basic:"🐰",swift:"🐿️",tank:"🐢",splitter:"🦎",zigzag:"🦊",pair:"🐥",shooter:"🐧",shielder:"🦔",spawner:"🦘",sniper:"🦉",repairer:"🐒",turret:"🦀",boss:"🦍",fragment:"🐣"},
+    food:{basic:"🍔",swift:"🍟",tank:"🥔",splitter:"🍩",zigzag:"🌮",pair:"🍣",shooter:"🥤",shielder:"🥑",spawner:"🍿",sniper:"🌶️",repairer:"🍅",turret:"🥨",boss:"👨‍🍳",fragment:"🍬"},
+    stationery:{basic:"✏️",swift:"🖊️",tank:"📚",splitter:"🖍️",zigzag:"📐",pair:"📝",shooter:"🖋️",shielder:"📏",spawner:"📎",sniper:"✒️",repairer:"🩹",turret:"📌",boss:"✏️",fragment:"✂️"}
+  };
+  return (maps[currentWorld().id]||maps.animal)[id]||"❔";
+}
+function drawWorldBackdrop(){
+  const world=currentWorld();
+  const grad=ctx.createLinearGradient(0,0,W,H);grad.addColorStop(0,world.bg1);grad.addColorStop(1,world.bg2);ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle=world.grid;ctx.lineWidth=1;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  // 世界観を伝える中央ランドマーク（コアの背後）
+  const c=corePos();ctx.save();ctx.globalAlpha=.24;ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.font=`${Math.min(118,Math.max(76,W*.22))}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
+  ctx.fillText(world.center,c.x,c.y-4);
+  if(world.id==="animal"){
+    ctx.globalAlpha=.42;ctx.strokeStyle="#b7e8ff";ctx.lineWidth=3;
+    for(let k=-2;k<=2;k++){ctx.beginPath();ctx.moveTo(c.x+k*15,c.y-68);ctx.lineTo(c.x+k*15,c.y+60);ctx.stroke();}
+    ctx.beginPath();ctx.moveTo(c.x-40,c.y-58);ctx.lineTo(c.x+40,c.y-58);ctx.moveTo(c.x-40,c.y+52);ctx.lineTo(c.x+40,c.y+52);ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawThemedEnemy(e){
+  const emoji=worldEnemyArt(e.id);
+  const size=e.id==="boss"?e.r*2.25:Math.max(27,e.r*2.05);
+  ctx.save();ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.shadowColor=e.color;ctx.shadowBlur=e.id==="boss"?24:13;
+  // Role rings make support / sniper / tank enemies readable at a glance.
+  if(e.id==="shielder"){ctx.strokeStyle="#67eaff";ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,e.r+8+Math.sin(performance.now()/180)*2,0,Math.PI*2);ctx.stroke();}
+  if(e.id==="repairer"){ctx.strokeStyle="#8dff8a";ctx.lineWidth=3;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(0,0,e.r+7,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}
+  if(e.id==="tank"){ctx.strokeStyle="#ffd166";ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,e.r+5,0,Math.PI*2);ctx.stroke();}
+  if(["shooter","sniper","turret"].includes(e.id)){
+    const c=corePos(),ang=Math.atan2(c.y-e.y,c.x-e.x);
+    ctx.save();ctx.rotate(ang);ctx.fillStyle=e.id==="sniper"?"#ff5353":e.id==="turret"?"#ffb347":"#d5e7ff";
+    ctx.fillRect(4,-4,e.r+15,8);ctx.restore();
+    if(e.id==="sniper"){
+      ctx.strokeStyle="#ff485e";ctx.lineWidth=2.5;ctx.globalAlpha=e.shootTimer<.85?.8:.22;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(c.x-e.x,c.y-e.y);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+    }
+  }
+  ctx.font=`${size}px system-ui, Apple Color Emoji, Segoe UI Emoji`;ctx.fillText(emoji,0,2);
+  ctx.shadowBlur=0;
+  // enemy health strip
+  if(e.id!=="boss"){
+    ctx.fillStyle="#101820";ctx.fillRect(-e.r,-e.r-12,e.r*2,4);
+    ctx.fillStyle=e.color;ctx.fillRect(-e.r,-e.r-12,e.r*2*Math.max(0,e.hp/e.maxHp),4);
+  }
+  if(e.id==="boss"){
+    ctx.font="bold 11px Arial";ctx.fillStyle="#fff";ctx.fillText(currentWorld().id==="animal"?"ZOO KING":currentWorld().id==="food"?"HEAD CHEF":"PENCIL OVERLORD",0,-e.r-17);
+  }
+  ctx.restore();
+}
+
 function startBattle(special=false){
   vipRun = !!special && !!save.vip.specialStage;
   score = 0;
@@ -415,7 +481,7 @@ function startBattle(special=false){
   hideAllScreens();
   showBattleUI();
   updateHUD();
-  announce(vipRun?"ANOMALY PROTOCOL\nWAVE 1":"WAVE 1",vipRun?"#d59cff":"#5ef");
+  announce(vipRun?"ANOMALY PROTOCOL\nWAVE 1":currentWorld().name+"\nWAVE 1",vipRun?"#d59cff":"#5ef");
 }
 
 function makeEnemy(type, pos){
@@ -425,11 +491,21 @@ function makeEnemy(type, pos){
   if(pos){ x=pos.x; y=pos.y; }
   else{
     const side = Math.floor(Math.random()*4);
-    const m = 48;
-    if(side===0){ x=Math.random()*W; y=-m; }
-    else if(side===1){ x=W+m; y=Math.random()*H; }
-    else if(side===2){ x=Math.random()*W; y=H+m; }
-    else{ x=-m; y=Math.random()*H; }
+    const stationaryShooter = ["shooter","sniper","turret"].includes(type);
+    if(stationaryShooter){
+      // 遠距離攻撃役は画面外に出現させず、必ず見える位置に配置する
+      const m = Math.min(58, Math.max(30, Math.min(W,H)*0.09));
+      if(side===0){ x=m+Math.random()*Math.max(1,W-2*m); y=m; }
+      else if(side===1){ x=W-m; y=m+Math.random()*Math.max(1,H-2*m); }
+      else if(side===2){ x=m+Math.random()*Math.max(1,W-2*m); y=H-m; }
+      else{ x=m; y=m+Math.random()*Math.max(1,H-2*m); }
+    }else{
+      const m = 48;
+      if(side===0){ x=Math.random()*W; y=-m; }
+      else if(side===1){ x=W+m; y=Math.random()*H; }
+      else if(side===2){ x=Math.random()*W; y=H+m; }
+      else{ x=-m; y=Math.random()*H; }
+    }
   }
   const e = {
     id: def.id,
@@ -902,24 +978,20 @@ function draw(){
   }
   ctx.clearRect(0,0,W,H);
   const c = corePos();
-
-  ctx.strokeStyle = !!save.vip.bgSkin?"#5b3c7655":"#0e3a4f55";
-  ctx.lineWidth = 1;
-  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
-  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  drawWorldBackdrop();
 
   // コア
   ctx.save();
   ctx.translate(c.x,c.y);
   ctx.rotate(coreAngle);
   ctx.shadowBlur = 28;
-  ctx.shadowColor = !!save.vip.coreSkin?"#b56cff":"#00eaff";
-  ctx.strokeStyle = !!save.vip.coreSkin?"#d59cff":"#3df";
+  ctx.shadowColor = (save.vip.coreSkin && save.vip.coreSkin!=="default")?"#b56cff":"#00eaff";
+  ctx.strokeStyle = (save.vip.coreSkin && save.vip.coreSkin!=="default")?"#d59cff":"#3df";
   ctx.lineWidth = 3;
   ctx.beginPath(); ctx.arc(0,0,32,0,Math.PI*2); ctx.stroke();
-  ctx.fillStyle = !!save.vip.coreSkin?"#3b205f":"#0a3a5c";
+  ctx.fillStyle = (save.vip.coreSkin && save.vip.coreSkin!=="default")?"#3b205f":"#0a3a5c";
   ctx.beginPath(); ctx.arc(0,0,20,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle = !!save.vip.coreSkin?"#f0caff":"#8ff";
+  ctx.fillStyle = (save.vip.coreSkin && save.vip.coreSkin!=="default")?"#f0caff":"#8ff";
   ctx.beginPath(); ctx.arc(0,0,8,0,Math.PI*2); ctx.fill();
   ctx.restore();
 
@@ -932,42 +1004,24 @@ function draw(){
   });
   ctx.shadowBlur = 0;
 
-  // 敵弾
-  ctx.fillStyle = "#ff6b8a";
+  // 敵弾：ワールドごとに色を変え、攻撃の視認性を維持
+  const enemyShotColor=currentWorld().id==="animal"?"#ffd166":currentWorld().id==="food"?"#ff7043":"#a8baff";
+  ctx.fillStyle = enemyShotColor;ctx.shadowColor=enemyShotColor;ctx.shadowBlur=10;
   enemyBullets.forEach(b=>{
-    ctx.beginPath();
-    ctx.arc(b.x,b.y,5,0,Math.PI*2);
-    ctx.fill();
-  });
+    ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#ffffff";ctx.lineWidth=1;ctx.stroke();
+  });ctx.shadowBlur=0;
 
-  // 敵
+  // 敵：選択中のワールドに合わせたキャラクター表現
   enemies.forEach(e=>{
-    ctx.save();
-    ctx.translate(e.x,e.y);
-    ctx.fillStyle = e.hit>0 ? "#fff" : e.color;
-    ctx.shadowColor = e.color;
-    ctx.shadowBlur = 16;
-    if(e.id === "boss"){
-      ctx.rotate(Math.PI/4 + coreAngle*0.15);ctx.fillRect(-e.r,-e.r,e.r*2,e.r*2);
-      ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.strokeRect(-e.r*0.65,-e.r*0.65,e.r*1.3,e.r*1.3);
-    }else if(e.id==="tank"||e.id==="spawner"){
-      ctx.rotate(Math.PI/4);ctx.fillRect(-e.r*0.78,-e.r*0.78,e.r*1.56,e.r*1.56);
-      ctx.strokeStyle="#fff9";ctx.lineWidth=2;ctx.strokeRect(-e.r*0.48,-e.r*0.48,e.r*0.96,e.r*0.96);
-    }else if(e.id==="turret"||e.id==="sniper"||e.id==="shooter"){
-      ctx.beginPath();ctx.arc(0,0,e.r*0.82,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle="#18263b";ctx.fillRect(-3,-e.r*1.35,6,e.r*1.5);
-      ctx.fillStyle=e.hit>0?"#fff":e.color;
-    }else if(e.id==="shielder"){
-      ctx.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3-Math.PI/2;const x=Math.cos(a)*e.r,y=Math.sin(a)*e.r;k?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fill();
-      ctx.strokeStyle="#dfffff";ctx.lineWidth=2;ctx.stroke();
-    }else if(e.id==="repairer"){
-      ctx.fillRect(-e.r*0.72,-e.r*0.72,e.r*1.44,e.r*1.44);
-      ctx.fillStyle="#092b1b";ctx.fillRect(-3,-e.r*0.55,6,e.r*1.1);ctx.fillRect(-e.r*0.55,-3,e.r*1.1,6);
-    }else{
-      ctx.beginPath();ctx.moveTo(0,-e.r);ctx.lineTo(e.r*0.95,e.r*0.6);ctx.lineTo(0,e.r*0.3);ctx.lineTo(-e.r*0.95,e.r*0.6);ctx.closePath();ctx.fill();
-    }
-    if(e.id==="shielder") {ctx.strokeStyle="#6ff";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,e.r+7,0,Math.PI*2);ctx.stroke();}
+    ctx.save();ctx.translate(e.x,e.y);
+    if(e.hit>0){ctx.globalAlpha=.72;ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,e.r+5,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
+    drawThemedEnemy(e);
     if(e.shielded>0){ctx.strokeStyle="#6ff";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,e.r+5,0,Math.PI*2);ctx.stroke();}
+    if(["shooter","sniper","turret"].includes(e.id)){
+      ctx.textAlign="center";ctx.font="bold 9px Arial";ctx.fillStyle=e.color;
+      ctx.fillText(e.id.toUpperCase(),0,-e.r-19);
+    }
     ctx.restore();
   });
 
@@ -1129,12 +1183,30 @@ function renderCore(){
 function renderVIP(){
   $("vipData").textContent=save.data;
   const box=$("vipList");box.innerHTML="";
+  const worldTitle=document.createElement("div");worldTitle.className="item vipItem";
+  worldTitle.innerHTML='<b>🌍 WORLD SELECT</b><small>購入した世界は何度でも切り替え可能。敵の役割・攻撃方法はそのままに、見た目と世界観が変化する。</small>';
+  box.appendChild(worldTitle);
+  Object.values(WORLD_DATA).forEach(w=>{
+    const owned=w.id==="animal"||!!save.vip.worlds[w.id];
+    const selected=(save.vip.selectedWorld||"animal")===w.id;
+    const el=document.createElement("div");el.className="item vipItem"+(owned?"":" locked");
+    el.innerHTML=`<b>${w.name} ${selected?"/ SELECTED":""}</b><small>${w.tag} — ${w.desc}</small><small>${owned?(selected?"CURRENT WORLD":"OWNED / PERMANENT"):"UNLOCK / "+w.cost.toLocaleString()+" DATA"}</small>`;
+    const btn=document.createElement("button");btn.className="action";
+    btn.textContent=selected?"SELECTED":owned?"SELECT WORLD":"UNLOCK WORLD";
+    btn.disabled=selected||(!owned&&save.data<w.cost);
+    btn.onclick=()=>{
+      if(!owned){if(save.data<w.cost)return;save.data-=w.cost;save.vip.worlds[w.id]=true;}
+      save.vip.selectedWorld=w.id;saveGame();renderVIP();renderHome();
+    };
+    el.appendChild(btn);box.appendChild(el);
+  });
   const offers=[
-    {id:"specialStage",name:"ANOMALY PROTOCOL",desc:"特殊ルールのVIPステージを解放。専用ステージでは敵の出現数が増え、クリア時にボーナスDATAを獲得。",cost:10000,once:true},
-    {id:"coreSkin",name:"CORE SKIN / PRISM",desc:"コアをプリズムカラーに変更する限定スキン。性能は変化しない。",cost:12000,once:true},
-    {id:"bgSkin",name:"BATTLEFIELD / NEON CITY",desc:"戦闘背景をネオンシティ仕様に変更する。",cost:16000,once:true},
-    {id:"overdrive",name:"OVERDRIVE SYSTEM",desc:"出撃時に一度だけ短時間の攻撃強化を発動できるVIPシステム。",cost:25000,once:true}
+    {id:"specialStage",name:"ANOMALY PROTOCOL",desc:"特殊ルールのVIPステージ。敵の出現数が増え、クリア時にボーナスDATAを獲得。",cost:10000},
+    {id:"coreSkin",name:"CORE SKIN / PRISM",desc:"コアをプリズムカラーに変更。",cost:12000},
+    {id:"bgSkin",name:"BATTLEFIELD / NEON CITY",desc:"ネオンシティ仕様の背景アクセントを解放。",cost:16000},
+    {id:"overdrive",name:"OVERDRIVE SYSTEM",desc:"出撃中に一度だけ短時間の攻撃強化を発動。",cost:25000}
   ];
+  const title=document.createElement("div");title.className="item vipItem";title.innerHTML='<b>♛ VIP SYSTEMS</b><small>ワールド購入とは別枠の特別機能。</small>';box.appendChild(title);
   if(save.vip.specialStage){const launch=document.createElement("button");launch.className="action primary";launch.textContent="▶ ENTER ANOMALY PROTOCOL";launch.onclick=()=>{startBattle(true);};box.appendChild(launch);}
   offers.forEach(o=>{
     const owned=!!save.vip[o.id];const el=document.createElement("div");el.className="item vipItem"+(owned?"":" locked");
