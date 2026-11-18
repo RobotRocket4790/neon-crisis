@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CYBER BREAKER 1.5</title>
+<title>CYBER BREAKER 1.6</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#030817;color:#e9faff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation}
@@ -53,6 +52,12 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
 #combo{position:absolute;z-index:15;top:70px;left:50%;transform:translateX(-50%);font-size:20px;font-weight:bold;color:#ff6;text-shadow:0 0 12px #ff0;pointer-events:none;opacity:0}
 #flash{position:absolute;inset:0;background:#ff2244;opacity:0;pointer-events:none;z-index:14;transition:opacity .08s}
 #announce{position:absolute;z-index:18;top:36%;left:50%;transform:translate(-50%,-50%);font-size:32px;font-weight:bold;color:#5ef;text-shadow:0 0 18px #0ff;opacity:0;pointer-events:none;transition:opacity .35s;text-align:center;white-space:pre-line}
+
+.stageTag{display:inline-block;padding:4px 9px;border:1px solid #3aaac7;border-radius:20px;color:#8ff;font-size:11px;letter-spacing:1px;margin-top:6px}
+.vipHero{padding:18px;border:1px solid #a879ff;background:linear-gradient(135deg,#251b48,#10243c);border-radius:16px;margin:12px 0}
+.vipHero b{color:#d7b5ff;font-size:20px;letter-spacing:2px}
+.vipItem{border-color:#7652a8;background:linear-gradient(135deg,#171d3b,#101c32)}
+#announce{max-width:92vw;font-size:clamp(25px,6vw,42px);letter-spacing:2px}
 </style>
 </head>
 <body>
@@ -87,7 +92,7 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
     <div class="logo">
       <h1>CYBER BREAKER</h1>
       <p>DEFEND YOUR DIGITAL CORE</p>
-      <div class="muted">VERSION 1.5 / ENDLESS</div>
+      <div class="muted">VERSION 1.6 / ENDLESS</div>
     </div>
     <div class="panel">
       <div class="topline"><b>PLAYER STATUS</b><span class="muted" id="homeRank">ROOKIE</span></div>
@@ -100,6 +105,7 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
         <button class="menuBtn" id="goBattle"><b>▶ BATTLE</b><span>防衛戦を開始する</span></button>
         <button class="menuBtn" id="goSkills"><b>✦ SKILL TREE</b><span>新システム・弾種を解放する</span></button>
         <button class="menuBtn" id="goCore"><b>◈ CORE LAB</b><span>コア防衛機能を研究・強化する</span></button>
+        <button class="menuBtn" id="goVIP"><b>♛ VIP ROOM</b><span>特別ステージ・限定研究・スキン</span></button>
         <button class="menuBtn" id="goDatabase"><b>▤ DATABASE</b><span>敵の情報を確認する</span></button>
         <button class="menuBtn" id="goRecords"><b>▣ RECORD</b><span>戦績・プレイ記録</span></button>
         <button class="menuBtn" id="goHow"><b>? HOW TO PLAY</b><span>操作方法とルール</span></button>
@@ -124,6 +130,15 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
     <p>デジタルコアを研究・強化する。</p>
     <div id="coreList"></div>
     <button class="action" id="backFromCore">BACK TO HOME</button>
+  </div>
+</section>
+
+<section class="screen hidden" id="vipRoom">
+  <div class="wrap">
+    <div class="topline"><h2>♛ VIP ROOM</h2><b>DATA: <span id="vipData">0</span></b></div>
+    <div class="vipHero"><b>ELITE ACCESS</b><p>通常の研究を超えた特別なコンテンツ。購入した特典はセーブデータに保存される。</p></div>
+    <div id="vipList"></div>
+    <button class="action" id="backFromVIP">BACK TO HOME</button>
   </div>
 </section>
 
@@ -218,6 +233,9 @@ let combo = 0, comboTimer = 0, maxCombo = 0;
 let shake = 0, coreAngle = 0;
 let bossPending = false, isBossWave = false;
 let shieldCharges = 0, supportTimer = 0;
+let repairCount = 0;
+let vipRun = false;
+let overdriveTimer = 0, overdriveUsed = false;
 
 // 戦闘中の強化レベル
 let runUpgrades = {
@@ -229,21 +247,27 @@ let runUpgrades = {
 };
 
 const enemyTypes = [
-  {id:"basic",   name:"SCOUT",    desc:"標準的な直進タイプ", color:"#ff9b55", hp:1, speed:54, score:100, r:13},
-  {id:"swift",   name:"RUSHER",   desc:"高速で突っ込んでくる", color:"#ffdf59", hp:1, speed:118, score:140, r:11},
-  {id:"tank",    name:"TANK",     desc:"耐久力が高い", color:"#e95b8b", hp:8, speed:23, score:280, r:20},
-  {id:"splitter",name:"SPLITTER", desc:"倒すと分裂する", color:"#ba82ff", hp:3, speed:48, score:200, r:15},
-  {id:"zigzag",  name:"GLITCH",   desc:"不規則に動く", color:"#53e9ff", hp:2, speed:62, score:190, r:13},
-  {id:"pair",    name:"TWIN",     desc:"2体同時に出現しやすい", color:"#7dffa3", hp:2, speed:52, score:160, r:12},
-  {id:"shooter", name:"GUNNER",   desc:"弾を撃ってくる厄介な敵", color:"#ff7eb3", hp:3, speed:40, score:220, r:14},
-  {id:"boss",    name:"OVERLORD", desc:"強力なボス", color:"#ff3f75", hp:50, speed:17, score:3000, r:34}
+  {id:"basic",name:"SCOUT",desc:"標準的な直進タイプ。小型でオレンジ色。",color:"#ff9b55",hp:1,speed:54,score:100,r:13},
+  {id:"swift",name:"RUSHER",desc:"高速でコアへ突っ込む小型敵。",color:"#ffdf59",hp:1,speed:118,score:140,r:11},
+  {id:"tank",name:"TANK",desc:"低速・高耐久。重装甲の大型敵。",color:"#e95b8b",hp:8,speed:19,score:280,r:20},
+  {id:"splitter",name:"SPLITTER",desc:"撃破されると小型個体に分裂する。",color:"#ba82ff",hp:3,speed:43,score:200,r:15},
+  {id:"zigzag",name:"GLITCH",desc:"左右に不規則な軌道で移動する。",color:"#53e9ff",hp:2,speed:58,score:190,r:13},
+  {id:"pair",name:"TWIN",desc:"複数で出現しやすい標準型。",color:"#7dffa3",hp:2,speed:48,score:160,r:12},
+  {id:"shooter",name:"GUNNER",desc:"距離を取りながら弾を撃つ。",color:"#ff7eb3",hp:3,speed:0,score:220,r:15},
+  {id:"shielder",name:"SHIELDER",desc:"周囲の敵をシールドで守る支援機。",color:"#55eaff",hp:5,speed:27,score:360,r:17},
+  {id:"spawner",name:"SPAWNER",desc:"時間経過で小型敵を追加する。",color:"#ff9bce",hp:7,speed:14,score:420,r:21},
+  {id:"sniper",name:"SNIPER",desc:"停止して狙いを定め、速い弾を撃つ。",color:"#ff5757",hp:4,speed:0,score:390,r:16},
+  {id:"repairer",name:"REPAIRER",desc:"近くの敵の耐久を少しずつ回復する。",color:"#8dff8a",hp:5,speed:20,score:400,r:17},
+  {id:"turret",name:"TURRET",desc:"移動しない固定砲台。連続射撃を行う。",color:"#ffb347",hp:6,speed:0,score:380,r:18},
+  {id:"boss",name:"OVERLORD",desc:"強力な大型ボス。",color:"#ff3f75",hp:50,speed:12,score:3000,r:34}
 ];
 
 const defaultSave = {
   version:2, data:0, dataProgress:0, best:0, bestWave:0, totalKills:0, runs:0, bossKills:0, totalEarned:0,
   discovered:[],
   skills:{damage:0, rate:0, multi:0, pierce:0, intercept:0, explosive:0, emp:0, ricochet:0, split:0, dataBonus:0, activeAmmo:"standard"},
-  core:{integrity:0, armor:0, shield:0, supportFire:0}
+  core:{integrity:0, armor:0, shield:0, supportFire:0},
+  vip:{specialStage:false,coreSkin:"default",bgSkin:"default",overdrive:false}
 };
 let save = loadSave();
 
@@ -257,6 +281,7 @@ function loadSave(){
       version:2,
       skills: Object.assign({}, defaultSave.skills, oldSkills),
       core: Object.assign({}, defaultSave.core, old.core||{}),
+      vip: Object.assign({}, defaultSave.vip, old.vip||{}),
       discovered: Array.isArray(old.discovered) ? old.discovered : []
     });
     // 旧SKILL TREEで購入した戦闘ステータス強化分はDATAに返還する
@@ -285,13 +310,13 @@ addEventListener("resize", resize);
 resize();
 
 function showScreen(id){
-  ["home","skills","coreLab","database","records","how","levelScreen","gameOver","pauseScreen"].forEach(s=>{
+  ["home","skills","coreLab","vipRoom","database","records","how","levelScreen","gameOver","pauseScreen"].forEach(s=>{
     const el = $(s);
     if(el) el.classList.toggle("hidden", s !== id);
   });
 }
 function hideAllScreens(){
-  ["home","skills","coreLab","database","records","how","levelScreen","gameOver","pauseScreen"].forEach(s=>{
+  ["home","skills","coreLab","vipRoom","database","records","how","levelScreen","gameOver","pauseScreen"].forEach(s=>{
     const el = $(s);
     if(el) el.classList.add("hidden");
   });
@@ -335,8 +360,19 @@ function announce(text, color){
   setTimeout(()=> el.style.opacity = "0", 1500);
 }
 
+function getDifficulty(w){
+  if(w<=5)return "NORMAL"; if(w<=20)return "ADVANCED"; if(w<=35)return "HARD";
+  if(w<=50)return "NIGHTMARE"; if(w<=75)return "CHAOS"; if(w<=100)return "APOCALYPSE"; return "KHAOS";
+}
+function stageColor(w){return ({NORMAL:"#5ef0a0",ADVANCED:"#59c8ff",HARD:"#a6b4c7",NIGHTMARE:"#b18aff",CHAOS:"#ffd35a",APOCALYPSE:"#ff914d",KHAOS:"#ff4c78"})[getDifficulty(w)];}
+function stageSpawnCount(w){
+  const base=8+Math.floor(w*1.15);
+  const tier=w<=5?0:w<=20?3:w<=35?6:w<=50?9:w<=75?13:w<=100?17:22;
+  return Math.min(70,base+tier+Math.floor(Math.max(0,w-50)*0.18));
+}
+
 function updateHUD(){
-  $("uiWave").textContent = String(wave).padStart(2,"0");
+  $("uiWave").textContent = String(wave).padStart(2,"0") + " " + getDifficulty(wave);
   $("uiScore").textContent = score;
   $("uiLevel").textContent = level;
   $("uiData").textContent = save.data;
@@ -361,29 +397,30 @@ function applyRunStats(){
   bulletSpeed = 700 + runUpgrades.speed * 90;
 }
 
-function startBattle(){
+function startBattle(special=false){
+  vipRun = !!special && !!save.vip.specialStage;
   score = 0;
   hp = Math.min(100 + (save.core.integrity||0)*8, 155);
   level = 1; wave = 1; kills = 0;
-  combo = 0; maxCombo = 0;
+  combo = 0; maxCombo = 0; repairCount = 0; overdriveTimer=0; overdriveUsed=false;
   runUpgrades = {damage:0, rate:0, multi:0, pierce:0, speed:0};
   applyRunStats();
   enemies = []; bullets = []; particles = []; enemyBullets = [];
   boss = null; cleared = false; bossPending = false; isBossWave = false;
   shieldCharges = save.core.shield||0; supportTimer = 0;
-  spawnLeft = 7; spawnTimer = 0.55;
+  spawnLeft = vipRun?12:7; spawnTimer = 0.55;
   running = true; paused = false; fireHeld = false;
   lastShot = 0; lastTime = performance.now(); shake = 0;
 
   hideAllScreens();
   showBattleUI();
   updateHUD();
-  announce("WAVE 1");
+  announce(vipRun?"ANOMALY PROTOCOL\nWAVE 1":"WAVE 1",vipRun?"#d59cff":"#5ef");
 }
 
 function makeEnemy(type, pos){
   const def = enemyTypes.find(t => t.id === type) || enemyTypes[0];
-  const scale = 1 + Math.max(0, wave-1) * 0.09;
+  const scale = 1 + Math.max(0,wave-1)*0.055 + Math.max(0,wave-50)*0.035 + Math.max(0,wave-100)*0.045;
   let x, y;
   if(pos){ x=pos.x; y=pos.y; }
   else{
@@ -401,11 +438,11 @@ function makeEnemy(type, pos){
     r: def.r,
     hp: type==="boss" ? Math.floor(def.hp + wave*6.5) : Math.ceil(def.hp * scale),
     maxHp: type==="boss" ? Math.floor(def.hp + wave*6.5) : Math.ceil(def.hp * scale),
-    speed: Number(def.speed) + Math.min(wave*1.35, 38),
+    speed: def.speed===0?0:Math.max(8,Number(def.speed) + Math.min(wave*0.45,18) - (def.hp>=6?wave*0.12:0)),
     score: def.score,
     hit: 0,
     phase: Math.random()*6.28,
-    shootTimer: 1.5 + Math.random()*1.5
+    shootTimer: 1.1 + Math.random()*1.2, supportTimer:2.5, spawnTimer:4.5, aimTimer:1.2, shieldPulse:0
   };
   if(type==="boss") boss = e;
   enemies.push(e);
@@ -416,15 +453,18 @@ function makeEnemy(type, pos){
 }
 
 function chooseType(){
-  const pool = ["basic","basic"];
-  if(wave >= 2) pool.push("swift");
-  if(wave >= 3) pool.push("tank");
-  if(wave >= 4) pool.push("zigzag");
-  if(wave >= 6) pool.push("splitter");
-  if(wave >= 8) pool.push("pair");
-  if(wave >= 12) pool.push("tank","splitter","swift");
-  if(wave >= 16) pool.push("shooter");
-  if(wave >= 20) pool.push("shooter","pair","zigzag");
+  const pool=["basic","basic"];
+  if(wave>=2)pool.push("swift");
+  if(wave>=4)pool.push("tank");
+  if(wave>=5)pool.push("zigzag","splitter");
+  if(wave>=8)pool.push("pair","shooter");
+  if(wave>=11)pool.push("shielder","turret");
+  if(wave>=16)pool.push("spawner","repairer");
+  if(wave>=21)pool.push("sniper","shielder","tank");
+  if(wave>=36)pool.push("sniper","repairer","spawner");
+  if(wave>=51)pool.push("shielder","spawner","sniper","turret","repairer");
+  if(wave>=76)pool.push("shielder","spawner","sniper","turret","repairer","tank");
+  if(wave>=101)pool.push("shielder","spawner","sniper","turret","repairer","tank","shooter");
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
@@ -577,9 +617,9 @@ function levelUp(){
       id:"repair",
       name:"コア回復",
       max:99,
-      desc:()=> "コア耐久を30回復",
+      desc:()=> `コア耐久を最大HPの${[30,25,20,15,10][Math.min(repairCount,4)]}%回復（今回${repairCount+1}回目）`,
       can:()=> true,
-      fn:()=> { hp = Math.min(100+(save.core.integrity||0)*8, hp+30); }
+      fn:()=> { const pct=[0.30,0.25,0.20,0.15,0.10][Math.min(repairCount,4)]; const maxHp=Math.min(100+(save.core.integrity||0)*8,155); hp=Math.min(maxHp,hp+maxHp*pct); repairCount++; }
     }
   ];
 
@@ -623,16 +663,18 @@ function nextWave(){
       if(running && !paused){
         makeEnemy("boss");
         // ボスと一緒に少し雑魚を出す
-        const support = Math.min(3 + Math.floor(wave/10), 6);
+        const support = Math.min(3 + Math.floor(wave/8), wave>=51?12:wave>=21?9:6);
         for(let i=0;i<support;i++) makeEnemy(chooseType());
         bossPending = false;
       }
     }, 900);
   }else{
-    const base = 6 + Math.min(Math.floor(wave*1.45), 24);
+    const base = stageSpawnCount(wave);
     spawnLeft = base;
-    spawnTimer = 0.48;
-    announce("WAVE " + wave);
+    spawnTimer = Math.max(0.22,0.62-wave*0.003);
+    const diff=getDifficulty(wave);
+    const boundary=[1,6,21,36,51,76,101].includes(wave);
+    announce(boundary?diff+"\nWAVE "+wave:"WAVE "+wave,stageColor(wave));
   }
   updateHUD();
 }
@@ -660,6 +702,8 @@ function update(dt, now){
   }
 
   tryFire(now);
+  if(save.vip.overdrive && !overdriveUsed && overdriveTimer===0 && wave>=5){overdriveTimer=6;overdriveUsed=true;announce("VIP OVERDRIVE", "#d59cff");}
+  if(overdriveTimer>0)overdriveTimer=Math.max(0,overdriveTimer-dt);
 
   if(spawnLeft > 0){
     spawnTimer -= dt;
@@ -668,7 +712,7 @@ function update(dt, now){
       makeEnemy(type);
       if(type === "pair" && Math.random() < 0.65) makeEnemy("pair");
       spawnLeft--;
-      spawnTimer = Math.max(0.2, 0.8 - wave*0.02);
+      spawnTimer = Math.max(0.16, 0.72 - wave*0.0045);
     }
   }
 
@@ -705,30 +749,45 @@ function update(dt, now){
       const l = Math.hypot(vx, vy) || 1;
       vx /= l; vy /= l;
     }
+    // 固定砲台・狙撃手は移動せず、距離を保って攻撃
+    if(["shooter","sniper","turret"].includes(e.id)){vx=0;vy=0;}
+    if(e.id==="shielder"){
+      e.shieldPulse-=dt;
+      if(e.shieldPulse<=0){e.shieldPulse=2.2;enemies.forEach(o=>{if(o!==e&&Math.hypot(o.x-e.x,o.y-e.y)<125)o.shielded=0.75;});}
+    }
+    if(e.id==="spawner"){
+      e.spawnTimer-=dt;
+      if(e.spawnTimer<=0 && enemies.length<38){e.spawnTimer=Math.max(3.2,6-wave*0.018);makeEnemy("swift",{x:e.x+(Math.random()-0.5)*35,y:e.y+(Math.random()-0.5)*35});}
+    }
+    if(e.id==="repairer"){
+      e.supportTimer-=dt;
+      if(e.supportTimer<=0){e.supportTimer=2.6;enemies.forEach(o=>{if(o!==e&&Math.hypot(o.x-e.x,o.y-e.y)<115)o.hp=Math.min(o.maxHp,o.hp+Math.max(0.3,o.maxHp*0.025));});}
+    }
 
     e.empTimer = Math.max(0, (e.empTimer||0)-dt);
+    e.shielded = Math.max(0,(e.shielded||0)-dt);
     const empScale = e.empTimer>0 ? 0.08 : 1;
     e.x += vx * e.speed * empScale * dt;
     e.y += vy * e.speed * empScale * dt;
     e.hit = Math.max(0, e.hit - dt);
 
     // シューターの攻撃
-    if(e.id === "shooter" || (e.id === "boss" && wave >= 10)){
+    if(["shooter","sniper","turret"].includes(e.id) || (e.id === "boss" && wave >= 10)){
       e.shootTimer -= dt;
       if(e.shootTimer <= 0){
         const ang = Math.atan2(c.y - e.y, c.x - e.x);
         enemyBullets.push({
           x: e.x, y: e.y,
-          vx: Math.cos(ang)*220,
-          vy: Math.sin(ang)*220,
+          vx: Math.cos(ang)*(e.id==="sniper"?360:e.id==="turret"?260:220),
+          vy: Math.sin(ang)*(e.id==="sniper"?360:e.id==="turret"?260:220),
           life: 3
         });
-        e.shootTimer = e.id==="boss" ? 1.8 : 2.4 + Math.random();
+        e.shootTimer = e.id==="boss"?1.45:e.id==="sniper"?2.8:e.id==="turret"?1.65:2.4+Math.random();
       }
     }
 
     if(d < 35){
-      takeDamage(e.id==="boss" ? 24 : e.id==="tank" ? 15 : 8);
+      takeDamage(e.id==="boss"?26:["tank","spawner"].includes(e.id)?16:["shielder","repairer"].includes(e.id)?11:8);
       if(e.id==="boss") boss = null;
       enemies.splice(i,1);
       if(hp <= 0) return;
@@ -779,7 +838,7 @@ function update(dt, now){
       for(let j = enemies.length-1; j >= 0; j--){
         const e = enemies[j];
         if(Math.hypot(e.x-b.x, e.y-b.y) < e.r+6){
-          const hitDamage = damage * (b.damageScale||1);
+          const hitDamage = damage * (b.damageScale||1) * (overdriveTimer>0?1.8:1) * ((e.shielded||0)>0?0.55:1);
           e.hp -= hitDamage;
           e.hit = 0.12;
           if(b.ammo==="explosive"){
@@ -825,6 +884,7 @@ function update(dt, now){
     giveWaveReward();
     setTimeout(function(){
       if(running && !paused){
+        if(vipRun) grantData(8+Math.floor(wave*0.25));
         if(shouldLevelUp()) levelUp();
         else nextWave();
       }
@@ -843,7 +903,7 @@ function draw(){
   ctx.clearRect(0,0,W,H);
   const c = corePos();
 
-  ctx.strokeStyle = "#0e3a4f55";
+  ctx.strokeStyle = !!save.vip.bgSkin?"#5b3c7655":"#0e3a4f55";
   ctx.lineWidth = 1;
   for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
   for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
@@ -853,13 +913,13 @@ function draw(){
   ctx.translate(c.x,c.y);
   ctx.rotate(coreAngle);
   ctx.shadowBlur = 28;
-  ctx.shadowColor = "#00eaff";
-  ctx.strokeStyle = "#3df";
+  ctx.shadowColor = !!save.vip.coreSkin?"#b56cff":"#00eaff";
+  ctx.strokeStyle = !!save.vip.coreSkin?"#d59cff":"#3df";
   ctx.lineWidth = 3;
   ctx.beginPath(); ctx.arc(0,0,32,0,Math.PI*2); ctx.stroke();
-  ctx.fillStyle = "#0a3a5c";
+  ctx.fillStyle = !!save.vip.coreSkin?"#3b205f":"#0a3a5c";
   ctx.beginPath(); ctx.arc(0,0,20,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle = "#8ff";
+  ctx.fillStyle = !!save.vip.coreSkin?"#f0caff":"#8ff";
   ctx.beginPath(); ctx.arc(0,0,8,0,Math.PI*2); ctx.fill();
   ctx.restore();
 
@@ -888,17 +948,26 @@ function draw(){
     ctx.shadowColor = e.color;
     ctx.shadowBlur = 16;
     if(e.id === "boss"){
-      ctx.rotate(Math.PI/4 + coreAngle*0.15);
-      ctx.fillRect(-e.r,-e.r,e.r*2,e.r*2);
+      ctx.rotate(Math.PI/4 + coreAngle*0.15);ctx.fillRect(-e.r,-e.r,e.r*2,e.r*2);
+      ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.strokeRect(-e.r*0.65,-e.r*0.65,e.r*1.3,e.r*1.3);
+    }else if(e.id==="tank"||e.id==="spawner"){
+      ctx.rotate(Math.PI/4);ctx.fillRect(-e.r*0.78,-e.r*0.78,e.r*1.56,e.r*1.56);
+      ctx.strokeStyle="#fff9";ctx.lineWidth=2;ctx.strokeRect(-e.r*0.48,-e.r*0.48,e.r*0.96,e.r*0.96);
+    }else if(e.id==="turret"||e.id==="sniper"||e.id==="shooter"){
+      ctx.beginPath();ctx.arc(0,0,e.r*0.82,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#18263b";ctx.fillRect(-3,-e.r*1.35,6,e.r*1.5);
+      ctx.fillStyle=e.hit>0?"#fff":e.color;
+    }else if(e.id==="shielder"){
+      ctx.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3-Math.PI/2;const x=Math.cos(a)*e.r,y=Math.sin(a)*e.r;k?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fill();
+      ctx.strokeStyle="#dfffff";ctx.lineWidth=2;ctx.stroke();
+    }else if(e.id==="repairer"){
+      ctx.fillRect(-e.r*0.72,-e.r*0.72,e.r*1.44,e.r*1.44);
+      ctx.fillStyle="#092b1b";ctx.fillRect(-3,-e.r*0.55,6,e.r*1.1);ctx.fillRect(-e.r*0.55,-3,e.r*1.1,6);
     }else{
-      ctx.beginPath();
-      ctx.moveTo(0,-e.r);
-      ctx.lineTo(e.r*0.95,e.r*0.6);
-      ctx.lineTo(0,e.r*0.3);
-      ctx.lineTo(-e.r*0.95,e.r*0.6);
-      ctx.closePath();
-      ctx.fill();
+      ctx.beginPath();ctx.moveTo(0,-e.r);ctx.lineTo(e.r*0.95,e.r*0.6);ctx.lineTo(0,e.r*0.3);ctx.lineTo(-e.r*0.95,e.r*0.6);ctx.closePath();ctx.fill();
     }
+    if(e.id==="shielder") {ctx.strokeStyle="#6ff";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,e.r+7,0,Math.PI*2);ctx.stroke();}
+    if(e.shielded>0){ctx.strokeStyle="#6ff";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,e.r+5,0,Math.PI*2);ctx.stroke();}
     ctx.restore();
   });
 
@@ -958,6 +1027,8 @@ $("goBattle").onclick = startBattle;
 $("goSkills").onclick = ()=>{ renderSkills(); showScreen("skills"); };
 $("goCore").onclick = ()=>{ renderCore(); showScreen("coreLab"); };
 $("goDatabase").onclick = ()=>{ renderDatabase(); showScreen("database"); };
+$("goVIP").onclick = ()=>{ renderVIP(); showScreen("vipRoom"); };
+$("backFromVIP").onclick = goHome;
 $("goRecords").onclick = ()=>{ renderRecords(); showScreen("records"); };
 $("goHow").onclick = ()=> showScreen("how");
 
@@ -989,17 +1060,17 @@ function renderSkills(){
   $("skillData").textContent = save.data;
   const box = $("skillList"); box.innerHTML = "";
   const systems = [
-    {id:"intercept",name:"INTERCEPT SHOT",desc:"自分の弾で敵の弾を打ち消すシステムを解放",cost:110,kind:"unlock"},
-    {id:"explosive",name:"EXPLOSIVE SHOT",desc:"命中時に周囲の敵も巻き込む爆発弾を解放",cost:95,kind:"ammo"},
-    {id:"emp",name:"EMP SHOT",desc:"命中した敵の動きを一時停止させる弾を解放",cost:115,kind:"ammo"},
-    {id:"ricochet",name:"RICOCHET SHOT",desc:"敵に当たると別の敵へ跳ね返る弾を解放",cost:130,kind:"ammo"},
-    {id:"split",name:"SPLIT SHOT",desc:"飛行中に複数方向へ分散する弾を解放",cost:145,kind:"ammo"},
-    {id:"dataBonus",name:"DATA BONUS",desc:"敵撃破・ウェーブ報酬のDATA獲得量 +10% / Lv",cost:80,kind:"upgrade",max:5}
+    {id:"intercept",name:"INTERCEPT SHOT",desc:"自分の弾で敵の弾を打ち消すシステムを解放",cost:650,kind:"unlock"},
+    {id:"explosive",name:"EXPLOSIVE SHOT",desc:"命中時に周囲の敵も巻き込む爆発弾を解放",cost:550,kind:"ammo"},
+    {id:"emp",name:"EMP SHOT",desc:"命中した敵の動きを一時停止させる弾を解放",cost:700,kind:"ammo"},
+    {id:"ricochet",name:"RICOCHET SHOT",desc:"敵に当たると別の敵へ跳ね返る弾を解放",cost:850,kind:"ammo"},
+    {id:"split",name:"SPLIT SHOT",desc:"飛行中に複数方向へ分散する弾を解放",cost:1000,kind:"ammo"},
+    {id:"dataBonus",name:"DATA BONUS",desc:"敵撃破・ウェーブ報酬のDATA獲得量 +10% / Lv",cost:1000,kind:"upgrade",max:5}
   ];
   systems.forEach(item=>{
     const lv=save.skills[item.id]||0;
     const unlocked=item.kind==="upgrade"?lv>0:!!lv;
-    const cost=item.kind==="upgrade"?item.cost+lv*55:item.cost;
+    const cost=item.kind==="upgrade"?item.cost+lv*900:item.cost;
     const maxed=item.kind==="upgrade"?lv>=item.max:unlocked;
     const el=document.createElement("div"); el.className="item"+(unlocked?"":" locked");
     el.innerHTML=`<b>${item.name}</b><small>${item.desc}</small><small>${item.kind==="upgrade"?`Lv ${lv}/${item.max}`:(unlocked?"UNLOCKED":"LOCKED")}${maxed?"  /  COMPLETE":"  /  "+cost+" DATA"}</small>`;
@@ -1036,14 +1107,14 @@ function renderCore(){
   $("coreData").textContent=save.data;
   const box=$("coreList"); box.innerHTML="";
   const research=[
-    {id:"integrity",name:"CORE CAPACITY",desc:"最大耐久を +8",cost:60,max:6,unlockFirst:false},
-    {id:"armor",name:"CORE ARMOR",desc:"受けるダメージを軽減",cost:70,max:5,unlockFirst:false},
-    {id:"shield",name:"EMERGENCY SHIELD",desc:"5ウェーブごとに被ダメージを防ぐ。Lvごとに発動回数 +1（最大5回）",cost:150,max:5,unlockFirst:true},
-    {id:"supportFire",name:"SUPPORT FIRE",desc:"コアから自動支援射撃。Lvが上がるほど発射間隔が短縮（Lv5で5秒）",cost:170,max:5,unlockFirst:true}
+    {id:"integrity",name:"CORE CAPACITY",desc:"最大耐久を +8",cost:500,max:6,unlockFirst:false},
+    {id:"armor",name:"CORE ARMOR",desc:"受けるダメージを軽減",cost:650,max:5,unlockFirst:false},
+    {id:"shield",name:"EMERGENCY SHIELD",desc:"5ウェーブごとに被ダメージを防ぐ。Lvごとに発動回数 +1（最大5回）",cost:1200,max:5,unlockFirst:true},
+    {id:"supportFire",name:"SUPPORT FIRE",desc:"コアから自動支援射撃。Lvが上がるほど発射間隔が短縮（Lv5で5秒）",cost:1500,max:5,unlockFirst:true}
   ];
   research.forEach(item=>{
     const lv=save.core[item.id]||0;
-    const cost=item.cost+Math.max(0,lv-(item.unlockFirst?1:0))*35;
+    const cost=item.cost+Math.max(0,lv-(item.unlockFirst?1:0))*500;
     const maxed=lv>=item.max;
     const el=document.createElement("div"); el.className="item"+(lv===0&&item.unlockFirst?" locked":"");
     const status=item.unlockFirst?(lv===0?"LOCKED":"UNLOCKED"):`Lv ${lv}/${item.max}`;
@@ -1052,6 +1123,25 @@ function renderCore(){
     btn.disabled=maxed||save.data<cost;
     btn.onclick=()=>{if(maxed||save.data<cost)return;save.data-=cost;save.core[item.id]=lv+1;if(item.id==="shield"&&lv===0&&running)shieldCharges=1;saveGame();renderCore();renderHome();};
     el.appendChild(btn); box.appendChild(el);
+  });
+}
+
+function renderVIP(){
+  $("vipData").textContent=save.data;
+  const box=$("vipList");box.innerHTML="";
+  const offers=[
+    {id:"specialStage",name:"ANOMALY PROTOCOL",desc:"特殊ルールのVIPステージを解放。専用ステージでは敵の出現数が増え、クリア時にボーナスDATAを獲得。",cost:10000,once:true},
+    {id:"coreSkin",name:"CORE SKIN / PRISM",desc:"コアをプリズムカラーに変更する限定スキン。性能は変化しない。",cost:12000,once:true},
+    {id:"bgSkin",name:"BATTLEFIELD / NEON CITY",desc:"戦闘背景をネオンシティ仕様に変更する。",cost:16000,once:true},
+    {id:"overdrive",name:"OVERDRIVE SYSTEM",desc:"出撃時に一度だけ短時間の攻撃強化を発動できるVIPシステム。",cost:25000,once:true}
+  ];
+  if(save.vip.specialStage){const launch=document.createElement("button");launch.className="action primary";launch.textContent="▶ ENTER ANOMALY PROTOCOL";launch.onclick=()=>{startBattle(true);};box.appendChild(launch);}
+  offers.forEach(o=>{
+    const owned=!!save.vip[o.id];const el=document.createElement("div");el.className="item vipItem"+(owned?"":" locked");
+    el.innerHTML=`<b>${o.name}</b><small>${o.desc}</small><small>${owned?"OWNED / PERMANENT":"VIP ACCESS / "+o.cost.toLocaleString()+" DATA"}</small>`;
+    const btn=document.createElement("button");btn.className="action";btn.textContent=owned?"OWNED":"PURCHASE";btn.disabled=owned||save.data<o.cost;
+    btn.onclick=()=>{if(owned||save.data<o.cost)return;save.data-=o.cost;save.vip[o.id]=true;saveGame();renderVIP();renderHome();};
+    el.appendChild(btn);box.appendChild(el);
   });
 }
 
