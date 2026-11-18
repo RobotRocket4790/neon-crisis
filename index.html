@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CYBER BREAKER 1.9.1 - WORLD CHAOS</title>
+<title>CHAOS BREAKER 2.0 - WORLD CHAOS</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#030817;color:#e9faff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation}
@@ -19,7 +19,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 .logo p{color:#7eb8d0;font-size:13px;letter-spacing:2px;margin-top:6px}
 .muted{color:#6a94a8;font-size:12px}
 .panel{background:#0b1c30ee;border:1px solid #1a6680;border-radius:18px;padding:18px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}\n@media(max-width:520px){.screen{padding:12px}.logo{margin:5vh 0 16px}.panel{padding:13px}.menuBtn{min-height:72px;padding:12px}.menuBtn b{font-size:14px}.menuBtn span{font-size:11px}.stat{padding:10px 4px}.stat strong{font-size:19px}}
 .menuBtn,.action,.choice{border:1px solid #26cce9;background:linear-gradient(135deg,#103c59,#0d2a44);color:#eaffff;border-radius:14px;padding:16px;text-align:left}
 .menuBtn{min-height:84px}
 .menuBtn b{display:block;color:#5ceaff;font-size:17px;margin-bottom:5px}
@@ -59,10 +59,34 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
 .vipHero b{color:#d7b5ff;font-size:20px;letter-spacing:2px}
 .vipItem{border-color:#7652a8;background:linear-gradient(135deg,#171d3b,#101c32)}
 #announce{max-width:92vw;font-size:clamp(25px,6vw,42px);letter-spacing:2px}
+
+#home{background:radial-gradient(ellipse at 50% 42%,#081b31d9,#020711f5 72%)}
+#home:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 15% 20%,#16c9ff20,transparent 25%),radial-gradient(circle at 85% 72%,#ff4c9c18,transparent 28%),linear-gradient(120deg,#020711cc,#06172acc);z-index:-1}
+.chaosDecor{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}\n#home .wrap{position:relative;z-index:1}
+.chaosDecor span{position:absolute;opacity:.22;filter:drop-shadow(0 0 12px #4deaff);animation:floatChaos var(--dur,13s) ease-in-out infinite alternate;left:var(--x);top:var(--y);font-size:var(--size);transform:rotate(var(--rot))}
+@keyframes floatChaos{from{translate:0 -10px;rotate:-12deg}to{translate:18px 22px;rotate:15deg}}
+#languageGate{position:absolute;inset:0;z-index:80;background:radial-gradient(ellipse at center,#102b49f5,#020711 75%);display:flex;align-items:center;justify-content:center;padding:20px}
+#languageGate .gateBox{width:min(440px,100%);text-align:center;padding:30px 22px;border:1px solid #27d9f2;border-radius:22px;background:#07182af2;box-shadow:0 0 50px #00cfff22}
+#languageGate h1{font-size:clamp(30px,8vw,48px);letter-spacing:3px;color:#65efff;text-shadow:0 0 24px #00cfff88}
+#languageGate p{margin:10px 0 24px}
+.gateBtn{display:block;width:100%;padding:17px;margin:10px 0;border:1px solid #3de6ff;border-radius:13px;background:linear-gradient(120deg,#124e70,#172f58);color:#fff;font-weight:800;font-size:18px}
+#languageSettings{position:absolute;right:14px;top:14px;z-index:3;background:#102e48;border:1px solid #36cde9;border-radius:9px;color:#cfffff;padding:8px 11px;font-size:11px}
+#collection .projectileCard{display:inline-flex;align-items:center;gap:10px;min-width:145px;margin:5px;padding:10px;border:1px solid #2b6680;border-radius:12px;background:#0a2035;color:#eaffff}
+.projectileCard .emoji{font-size:30px}
+@media(prefers-reduced-motion:reduce){.chaosDecor span{animation:none}}
 </style>
 </head>
 <body>
 <div id="app">
+<div id="languageGate">
+  <div class="gateBox">
+    <h1>CHAOS BREAKER</h1>
+    <p>CHOOSE YOUR LANGUAGE / 言語を選択</p>
+    <button class="gateBtn" id="chooseJapanese">日本語</button>
+    <button class="gateBtn" id="chooseEnglish">ENGLISH</button>
+    <small class="muted">You can change this later in SETTINGS.</small>
+  </div>
+</div>
 <canvas id="gameCanvas"></canvas>
 <div id="flash"></div>
 <div id="announce">WAVE 1</div>
@@ -89,11 +113,22 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
 <button id="battleMenu" class="action hidden">PAUSE</button>
 
 <section class="screen" id="home">
+  <div class="chaosDecor" aria-hidden="true">
+    <span style="--x:4%;--y:14%;--size:54px;--dur:12s">🐰</span>
+    <span style="--x:82%;--y:12%;--size:58px;--dur:16s">🍔</span>
+    <span style="--x:8%;--y:72%;--size:48px;--dur:14s">✏️</span>
+    <span style="--x:88%;--y:74%;--size:58px;--dur:11s">🦍</span>
+    <span style="--x:70%;--y:35%;--size:38px;--dur:17s">🍌</span>
+    <span style="--x:18%;--y:42%;--size:40px;--dur:15s">📎</span>
+    <span style="--x:92%;--y:44%;--size:36px;--dur:13s">🥦</span>
+    <span style="--x:3%;--y:88%;--size:35px;--dur:18s">🦖</span>
+  </div>
+  <button id="languageSettings">LANGUAGE / 言語</button>
   <div class="wrap">
     <div class="logo">
-      <h1>CYBER BREAKER</h1>
+      <h1>CHAOS BREAKER</h1>
       <p>DEFEND YOUR DIGITAL CORE</p>
-      <div class="muted">VERSION 1.9.1 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD: ANIMAL RIOT</div>
+      <div class="muted">VERSION 2.0 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD: ANIMAL RIOT</div>
     </div>
     <div class="panel">
       <div class="topline"><b>PLAYER STATUS</b><span class="muted" id="homeRank">ROOKIE</span></div>
@@ -109,6 +144,7 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
         <button class="menuBtn" id="goVIP"><b>♛ VIP ROOM</b><span>特別ステージ・限定研究・スキン</span></button>
         <button class="menuBtn" id="goDatabase"><b>▤ DATABASE</b><span>敵の情報を確認する</span></button>
         <button class="menuBtn" id="goRecords"><b>▣ RECORD</b><span>戦績・プレイ記録</span></button>
+        <button class="menuBtn" id="goCollection"><b>🎯 PROJECTILES</b><span>弾の見た目を集めて変更する</span></button>
         <button class="menuBtn" id="goHow"><b>? HOW TO PLAY</b><span>操作方法とルール</span></button>
       </div>
     </div>
@@ -140,6 +176,15 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
     <div class="vipHero"><b>ELITE ACCESS</b><p>通常の研究を超えた特別なコンテンツ。購入した特典はセーブデータに保存される。</p></div>
     <div id="vipList"></div>
     <button class="action" id="backFromVIP">BACK TO HOME</button>
+  </div>
+</section>
+
+<section class="screen hidden" id="collection">
+  <div class="wrap">
+    <div class="topline"><h2>PROJECTILE COLLECTION</h2><b>DATA: <span id="collectionData">0</span></b></div>
+    <p>弾の見た目だけを変更。攻撃力・速度・当たり判定は変わらない。</p>
+    <div id="projectileList"></div>
+    <button class="action" id="backFromCollection">BACK TO HOME</button>
   </div>
 </section>
 
@@ -268,8 +313,24 @@ const defaultSave = {
   discovered:[],
   skills:{damage:0, rate:0, multi:0, pierce:0, intercept:0, explosive:0, emp:0, ricochet:0, split:0, dataBonus:0, activeAmmo:"standard"},
   core:{integrity:0, armor:0, shield:0, supportFire:0},
-  vip:{specialStage:false,coreSkin:"default",bgSkin:"default",overdrive:false,worlds:{animal:true,food:false,stationery:false},selectedWorld:"animal"}
+  vip:{specialStage:false,coreSkin:"default",bgSkin:"default",overdrive:false,worlds:{animal:true,food:false,stationery:false},selectedWorld:"animal",starter:{ammo:0,pierce:false,power:false,speed:false},projectiles:{classic:true},selectedProjectile:"classic"}
 };
+let gameLanguage = localStorage.getItem("cb_language_v2") || "";
+const JA_EN = {
+"DEFEND YOUR DIGITAL CORE":"デジタルコアを守り抜け","PLAYER STATUS":"プレイヤー情報","BEST SCORE":"最高スコア","TOTAL KILLS":"累計撃破数","防衛戦を開始する":"Start the defense battle","新システム・弾種を解放する":"Unlock systems and ammo types","コア防衛機能を研究・強化する":"Research and upgrade your core","特別ステージ・限定研究・スキン":"Special stages and exclusive upgrades","敵の情報を確認する":"View enemy information","戦績・プレイ記録":"Battle records and stats","操作方法とルール":"Controls and rules","防衛戦を一時停止中":"Battle paused","画面をドラッグで照準 / FIRE長押しで攻撃":"Drag to aim / Hold FIRE to shoot","画面をドラッグして照準を移動":"Drag to move your aim","FIREボタンを長押しで連続攻撃":"Hold FIRE for continuous fire","敵がコアに到達するとダメージを受ける":"Enemies damage your core if they reach it","敵撃破・ウェーブクリア・ボス撃破でDATAを獲得":"Earn DATA by defeating enemies and clearing waves","どこまで生き残れるかに挑戦":"See how long you can survive","能力を1つ選択してください":"Choose one upgrade","購入した特典はセーブデータに保存される。":"Purchased content is saved to your game data.","購入した世界は何度でも切り替え可能。敵の役割・攻撃方法はそのままに、見た目と世界観が変化する。":"Owned worlds can be switched freely. Enemy roles and attacks stay the same; visuals and themes change.","特殊ルールのVIPステージ。敵の出現数が増え、クリア時にボーナスDATAを獲得。":"A special VIP stage with more enemies and bonus DATA for clearing it.","コアをプリズムカラーに変更。":"Change the core to a prism color.","ネオンシティ仕様の背景アクセントを解放。":"Unlock neon city battlefield accents.","出撃中に一度だけ短時間の攻撃強化を発動。":"Trigger a short attack boost once per run.","草原の動物園で大脱走。中央のドジなハンターを守り抜け。":"Animals are escaping the zoo! Protect the clumsy keeper.","食卓の上で料理が大暴走。中央の食いしん坊シェフロボを守れ。":"Food is running wild across the dinner table. Protect the chef!","机の上で文房具が反乱。巨大な筆箱を防衛せよ。":"The stationery has rebelled. Defend the giant pencil case.","未確認":"Undiscovered","撃破":"Defeated","コア耐久を":"Core integrity ","回復":" restored","攻撃力":"Attack power","連射速度":"Fire rate","弾数":"Projectile count","貫通":"Piercing","新しい戦闘システムや弾種を解放する。ここで解放した機能は出撃前に選択できる。":"Unlock combat systems and ammo types. Select unlocked features before each battle.","デジタルコアを研究・強化する。":"Research and upgrade your digital core.","出撃時に使用する弾種を選択。":"Choose your ammo before deployment.","敵の情報が記録される。":"Information about encountered enemies is recorded.","防衛戦を開始する":"Start the defense battle","弾速":"Projectile speed","コア回復":"Core repair"
+};
+function localizeTree(root=document.body){
+  if(gameLanguage!=="en")return;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  let n;while((n=walker.nextNode())){let v=n.nodeValue;for(const [ja,en] of Object.entries(JA_EN))if(v.includes(ja))v=v.split(ja).join(en);if(v!==n.nodeValue)n.nodeValue=v;}
+  root.querySelectorAll?.("input,button").forEach(el=>{if(el.title&&JA_EN[el.title])el.title=JA_EN[el.title];});
+}
+function setLanguage(lang){
+  localStorage.setItem("cb_language_v2",lang);
+  location.reload();
+}
+const localizationObserver=new MutationObserver(()=>{if(gameLanguage==="en")localizeTree();});
+localizationObserver.observe(document.body,{childList:true,subtree:true,characterData:true});
 let save = loadSave();
 
 function loadSave(){
@@ -282,7 +343,7 @@ function loadSave(){
       version:2,
       skills: Object.assign({}, defaultSave.skills, oldSkills),
       core: Object.assign({}, defaultSave.core, old.core||{}),
-      vip: Object.assign({}, defaultSave.vip, old.vip||{}, {worlds:Object.assign({}, defaultSave.vip.worlds, (old.vip||{}).worlds||{})}),
+      vip: Object.assign({}, defaultSave.vip, old.vip||{}, {worlds:Object.assign({}, defaultSave.vip.worlds, (old.vip||{}).worlds||{}),starter:Object.assign({},defaultSave.vip.starter,(old.vip||{}).starter||{}),projectiles:Object.assign({},defaultSave.vip.projectiles,(old.vip||{}).projectiles||{})}),
       discovered: Array.isArray(old.discovered) ? old.discovered : []
     });
     // 旧SKILL TREEで購入した戦闘ステータス強化分はDATAに返還する
@@ -311,13 +372,13 @@ addEventListener("resize", resize);
 resize();
 
 function showScreen(id){
-  ["home","skills","coreLab","vipRoom","database","records","how","levelScreen","gameOver","pauseScreen"].forEach(s=>{
+  ["home","skills","coreLab","vipRoom","collection","database","records","how","levelScreen","gameOver","pauseScreen"].forEach(s=>{
     const el = $(s);
     if(el) el.classList.toggle("hidden", s !== id);
   });
 }
 function hideAllScreens(){
-  ["home","skills","coreLab","vipRoom","database","records","how","levelScreen","gameOver","pauseScreen"].forEach(s=>{
+  ["home","skills","coreLab","vipRoom","collection","database","records","how","levelScreen","gameOver","pauseScreen"].forEach(s=>{
     const el = $(s);
     if(el) el.classList.add("hidden");
   });
@@ -395,16 +456,17 @@ function updateHUD(){
 }
 
 function applyRunStats(){
-  damage = 1 + runUpgrades.damage;
+  const starter=save.vip.starter||{};
+  damage = 1 + runUpgrades.damage + (starter.power?0.18:0);
   rate = Math.max(70, 280 - runUpgrades.rate*28);
-  multi = Math.min(3, 1 + runUpgrades.multi);
-  pierce = Math.min(3, runUpgrades.pierce);
-  bulletSpeed = 700 + runUpgrades.speed * 90;
+  multi = Math.min(4, 1 + (starter.ammo||0) + runUpgrades.multi);
+  pierce = Math.min(3, runUpgrades.pierce + (starter.pierce?1:0));
+  bulletSpeed = 700 + runUpgrades.speed * 90 + (starter.speed?55:0);
 }
 
 const WORLD_DATA = {
   animal:{id:"animal",name:"ANIMAL RIOT",tag:"THE GREAT ZOO ESCAPE",cost:0,desc:"草原の動物園で大脱走。中央のドジなハンターを守り抜け。",bg1:"#a9dc75",bg2:"#e9f5ad",grid:"#ffffff22",center:"🧑‍🌾",boss:"🦍"},
-  food:{id:"food",name:"FOOD CHAOS",tag:"THE DINNER TABLE DISASTER",cost:10000,desc:"食卓の上で料理が大暴走。中央の食いしん坊シェフロボを守れ。",bg1:"#f4b66d",bg2:"#8e492e",grid:"#fff1c833",center:"🤖",boss:"👨‍🍳"},
+  food:{id:"food",name:"FOOD CHAOS",tag:"THE DINNER TABLE DISASTER",cost:10000,desc:"食卓の上で食材たちが大暴走。中央のシェフを守り抜け。",bg1:"#f4b66d",bg2:"#8e492e",grid:"#fff1c833",center:"👨‍🍳",boss:"🍳"},
   stationery:{id:"stationery",name:"STATIONERY WAR",tag:"THE DESK IS UNDER ATTACK",cost:10000,desc:"机の上で文房具が反乱。巨大な筆箱を防衛せよ。",bg1:"#a8c8ed",bg2:"#536d9e",grid:"#ffffff33",center:"🧰",boss:"✏️"}
 };
 function currentWorld(){
@@ -414,8 +476,8 @@ function currentWorld(){
 function worldEnemyArt(id){
   const maps={
     animal:{basic:"🐰",swift:"🐿️",tank:"🐢",splitter:"🦎",zigzag:"🦊",pair:"🐥",shooter:"🦨",shielder:"🦔",spawner:"🦘",sniper:"🦉",repairer:"🐒",turret:"🦀",boss:"🦍",fragment:"🐣"},
-    food:{basic:"🍔",swift:"🍟",tank:"🥔",splitter:"🍩",zigzag:"🌮",pair:"🍣",shooter:"🥤",shielder:"🥑",spawner:"🍿",sniper:"🌶️",repairer:"🍅",turret:"🥨",boss:"👨‍🍳",fragment:"🍬"},
-    stationery:{basic:"✏️",swift:"🖊️",tank:"📚",splitter:"🖍️",zigzag:"📐",pair:"📝",shooter:"🖋️",shielder:"📏",spawner:"📎",sniper:"✒️",repairer:"🩹",turret:"📌",boss:"✏️",fragment:"✂️"}
+    food:{basic:"🍔",swift:"🍟",tank:"🥔",splitter:"🍩",zigzag:"🌮",pair:"🍣",shooter:"🥤",shielder:"🥑",spawner:"🍿",sniper:"🌶️",repairer:"🍅",turret:"🥨",boss:"🍳",fragment:"🍬"},
+    stationery:{basic:"✏️",swift:"🖊️",tank:"📚",splitter:"🖍️",zigzag:"📐",pair:"📝",shooter:"🖋️",shielder:"📏",spawner:"📎",sniper:"✒️",repairer:"🩹",turret:"📌",boss:"✂️",fragment:"✂️"}
   };
   return (maps[currentWorld().id]||maps.animal)[id]||"❔";
 }
@@ -464,7 +526,7 @@ function drawWorldBackdrop(){
     ctx.fillStyle="#6b4a2b";ctx.fillRect(c.x+28,c.y-87,32,7);ctx.fillStyle="#f7e3a1";ctx.beginPath();ctx.arc(c.x+62,c.y-83,5,0,Math.PI*2);ctx.fill();
     ctx.font="bold 10px Arial";ctx.fillStyle="#fff";ctx.fillText("ZOO KEEPER",c.x,c.y-130);
   }else if(world.id==="food"){
-    ctx.globalAlpha=.92;ctx.font=`${Math.min(76,Math.max(54,W*.14))}px system-ui, Apple Color Emoji, Segoe UI Emoji`;ctx.fillText("🤖",c.x,c.y-76);
+    ctx.globalAlpha=.92;ctx.font=`${Math.min(76,Math.max(54,W*.14))}px system-ui, Apple Color Emoji, Segoe UI Emoji`;ctx.fillText("👨‍🍳",c.x,c.y-76);
     ctx.strokeStyle="#fff4dc";ctx.lineWidth=7;ctx.beginPath();ctx.ellipse(c.x,c.y-23,72,18,0,0,Math.PI*2);ctx.stroke();
     ctx.strokeStyle="#d9e5ef";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(c.x-87,c.y-113);ctx.lineTo(c.x-87,c.y-35);ctx.moveTo(c.x-96,c.y-113);ctx.lineTo(c.x-96,c.y-87);ctx.moveTo(c.x-78,c.y-113);ctx.lineTo(c.x-78,c.y-87);ctx.stroke();
     ctx.font="bold 10px Arial";ctx.fillStyle="#fff";ctx.fillText("SNACK COMMANDER",c.x,c.y-130);
@@ -497,7 +559,17 @@ function drawThemedEnemy(e){
   const wobble=Math.sin(performance.now()/145+(e.phase||0))*0.075;
   if(e.id==="swift"||e.id==="zigzag")ctx.rotate(wobble*2.2);
   else if(e.id==="boss")ctx.rotate(wobble*.45);
-  ctx.font=`${size}px system-ui, Apple Color Emoji, Segoe UI Emoji`;ctx.fillText(emoji,0,2);
+  ctx.font=`${size}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
+  if(e.id==="boss" && currentWorld().id==="stationery"){
+    // SHARPENER KING: a custom oversized pencil sharpener silhouette
+    ctx.save();ctx.shadowColor="#f3b64b";ctx.shadowBlur=22;
+    ctx.fillStyle="#d84d70";ctx.strokeStyle="#ffe08a";ctx.lineWidth=4;
+    ctx.beginPath();ctx.roundRect(-34,-25,68,52,12);ctx.fill();ctx.stroke();
+    ctx.fillStyle="#263d58";ctx.beginPath();ctx.arc(0,-5,13,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#d9e6ef";ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-17,-25);ctx.lineTo(0,-39);ctx.lineTo(17,-25);ctx.stroke();
+    ctx.fillStyle="#f8d36b";ctx.beginPath();ctx.arc(0,15,5,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }else{ctx.fillText(emoji,0,2);}
   ctx.restore();
   ctx.shadowBlur=0;
   // enemy health strip
@@ -506,7 +578,7 @@ function drawThemedEnemy(e){
     ctx.fillStyle=e.color;ctx.fillRect(-e.r,-e.r-12,e.r*2*Math.max(0,e.hp/e.maxHp),4);
   }
   if(e.id==="boss"){
-    ctx.font="bold 11px Arial";ctx.fillStyle="#fff";ctx.fillText(currentWorld().id==="animal"?"ZOO KING":currentWorld().id==="food"?"HEAD CHEF":"PENCIL OVERLORD",0,-e.r-17);
+    ctx.font="bold 11px Arial";ctx.fillStyle="#fff";ctx.fillText(currentWorld().id==="animal"?"ZOO KING":currentWorld().id==="food"?"OMELET OVERLORD":"SHARPENER KING",0,-e.r-17);
   }
   ctx.restore();
 }
@@ -601,7 +673,8 @@ function shouldLevelUp(){
 function shoot(now){
   const c = corePos();
   const base = Math.atan2(aim.y - c.y, aim.x - c.x);
-  const angles = multi===1 ? [0] : multi===2 ? [-0.13,0.13] : [-0.22,0,0.22];
+  const angleSets={1:[0],2:[-0.13,0.13],3:[-0.22,0,0.22],4:[-0.28,-0.09,0.09,0.28]};
+  const angles = angleSets[Math.min(4,multi)] || [0];
   const ammo = save.skills.activeAmmo || "standard";
   angles.forEach(a=>{
     const ang = base + a;
@@ -730,7 +803,7 @@ function levelUp(){
       name:"弾数",
       max:2,
       desc:()=> `同時発射数増加  Lv.${runUpgrades.multi}/2`,
-      can:()=> runUpgrades.multi < 2,
+      can:()=> runUpgrades.multi < Math.max(0,2-(save.vip.starter?.ammo||0)),
       fn:()=> { runUpgrades.multi++; }
     },
     {
@@ -1060,8 +1133,15 @@ function draw(){
   ctx.shadowBlur = 12;
   bullets.forEach(b=>{
     const colors={standard:"#6ff",explosive:"#ffad55",emp:"#8b9dff",ricochet:"#7dffa3",split:"#e6a0ff",splitChild:"#e6a0ff",support:"#fff08a"};
-    ctx.fillStyle=colors[b.ammo]||"#6ff"; ctx.shadowColor=ctx.fillStyle;
-    ctx.beginPath(); ctx.arc(b.x,b.y,b.ammo==="explosive"?5:4,0,Math.PI*2); ctx.fill();
+    const cosmetic=save.vip.projectiles?.[save.vip.selectedProjectile] ? PROJECTILES.find(p=>p.id===save.vip.selectedProjectile) : null;
+    if(cosmetic && cosmetic.id!=="classic"){
+      ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy,b.vx));
+      ctx.font="19px system-ui, Apple Color Emoji, Segoe UI Emoji";ctx.textAlign="center";ctx.textBaseline="middle";
+      ctx.shadowColor=colors[b.ammo]||"#6ff";ctx.fillText(cosmetic.emoji,0,0);ctx.restore();
+    }else{
+      ctx.fillStyle=colors[b.ammo]||"#6ff"; ctx.shadowColor=ctx.fillStyle;
+      ctx.beginPath(); ctx.arc(b.x,b.y,b.ammo==="explosive"?5:4,0,Math.PI*2); ctx.fill();
+    }
   });
   ctx.shadowBlur = 0;
 
@@ -1161,6 +1241,11 @@ $("goSkills").onclick = ()=>{ renderSkills(); showScreen("skills"); };
 $("goCore").onclick = ()=>{ renderCore(); showScreen("coreLab"); };
 $("goDatabase").onclick = ()=>{ renderDatabase(); showScreen("database"); };
 $("goVIP").onclick = ()=>{ renderVIP(); showScreen("vipRoom"); };
+$("goCollection").onclick = ()=>{renderCollection();showScreen("collection");};
+$("backFromCollection").onclick = goHome;
+$("chooseJapanese").onclick=()=>setLanguage("ja");
+$("chooseEnglish").onclick=()=>setLanguage("en");
+$("languageSettings").onclick=()=>{$("languageGate").classList.remove("hidden");};
 $("backFromVIP").onclick = goHome;
 $("goRecords").onclick = ()=>{ renderRecords(); showScreen("records"); };
 $("goHow").onclick = ()=> showScreen("how");
@@ -1259,6 +1344,37 @@ function renderCore(){
   });
 }
 
+const PROJECTILES=[
+{id:"classic",name:"CLASSIC CORE",emoji:"🔹",cost:0},
+{id:"banana",name:"BANANA",emoji:"🍌",cost:500},
+{id:"pencil",name:"PENCIL",emoji:"✏️",cost:600},
+{id:"duck",name:"RUBBER DUCK",emoji:"🦆",cost:700},
+{id:"broccoli",name:"BROCCOLI",emoji:"🥦",cost:700},
+{id:"eyeball",name:"EYEBALL",emoji:"👁️",cost:900},
+{id:"drumstick",name:"DRUMSTICK",emoji:"🍗",cost:800},
+{id:"fish",name:"FISH",emoji:"🐟",cost:800},
+{id:"tomato",name:"TOMATO",emoji:"🍅",cost:600},
+{id:"eraser",name:"ERASER",emoji:"🧽",cost:700},
+{id:"toiletpaper",name:"TOILET PAPER",emoji:"🧻",cost:900},
+{id:"soccer",name:"SOCCER BALL",emoji:"⚽",cost:1000},
+{id:"egg",name:"FRIED EGG",emoji:"🍳",cost:900},
+{id:"burger",name:"BURGER",emoji:"🍔",cost:1000},
+{id:"shark",name:"SHARK",emoji:"🦈",cost:1200},
+{id:"poop",name:"MYSTERY",emoji:"💩",cost:1100}
+];
+function renderCollection(){
+  $("collectionData").textContent=save.data;
+  const box=$("projectileList");box.innerHTML="";
+  PROJECTILES.forEach(p=>{
+    const owned=!!save.vip.projectiles?.[p.id],selected=save.vip.selectedProjectile===p.id;
+    const el=document.createElement("div");el.className="item";
+    el.innerHTML=`<b>${p.name} ${selected?" / EQUIPPED":""}</b><small>${owned?"OWNED":"UNLOCK / "+p.cost.toLocaleString()+" DATA"} · COSMETIC ONLY</small>`;
+    const btn=document.createElement("button");btn.className="action";btn.textContent=selected?"EQUIPPED":owned?"EQUIP":"UNLOCK";
+    btn.disabled=selected||(!owned&&save.data<p.cost);
+    btn.onclick=()=>{if(!owned){if(save.data<p.cost)return;save.data-=p.cost;save.vip.projectiles[p.id]=true;}save.vip.selectedProjectile=p.id;saveGame();renderCollection();renderHome();};
+    el.appendChild(btn);box.appendChild(el);
+  });
+}
 function renderVIP(){
   $("vipData").textContent=save.data;
   const box=$("vipList");box.innerHTML="";
@@ -1279,6 +1395,23 @@ function renderVIP(){
     };
     el.appendChild(btn);box.appendChild(el);
   });
+  const starterTitle=document.createElement("div");starterTitle.className="item vipItem";starterTitle.innerHTML='<b>⚡ STARTER KIT</b><small>出撃時の小さな初期ボーナス。戦闘中のレベルアップが主役のまま、少しだけ有利に。</small>';box.appendChild(starterTitle);
+  const starter=save.vip.starter||(save.vip.starter={ammo:0,pierce:false,power:false,speed:false});
+  const starterOffers=[
+    {id:"ammo",name:"STARTER AMMO +1",desc:"出撃時の同時発射数 +1（最大2回）",cost:4500,max:2},
+    {id:"pierce",name:"STARTER PIERCE",desc:"出撃時から弾が1体を貫通する",cost:5000},
+    {id:"power",name:"STARTER POWER",desc:"出撃時の攻撃力を少しだけ強化",cost:4000},
+    {id:"speed",name:"STARTER SPEED",desc:"出撃時の弾速を少しだけ強化",cost:3500}
+  ];
+  starterOffers.forEach(o=>{
+    const val=starter[o.id]||0,owned=o.max?val>=o.max:!!val,cost=o.max?o.cost+val*2500:o.cost;
+    const el=document.createElement("div");el.className="item vipItem";
+    el.innerHTML=`<b>${o.name}</b><small>${o.desc}</small><small>${o.max?"Lv "+val+"/"+o.max:owned?"UNLOCKED":"ONE-TIME UNLOCK"} · ${owned?"COMPLETE":cost.toLocaleString()+" DATA"}</small>`;
+    const btn=document.createElement("button");btn.className="action";btn.textContent=owned?"UNLOCKED":o.max?"UPGRADE":"UNLOCK";btn.disabled=owned||save.data<cost;
+    btn.onclick=()=>{if(owned||save.data<cost)return;save.data-=cost;starter[o.id]=o.max?val+1:true;saveGame();renderVIP();renderHome();};
+    el.appendChild(btn);box.appendChild(el);
+  });
+  const collectionJump=document.createElement("button");collectionJump.className="action primary";collectionJump.textContent="🎯 OPEN PROJECTILE COLLECTION";collectionJump.onclick=()=>{renderCollection();showScreen("collection");};box.appendChild(collectionJump);
   const offers=[
     {id:"specialStage",name:"ANOMALY PROTOCOL",desc:"特殊ルールのVIPステージ。敵の出現数が増え、クリア時にボーナスDATAを獲得。",cost:10000},
     {id:"coreSkin",name:"CORE SKIN / PRISM",desc:"コアをプリズムカラーに変更。",cost:12000},
@@ -1319,6 +1452,13 @@ function renderRecords(){
 
 renderHome();
 showScreen("home");
+if(gameLanguage==="ja"||gameLanguage==="en"){
+  $("languageGate").classList.add("hidden");
+  document.documentElement.lang=gameLanguage==="en"?"en":"ja";
+  localizeTree();
+}else{
+  $("languageGate").classList.remove("hidden");
+}
 requestAnimationFrame(loop);
 
 })();
