@@ -19,7 +19,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 .logo p{color:#7eb8d0;font-size:13px;letter-spacing:2px;margin-top:6px}
 .muted{color:#6a94a8;font-size:12px}
 .panel{background:#0b1c30ee;border:1px solid #1a6680;border-radius:18px;padding:18px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}\n@media(max-width:520px){.screen{padding:12px}.logo{margin:5vh 0 16px}.panel{padding:13px}.menuBtn{min-height:72px;padding:12px}.menuBtn b{font-size:14px}.menuBtn span{font-size:11px}.stat{padding:10px 4px}.stat strong{font-size:19px}}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.screen{padding:12px}.logo{margin:5vh 0 16px}.panel{padding:13px}.menuBtn{min-height:72px;padding:12px}.menuBtn b{font-size:14px}.menuBtn span{font-size:11px}.stat{padding:10px 4px}.stat strong{font-size:19px}}
 .menuBtn,.action,.choice{border:1px solid #26cce9;background:linear-gradient(135deg,#103c59,#0d2a44);color:#eaffff;border-radius:14px;padding:16px;text-align:left}
 .menuBtn{min-height:84px}
 .menuBtn b{display:block;color:#5ceaff;font-size:17px;margin-bottom:5px}
@@ -60,17 +61,22 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
 .vipItem{border-color:#7652a8;background:linear-gradient(135deg,#171d3b,#101c32)}
 #announce{max-width:92vw;font-size:clamp(25px,6vw,42px);letter-spacing:2px}
 
-#home{background:radial-gradient(ellipse at 50% 42%,#081b31d9,#020711f5 72%)}
-#home:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 15% 20%,#16c9ff20,transparent 25%),radial-gradient(circle at 85% 72%,#ff4c9c18,transparent 28%),linear-gradient(120deg,#020711cc,#06172acc);z-index:-1}
-.chaosDecor{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}\n#home .wrap{position:relative;z-index:1}
-.chaosDecor span{position:absolute;opacity:.22;filter:drop-shadow(0 0 12px #4deaff);animation:floatChaos var(--dur,13s) ease-in-out infinite alternate;left:var(--x);top:var(--y);font-size:var(--size);transform:rotate(var(--rot))}
-@keyframes floatChaos{from{translate:0 -10px;rotate:-12deg}to{translate:18px 22px;rotate:15deg}}
-#languageGate{position:absolute;inset:0;z-index:80;background:radial-gradient(ellipse at center,#102b49f5,#020711 75%);display:flex;align-items:center;justify-content:center;padding:20px}
-#languageGate .gateBox{width:min(440px,100%);text-align:center;padding:30px 22px;border:1px solid #27d9f2;border-radius:22px;background:#07182af2;box-shadow:0 0 50px #00cfff22}
-#languageGate h1{font-size:clamp(30px,8vw,48px);letter-spacing:3px;color:#65efff;text-shadow:0 0 24px #00cfff88}
-#languageGate p{margin:10px 0 24px}
-.gateBtn{display:block;width:100%;padding:17px;margin:10px 0;border:1px solid #3de6ff;border-radius:13px;background:linear-gradient(120deg,#124e70,#172f58);color:#fff;font-weight:800;font-size:18px}
-#languageSettings{position:absolute;right:14px;top:14px;z-index:3;background:#102e48;border:1px solid #36cde9;border-radius:9px;color:#cfffff;padding:8px 11px;font-size:11px}
+#home{background:radial-gradient(ellipse at 50% 42%,#081b31a8,#020711d9 78%)}
+#home:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 12% 18%,#00d9ff38,transparent 28%),radial-gradient(circle at 88% 22%,#ff4c9c30,transparent 27%),radial-gradient(circle at 75% 82%,#a6ff0030,transparent 30%),radial-gradient(circle at 22% 85%,#ffb52b26,transparent 28%),linear-gradient(120deg,#02071188,#06172a99);z-index:0}
+.chaosDecor{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:1;isolation:isolate}
+#home .wrap{position:relative;z-index:2}
+.chaosDecor span{position:absolute;opacity:1;filter:saturate(1.55) brightness(1.22) drop-shadow(0 0 11px #ffffffaa) drop-shadow(0 0 30px var(--glow,#31dfff));animation:floatChaos var(--dur,13s) ease-in-out infinite alternate;left:var(--x);top:var(--y);font-size:var(--size);line-height:1;transform:rotate(var(--rot));will-change:transform;user-select:none;z-index:1}
+.chaosDecor span:nth-child(3n){filter:saturate(1.65) brightness(1.28) drop-shadow(0 0 12px #fff) drop-shadow(0 0 32px #ffad35)}
+.chaosDecor span:nth-child(3n+1){filter:saturate(1.65) brightness(1.28) drop-shadow(0 0 12px #fff) drop-shadow(0 0 32px #ff4fbd)}
+.chaosDecor span:nth-child(3n+2){filter:saturate(1.65) brightness(1.28) drop-shadow(0 0 12px #fff) drop-shadow(0 0 32px #43f5ff)}
+#home .panel{position:relative;z-index:2;background:rgba(7,25,44,.68);border-color:#36d9ff;box-shadow:0 12px 45px #00101f88,inset 0 0 34px #16bfff18;backdrop-filter:blur(2px)}
+#home .stat{background:rgba(10,35,58,.72);border-color:#42bfe8;box-shadow:0 0 18px #18cfff12}
+#home .menuBtn{position:relative;z-index:2;background:linear-gradient(135deg,rgba(12,63,91,.78),rgba(10,39,65,.76));border-color:#36d9ff;box-shadow:inset 0 0 26px #28dfff18,0 5px 18px #00101f66}
+#home .menuBtn:nth-child(4n+1){border-color:#38dfff}
+#home .menuBtn:nth-child(4n+2){border-color:#ff65c8}
+#home .menuBtn:nth-child(4n+3){border-color:#b5ff54}
+#home .menuBtn:nth-child(4n){border-color:#ffbd4a}
+@keyframes floatChaos{0%{translate:0 -12px;rotate:-13deg;scale:.94}50%{translate:12px 8px;scale:1.06}100%{translate:22px 26px;rotate:16deg;scale:1}}
 #collection .projectileCard{display:inline-flex;align-items:center;gap:10px;min-width:145px;margin:5px;padding:10px;border:1px solid #2b6680;border-radius:12px;background:#0a2035;color:#eaffff}
 .projectileCard .emoji{font-size:30px}
 @media(prefers-reduced-motion:reduce){.chaosDecor span{animation:none}}
@@ -78,15 +84,6 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
 </head>
 <body>
 <div id="app">
-<div id="languageGate">
-  <div class="gateBox">
-    <h1>CHAOS BREAKER</h1>
-    <p>CHOOSE YOUR LANGUAGE / 言語を選択</p>
-    <button class="gateBtn" id="chooseJapanese">日本語</button>
-    <button class="gateBtn" id="chooseEnglish">ENGLISH</button>
-    <small class="muted">You can change this later in SETTINGS.</small>
-  </div>
-</div>
 <canvas id="gameCanvas"></canvas>
 <div id="flash"></div>
 <div id="announce">WAVE 1</div>
@@ -114,21 +111,26 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
 
 <section class="screen" id="home">
   <div class="chaosDecor" aria-hidden="true">
-    <span style="--x:4%;--y:14%;--size:54px;--dur:12s">🐰</span>
-    <span style="--x:82%;--y:12%;--size:58px;--dur:16s">🍔</span>
-    <span style="--x:8%;--y:72%;--size:48px;--dur:14s">✏️</span>
-    <span style="--x:88%;--y:74%;--size:58px;--dur:11s">🦍</span>
-    <span style="--x:70%;--y:35%;--size:38px;--dur:17s">🍌</span>
-    <span style="--x:18%;--y:42%;--size:40px;--dur:15s">📎</span>
-    <span style="--x:92%;--y:44%;--size:36px;--dur:13s">🥦</span>
-    <span style="--x:3%;--y:88%;--size:35px;--dur:18s">🦖</span>
+    <span style="--x:2%;--y:13%;--size:clamp(78px,10vw,128px);--dur:11s;--glow:#ff77b7">🐰</span>
+    <span style="--x:83%;--y:9%;--size:clamp(82px,10vw,132px);--dur:15s;--glow:#ffb13b">🍔</span>
+    <span style="--x:3%;--y:69%;--size:clamp(74px,9vw,118px);--dur:13s;--glow:#54c8ff">✏️</span>
+    <span style="--x:88%;--y:72%;--size:clamp(84px,10vw,136px);--dur:10s;--glow:#a4ff55">🦍</span>
+    <span style="--x:70%;--y:31%;--size:clamp(62px,7vw,94px);--dur:17s;--glow:#ffe34c">🍌</span>
+    <span style="--x:17%;--y:39%;--size:clamp(60px,6vw,88px);--dur:14s;--glow:#ff83d2">📎</span>
+    <span style="--x:93%;--y:42%;--size:clamp(58px,6vw,88px);--dur:12s;--glow:#8cff65">🥦</span>
+    <span style="--x:1%;--y:88%;--size:clamp(62px,7vw,96px);--dur:18s;--glow:#66eaff">🦖</span>
+    <span style="--x:48%;--y:7%;--size:clamp(50px,5vw,72px);--dur:16s;--glow:#ffbd4a">🍳</span>
+    <span style="--x:57%;--y:83%;--size:clamp(54px,6vw,84px);--dur:13s;--glow:#ff65c8">🖍️</span>
+    <span style="--x:34%;--y:23%;--size:clamp(46px,5vw,68px);--dur:19s;--glow:#9cff58">🐢</span>
+    <span style="--x:76%;--y:58%;--size:clamp(48px,5vw,72px);--dur:15s;--glow:#55dfff">📚</span>
+    <span style="--x:27%;--y:88%;--size:clamp(46px,5vw,68px);--dur:17s;--glow:#ff9d44">🍅</span>
+    <span style="--x:96%;--y:88%;--size:clamp(46px,5vw,68px);--dur:14s;--glow:#d78cff">🦉</span>
   </div>
-  <button id="languageSettings">LANGUAGE / 言語</button>
   <div class="wrap">
     <div class="logo">
       <h1>CHAOS BREAKER</h1>
       <p>DEFEND YOUR DIGITAL CORE</p>
-      <div class="muted">VERSION 2.0 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD: ANIMAL RIOT</div>
+      <div class="muted">VERSION 2.0.2 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD: ANIMAL RIOT</div>
     </div>
     <div class="panel">
       <div class="topline"><b>PLAYER STATUS</b><span class="muted" id="homeRank">ROOKIE</span></div>
@@ -315,22 +317,6 @@ const defaultSave = {
   core:{integrity:0, armor:0, shield:0, supportFire:0},
   vip:{specialStage:false,coreSkin:"default",bgSkin:"default",overdrive:false,worlds:{animal:true,food:false,stationery:false},selectedWorld:"animal",starter:{ammo:0,pierce:false,power:false,speed:false},projectiles:{classic:true},selectedProjectile:"classic"}
 };
-let gameLanguage = localStorage.getItem("cb_language_v2") || "";
-const JA_EN = {
-"DEFEND YOUR DIGITAL CORE":"デジタルコアを守り抜け","PLAYER STATUS":"プレイヤー情報","BEST SCORE":"最高スコア","TOTAL KILLS":"累計撃破数","防衛戦を開始する":"Start the defense battle","新システム・弾種を解放する":"Unlock systems and ammo types","コア防衛機能を研究・強化する":"Research and upgrade your core","特別ステージ・限定研究・スキン":"Special stages and exclusive upgrades","敵の情報を確認する":"View enemy information","戦績・プレイ記録":"Battle records and stats","操作方法とルール":"Controls and rules","防衛戦を一時停止中":"Battle paused","画面をドラッグで照準 / FIRE長押しで攻撃":"Drag to aim / Hold FIRE to shoot","画面をドラッグして照準を移動":"Drag to move your aim","FIREボタンを長押しで連続攻撃":"Hold FIRE for continuous fire","敵がコアに到達するとダメージを受ける":"Enemies damage your core if they reach it","敵撃破・ウェーブクリア・ボス撃破でDATAを獲得":"Earn DATA by defeating enemies and clearing waves","どこまで生き残れるかに挑戦":"See how long you can survive","能力を1つ選択してください":"Choose one upgrade","購入した特典はセーブデータに保存される。":"Purchased content is saved to your game data.","購入した世界は何度でも切り替え可能。敵の役割・攻撃方法はそのままに、見た目と世界観が変化する。":"Owned worlds can be switched freely. Enemy roles and attacks stay the same; visuals and themes change.","特殊ルールのVIPステージ。敵の出現数が増え、クリア時にボーナスDATAを獲得。":"A special VIP stage with more enemies and bonus DATA for clearing it.","コアをプリズムカラーに変更。":"Change the core to a prism color.","ネオンシティ仕様の背景アクセントを解放。":"Unlock neon city battlefield accents.","出撃中に一度だけ短時間の攻撃強化を発動。":"Trigger a short attack boost once per run.","草原の動物園で大脱走。中央のドジなハンターを守り抜け。":"Animals are escaping the zoo! Protect the clumsy keeper.","食卓の上で料理が大暴走。中央の食いしん坊シェフロボを守れ。":"Food is running wild across the dinner table. Protect the chef!","机の上で文房具が反乱。巨大な筆箱を防衛せよ。":"The stationery has rebelled. Defend the giant pencil case.","未確認":"Undiscovered","撃破":"Defeated","コア耐久を":"Core integrity ","回復":" restored","攻撃力":"Attack power","連射速度":"Fire rate","弾数":"Projectile count","貫通":"Piercing","新しい戦闘システムや弾種を解放する。ここで解放した機能は出撃前に選択できる。":"Unlock combat systems and ammo types. Select unlocked features before each battle.","デジタルコアを研究・強化する。":"Research and upgrade your digital core.","出撃時に使用する弾種を選択。":"Choose your ammo before deployment.","敵の情報が記録される。":"Information about encountered enemies is recorded.","防衛戦を開始する":"Start the defense battle","弾速":"Projectile speed","コア回復":"Core repair"
-};
-function localizeTree(root=document.body){
-  if(gameLanguage!=="en")return;
-  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
-  let n;while((n=walker.nextNode())){let v=n.nodeValue;for(const [ja,en] of Object.entries(JA_EN))if(v.includes(ja))v=v.split(ja).join(en);if(v!==n.nodeValue)n.nodeValue=v;}
-  root.querySelectorAll?.("input,button").forEach(el=>{if(el.title&&JA_EN[el.title])el.title=JA_EN[el.title];});
-}
-function setLanguage(lang){
-  localStorage.setItem("cb_language_v2",lang);
-  location.reload();
-}
-const localizationObserver=new MutationObserver(()=>{if(gameLanguage==="en")localizeTree();});
-localizationObserver.observe(document.body,{childList:true,subtree:true,characterData:true});
 let save = loadSave();
 
 function loadSave(){
@@ -459,7 +445,7 @@ function applyRunStats(){
   const starter=save.vip.starter||{};
   damage = 1 + runUpgrades.damage + (starter.power?0.18:0);
   rate = Math.max(70, 280 - runUpgrades.rate*28);
-  multi = Math.min(4, 1 + (starter.ammo||0) + runUpgrades.multi);
+  multi = Math.min(4, 1 + (starter.ammo ? 1 : 0) + runUpgrades.multi);
   pierce = Math.min(3, runUpgrades.pierce + (starter.pierce?1:0));
   bulletSpeed = 700 + runUpgrades.speed * 90 + (starter.speed?55:0);
 }
@@ -716,7 +702,7 @@ function takeDamage(amount){
 
 function grantData(baseAmount){
   const multiplier = 1 + (save.skills.dataBonus||0)*0.1;
-  const total = (save.dataProgress||0) + baseAmount*multiplier;
+  const total = (save.dataProgress||0) + baseAmount*0.82*multiplier;
   const whole = Math.floor(total + 1e-9);
   save.dataProgress = total - whole;
   if(whole > 0){ save.data += whole; save.totalEarned += whole; }
@@ -803,7 +789,7 @@ function levelUp(){
       name:"弾数",
       max:2,
       desc:()=> `同時発射数増加  Lv.${runUpgrades.multi}/2`,
-      can:()=> runUpgrades.multi < Math.max(0,2-(save.vip.starter?.ammo||0)),
+      can:()=> runUpgrades.multi < 2,
       fn:()=> { runUpgrades.multi++; }
     },
     {
@@ -1243,9 +1229,6 @@ $("goDatabase").onclick = ()=>{ renderDatabase(); showScreen("database"); };
 $("goVIP").onclick = ()=>{ renderVIP(); showScreen("vipRoom"); };
 $("goCollection").onclick = ()=>{renderCollection();showScreen("collection");};
 $("backFromCollection").onclick = goHome;
-$("chooseJapanese").onclick=()=>setLanguage("ja");
-$("chooseEnglish").onclick=()=>setLanguage("en");
-$("languageSettings").onclick=()=>{$("languageGate").classList.remove("hidden");};
 $("backFromVIP").onclick = goHome;
 $("goRecords").onclick = ()=>{ renderRecords(); showScreen("records"); };
 $("goHow").onclick = ()=> showScreen("how");
@@ -1398,17 +1381,17 @@ function renderVIP(){
   const starterTitle=document.createElement("div");starterTitle.className="item vipItem";starterTitle.innerHTML='<b>⚡ STARTER KIT</b><small>出撃時の小さな初期ボーナス。戦闘中のレベルアップが主役のまま、少しだけ有利に。</small>';box.appendChild(starterTitle);
   const starter=save.vip.starter||(save.vip.starter={ammo:0,pierce:false,power:false,speed:false});
   const starterOffers=[
-    {id:"ammo",name:"STARTER AMMO +1",desc:"出撃時の同時発射数 +1（最大2回）",cost:4500,max:2},
-    {id:"pierce",name:"STARTER PIERCE",desc:"出撃時から弾が1体を貫通する",cost:5000},
-    {id:"power",name:"STARTER POWER",desc:"出撃時の攻撃力を少しだけ強化",cost:4000},
-    {id:"speed",name:"STARTER SPEED",desc:"出撃時の弾速を少しだけ強化",cost:3500}
+    {id:"ammo",name:"STARTER AMMO +1",desc:"出撃時の同時発射数を1発から2発にする（1回限り）",cost:12000},
+    {id:"pierce",name:"STARTER PIERCE",desc:"出撃時から弾が1体を貫通する（1回限り）",cost:5000},
+    {id:"power",name:"STARTER POWER",desc:"出撃時の攻撃力を少しだけ強化（1回限り）",cost:4500},
+    {id:"speed",name:"STARTER SPEED",desc:"出撃時の弾速を少しだけ強化（1回限り）",cost:3500}
   ];
   starterOffers.forEach(o=>{
-    const val=starter[o.id]||0,owned=o.max?val>=o.max:!!val,cost=o.max?o.cost+val*2500:o.cost;
+    const val=starter[o.id]||0,owned=!!val,cost=o.cost;
     const el=document.createElement("div");el.className="item vipItem";
-    el.innerHTML=`<b>${o.name}</b><small>${o.desc}</small><small>${o.max?"Lv "+val+"/"+o.max:owned?"UNLOCKED":"ONE-TIME UNLOCK"} · ${owned?"COMPLETE":cost.toLocaleString()+" DATA"}</small>`;
-    const btn=document.createElement("button");btn.className="action";btn.textContent=owned?"UNLOCKED":o.max?"UPGRADE":"UNLOCK";btn.disabled=owned||save.data<cost;
-    btn.onclick=()=>{if(owned||save.data<cost)return;save.data-=cost;starter[o.id]=o.max?val+1:true;saveGame();renderVIP();renderHome();};
+    el.innerHTML=`<b>${o.name}</b><small>${o.desc}</small><small>${owned?"UNLOCKED":"ONE-TIME UNLOCK"} · ${owned?"COMPLETE":cost.toLocaleString()+" DATA"}</small>`;
+    const btn=document.createElement("button");btn.className="action";btn.textContent=owned?"UNLOCKED":"UNLOCK";btn.disabled=owned||save.data<cost;
+    btn.onclick=()=>{if(owned||save.data<cost)return;save.data-=cost;starter[o.id]=true;saveGame();renderVIP();renderHome();};
     el.appendChild(btn);box.appendChild(el);
   });
   const collectionJump=document.createElement("button");collectionJump.className="action primary";collectionJump.textContent="🎯 OPEN PROJECTILE COLLECTION";collectionJump.onclick=()=>{renderCollection();showScreen("collection");};box.appendChild(collectionJump);
@@ -1452,13 +1435,7 @@ function renderRecords(){
 
 renderHome();
 showScreen("home");
-if(gameLanguage==="ja"||gameLanguage==="en"){
-  $("languageGate").classList.add("hidden");
-  document.documentElement.lang=gameLanguage==="en"?"en":"ja";
-  localizeTree();
-}else{
-  $("languageGate").classList.remove("hidden");
-}
+document.documentElement.lang="ja";
 requestAnimationFrame(loop);
 
 })();
