@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CHAOS BREAKER 2.0 - WORLD CHAOS</title>
+<title>CHAOS BREAKER 2.0.3 - WORLD CHAOS</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#030817;color:#e9faff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:manipulation}
@@ -38,6 +38,12 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
 .item{padding:14px;margin:10px 0;border:1px solid #28556d;background:#0a1d32;border-radius:13px}
 .item b{color:#60eaff}
 .item small{display:block;color:#a4bfce;margin-top:5px}
+.jpLine{display:block!important;color:#8fb8cb!important;font-size:11px!important;line-height:1.35;margin-top:3px}
+.enLine{display:block;color:#e9faff;font-weight:700}
+.choice{min-height:104px}
+.choice b{display:block;color:#65efff;font-size:16px}
+.choice small{display:block;color:#d4e8f2;margin-top:6px;line-height:1.4}
+.choice .jpLine{color:#91b7ca!important;font-weight:400}
 .locked{opacity:.45}
 #hud{position:absolute;z-index:15;top:12px;left:10px;right:10px;display:flex;justify-content:space-between;gap:6px;pointer-events:none}
 .hudbox{background:#07182cee;border:1px solid #1b7890;border-radius:12px;padding:8px 12px;min-width:70px;text-align:center}
@@ -89,25 +95,25 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
 <div id="announce">WAVE 1</div>
 
 <div id="hud" class="hidden">
-  <div class="hudbox"><small>WAVE</small><strong id="uiWave">01</strong></div>
-  <div class="hudbox"><small>SCORE</small><strong id="uiScore">0</strong></div>
-  <div class="hudbox"><small>LEVEL</small><strong id="uiLevel">1</strong></div>
-  <div class="hudbox"><small>DATA</small><strong id="uiData">0</strong></div>
+  <div class="hudbox"><small>WAVE<span class="jpLine">ウェーブ</span></small><strong id="uiWave">01</strong></div>
+  <div class="hudbox"><small>SCORE<span class="jpLine">スコア</span></small><strong id="uiScore">0</strong></div>
+  <div class="hudbox"><small>LEVEL<span class="jpLine">レベル</span></small><strong id="uiLevel">1</strong></div>
+  <div class="hudbox"><small>DATA<span class="jpLine">データ</span></small><strong id="uiData">0</strong></div>
 </div>
 <div id="combo">COMBO x2</div>
 
 <div id="battleBars" class="hidden">
-  <small>CORE INTEGRITY <b id="hpText">100</b></small>
+  <small>CORE INTEGRITY / コア耐久 <b id="hpText">100</b></small>
   <div class="bar"><div class="fill" id="hpFill"></div></div>
 </div>
 <div id="bossBar" class="hidden">
-  <small id="bossName">BOSS</small>
+  <small id="bossName">BOSS / ボス</small>
   <div class="bar"><div class="fill" id="bossFill"></div></div>
 </div>
 
-<div id="hint" class="hidden">画面をドラッグで照準 / FIRE長押しで攻撃</div>
-<button id="fire" class="hidden">FIRE</button>
-<button id="battleMenu" class="action hidden">PAUSE</button>
+<div id="hint" class="hidden">AIM / 照準：画面をドラッグ　・　FIRE / 発射：長押し</div>
+<button id="fire" class="hidden">FIRE<br><small style="font-size:10px">発射</small></button>
+<button id="battleMenu" class="action hidden">PAUSE / 一時停止</button>
 
 <section class="screen" id="home">
   <div class="chaosDecor" aria-hidden="true">
@@ -129,25 +135,25 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
   <div class="wrap">
     <div class="logo">
       <h1>CHAOS BREAKER</h1>
-      <p>DEFEND YOUR DIGITAL CORE</p>
-      <div class="muted">VERSION 2.0.2 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD: ANIMAL RIOT</div>
+      <p>DEFEND YOUR DIGITAL CORE / デジタルコアを守り抜け</p>
+      <div class="muted">VERSION 2.0.3 / WORLD CHAOS</div><div class="stageTag" id="homeWorld">WORLD / 世界: ANIMAL RIOT</div>
     </div>
     <div class="panel">
-      <div class="topline"><b>PLAYER STATUS</b><span class="muted" id="homeRank">ROOKIE</span></div>
+      <div class="topline"><b>PLAYER STATUS<span class="jpLine">プレイヤー情報</span></b><span class="muted" id="homeRank">ROOKIE</span></div>
       <div class="statgrid">
-        <div class="stat"><strong id="homeBest">0</strong><small>BEST SCORE</small></div>
-        <div class="stat"><strong id="homeKills">0</strong><small>TOTAL KILLS</small></div>
-        <div class="stat"><strong id="homeData">0</strong><small>DATA</small></div>
+        <div class="stat"><strong id="homeBest">0</strong><small>BEST SCORE<span class="jpLine">最高スコア</span></small></div>
+        <div class="stat"><strong id="homeKills">0</strong><small>TOTAL KILLS<span class="jpLine">総撃破数</span></small></div>
+        <div class="stat"><strong id="homeData">0</strong><small>DATA<span class="jpLine">所持データ</span></small></div>
       </div>
       <div class="grid">
-        <button class="menuBtn" id="goBattle"><b>▶ BATTLE</b><span>防衛戦を開始する</span></button>
-        <button class="menuBtn" id="goSkills"><b>✦ SKILL TREE</b><span>新システム・弾種を解放する</span></button>
-        <button class="menuBtn" id="goCore"><b>◈ CORE LAB</b><span>コア防衛機能を研究・強化する</span></button>
-        <button class="menuBtn" id="goVIP"><b>♛ VIP ROOM</b><span>特別ステージ・限定研究・スキン</span></button>
-        <button class="menuBtn" id="goDatabase"><b>▤ DATABASE</b><span>敵の情報を確認する</span></button>
-        <button class="menuBtn" id="goRecords"><b>▣ RECORD</b><span>戦績・プレイ記録</span></button>
-        <button class="menuBtn" id="goCollection"><b>🎯 PROJECTILES</b><span>弾の見た目を集めて変更する</span></button>
-        <button class="menuBtn" id="goHow"><b>? HOW TO PLAY</b><span>操作方法とルール</span></button>
+        <button class="menuBtn" id="goBattle"><b>▶ BATTLE</b><span>Start a new defense battle / 防衛戦を開始する</span></button>
+        <button class="menuBtn" id="goSkills"><b>✦ SKILL TREE</b><span>Unlock new systems and ammo / 新システム・弾種を解放する</span></button>
+        <button class="menuBtn" id="goCore"><b>◈ CORE LAB</b><span>Research and upgrade core defenses / コア防衛機能を研究・強化する</span></button>
+        <button class="menuBtn" id="goVIP"><b>♛ VIP ROOM</b><span>Special stages, upgrades and skins / 特別ステージ・限定研究・スキン</span></button>
+        <button class="menuBtn" id="goDatabase"><b>▤ DATABASE</b><span>View enemy information / 敵の情報を確認する</span></button>
+        <button class="menuBtn" id="goRecords"><b>▣ RECORD</b><span>Battle statistics and records / 戦績・プレイ記録</span></button>
+        <button class="menuBtn" id="goCollection"><b>🎯 PROJECTILES</b><span>Collect and customize projectile looks / 弾の見た目を集めて変更する</span></button>
+        <button class="menuBtn" id="goHow"><b>? HOW TO PLAY</b><span>Controls and game rules / 操作方法とルール</span></button>
       </div>
     </div>
   </div>
@@ -155,107 +161,107 @@ p{color:#b8d2df;line-height:1.6;font-size:14px}
 
 <section class="screen hidden" id="skills">
   <div class="wrap">
-    <div class="topline"><h2>SKILL TREE</h2><b>DATA: <span id="skillData">0</span></b></div>
-    <p>新しい戦闘システムや弾種を解放する。ここで解放した機能は出撃前に選択できる。</p>
+    <div class="topline"><h2>SKILL TREE <span class="jpLine">スキルツリー</span></h2><b>DATA / データ: <span id="skillData">0</span></b></div>
+    <p>UNLOCK NEW SYSTEMS AND AMMO / 新しい戦闘システムや弾種を解放。解放した機能は出撃前に選択できます。</p>
     <div id="skillList"></div>
-    <div class="panel" style="margin-top:14px"><h2 style="font-size:18px">AMMO LOADOUT</h2><p>出撃時に使用する弾種を選択。</p><div id="ammoList"></div></div>
-    <button class="action" id="backFromSkills">BACK TO HOME</button>
+    <div class="panel" style="margin-top:14px"><h2 style="font-size:18px">AMMO LOADOUT <span class="jpLine">弾種選択</span></h2><p>Choose your ammo before battle / 出撃時に使用する弾種を選択。</p><div id="ammoList"></div></div>
+    <button class="action" id="backFromSkills">BACK TO HOME / ホームに戻る</button>
   </div>
 </section>
 
 <section class="screen hidden" id="coreLab">
   <div class="wrap">
-    <div class="topline"><h2>CORE LAB</h2><b>DATA: <span id="coreData">0</span></b></div>
-    <p>デジタルコアを研究・強化する。</p>
+    <div class="topline"><h2>CORE LAB <span class="jpLine">コア研究所</span></h2><b>DATA / データ: <span id="coreData">0</span></b></div>
+    <p>Research and upgrade your digital core / デジタルコアを研究・強化する。</p>
     <div id="coreList"></div>
-    <button class="action" id="backFromCore">BACK TO HOME</button>
+    <button class="action" id="backFromCore">BACK TO HOME / ホームに戻る</button>
   </div>
 </section>
 
 <section class="screen hidden" id="vipRoom">
   <div class="wrap">
-    <div class="topline"><h2>♛ VIP ROOM</h2><b>DATA: <span id="vipData">0</span></b></div>
-    <div class="vipHero"><b>ELITE ACCESS</b><p>通常の研究を超えた特別なコンテンツ。購入した特典はセーブデータに保存される。</p></div>
+    <div class="topline"><h2>♛ VIP ROOM <span class="jpLine">VIPルーム</span></h2><b>DATA / データ: <span id="vipData">0</span></b></div>
+    <div class="vipHero"><b>ELITE ACCESS / エリートアクセス</b><p>Exclusive content beyond standard research / 通常の研究を超えた特別なコンテンツ。購入した特典はセーブデータに保存されます。</p></div>
     <div id="vipList"></div>
-    <button class="action" id="backFromVIP">BACK TO HOME</button>
+    <button class="action" id="backFromVIP">BACK TO HOME / ホームに戻る</button>
   </div>
 </section>
 
 <section class="screen hidden" id="collection">
   <div class="wrap">
-    <div class="topline"><h2>PROJECTILE COLLECTION</h2><b>DATA: <span id="collectionData">0</span></b></div>
-    <p>弾の見た目だけを変更。攻撃力・速度・当たり判定は変わらない。</p>
+    <div class="topline"><h2>PROJECTILE COLLECTION <span class="jpLine">弾コレクション</span></h2><b>DATA / データ: <span id="collectionData">0</span></b></div>
+    <p>COSMETIC ONLY / 見た目だけを変更。攻撃力・速度・当たり判定は変わりません。</p>
     <div id="projectileList"></div>
-    <button class="action" id="backFromCollection">BACK TO HOME</button>
+    <button class="action" id="backFromCollection">BACK TO HOME / ホームに戻る</button>
   </div>
 </section>
 
 <section class="screen hidden" id="database">
   <div class="wrap">
-    <h2>ENEMY DATABASE</h2>
-    <p>遭遇した敵の情報が記録される。</p>
+    <h2>ENEMY DATABASE <span class="jpLine">敵データベース</span></h2>
+    <p>Enemy information is recorded as you encounter them / 遭遇した敵の情報が記録されます。</p>
     <div id="enemyList"></div>
-    <button class="action" id="backFromDatabase">BACK TO HOME</button>
+    <button class="action" id="backFromDatabase">BACK TO HOME / ホームに戻る</button>
   </div>
 </section>
 
 <section class="screen hidden" id="records">
   <div class="wrap">
-    <h2>RECORD</h2>
+    <h2>RECORD <span class="jpLine">戦績</span></h2>
     <div class="statgrid">
-      <div class="stat"><strong id="recBest">0</strong><small>BEST SCORE</small></div>
-      <div class="stat"><strong id="recWave">0</strong><small>BEST WAVE</small></div>
-      <div class="stat"><strong id="recKills">0</strong><small>TOTAL KILLS</small></div>
+      <div class="stat"><strong id="recBest">0</strong><small>BEST SCORE<span class="jpLine">最高スコア</span></small></div>
+      <div class="stat"><strong id="recWave">0</strong><small>BEST WAVE<span class="jpLine">最高到達ウェーブ</span></small></div>
+      <div class="stat"><strong id="recKills">0</strong><small>TOTAL KILLS<span class="jpLine">総撃破数</span></small></div>
     </div>
     <div class="panel" style="margin-top:16px">
-      <p>プレイ回数： <b id="recRuns">0</b></p>
-      <p>ボス撃破数： <b id="recBoss">0</b></p>
-      <p>累計DATA： <b id="recEarned">0</b></p>
+      <p>PLAY COUNT / プレイ回数： <b id="recRuns">0</b></p>
+      <p>BOSSES DEFEATED / ボス撃破数： <b id="recBoss">0</b></p>
+      <p>TOTAL DATA EARNED / 累計DATA： <b id="recEarned">0</b></p>
     </div>
-    <button class="action" id="backFromRecords">BACK TO HOME</button>
+    <button class="action" id="backFromRecords">BACK TO HOME / ホームに戻る</button>
   </div>
 </section>
 
 <section class="screen hidden" id="how">
   <div class="wrap">
-    <h2>HOW TO PLAY</h2>
-    <div class="item"><b>01 / AIM</b><small>画面をドラッグして照準を移動</small></div>
-    <div class="item"><b>02 / FIRE</b><small>FIREボタンを長押しで連続攻撃</small></div>
-    <div class="item"><b>03 / DEFEND</b><small>敵がコアに到達するとダメージを受ける</small></div>
-    <div class="item"><b>04 / GROW</b><small>敵撃破・ウェーブクリア・ボス撃破でDATAを獲得</small></div>
-    <div class="item"><b>05 / ENDLESS</b><small>どこまで生き残れるかに挑戦</small></div>
-    <button class="action" id="backFromHow">BACK TO HOME</button>
+    <h2>HOW TO PLAY <span class="jpLine">遊び方</span></h2>
+    <div class="item"><b>01 / AIM <span class="jpLine">照準を動かす</span></b><small>Drag the screen to move your aim / 画面をドラッグして照準を移動</small></div>
+    <div class="item"><b>02 / FIRE <span class="jpLine">発射する</span></b><small>Hold FIRE to shoot continuously / FIREボタンを長押しして連続攻撃</small></div>
+    <div class="item"><b>03 / DEFEND <span class="jpLine">コアを守る</span></b><small>Enemies damage your core when they reach it / 敵がコアに到達するとダメージを受ける</small></div>
+    <div class="item"><b>04 / GROW <span class="jpLine">強化して成長</span></b><small>Earn DATA by defeating enemies, clearing waves and bosses / 敵撃破・ウェーブクリア・ボス撃破でDATAを獲得</small></div>
+    <div class="item"><b>05 / ENDLESS <span class="jpLine">限界に挑戦</span></b><small>See how long you can survive / どこまで生き残れるかに挑戦</small></div>
+    <button class="action" id="backFromHow">BACK TO HOME / ホームに戻る</button>
   </div>
 </section>
 
 <section class="screen hidden" id="levelScreen">
   <div class="wrap" style="padding-top:8vh;text-align:center">
-    <h2>LEVEL UP!</h2>
-    <p style="margin:12px 0 22px">能力を1つ選択してください</p>
+    <h2>LEVEL UP! <span class="jpLine">レベルアップ！</span></h2>
+    <p style="margin:12px 0 22px">CHOOSE ONE UPGRADE / 強化を1つ選択してください</p>
     <div id="levelChoices" class="grid"></div>
   </div>
 </section>
 
 <section class="screen hidden" id="gameOver">
   <div class="wrap" style="text-align:center;padding-top:12vh">
-    <h1 style="color:#ff6387;font-size:40px">CORE LOST</h1>
-    <h2>DEFENSE FAILED</h2>
+    <h1 style="color:#ff6387;font-size:40px">CORE LOST <span class="jpLine">コア喪失</span></h1>
+    <h2>DEFENSE FAILED <span class="jpLine">防衛失敗</span></h2>
     <div class="panel" style="margin:24px 0">
-      <p>FINAL SCORE</p>
+      <p>FINAL SCORE / 最終スコア</p>
       <h1 id="finalScore" style="font-size:42px;color:#60edff">0</h1>
       <p id="finalInfo" style="margin-top:10px"></p>
     </div>
-    <button class="action primary" id="again">RETRY</button>
-    <button class="action" id="backFromGameOver">HOME</button>
+    <button class="action primary" id="again">RETRY / 再挑戦</button>
+    <button class="action" id="backFromGameOver">HOME / ホーム</button>
   </div>
 </section>
 
 <section class="screen hidden" id="pauseScreen">
   <div class="wrap" style="text-align:center;padding-top:18vh">
-    <h1 style="font-size:36px">PAUSED</h1>
-    <p style="margin:16px 0 28px">防衛戦を一時停止中</p>
-    <button class="action primary" id="resume">RESUME</button>
-    <button class="action" id="quitBattle">QUIT TO HOME</button>
+    <h1 style="font-size:36px">PAUSED <span class="jpLine">一時停止中</span></h1>
+    <p style="margin:16px 0 28px">Battle is paused / 防衛戦を一時停止中</p>
+    <button class="action primary" id="resume">RESUME / 再開</button>
+    <button class="action" id="quitBattle">QUIT TO HOME / ホームに戻る</button>
   </div>
 </section>
 </div>
@@ -395,9 +401,9 @@ function renderHome(){
   $("homeBest").textContent = save.best;
   $("homeKills").textContent = save.totalKills;
   $("homeData").textContent = save.data;
-  const hw=$("homeWorld");if(hw)hw.textContent="WORLD: "+currentWorld().name;
+  const hw=$("homeWorld");if(hw)hw.textContent="WORLD / 世界: "+currentWorld().name;
   const total = ["intercept","explosive","emp","ricochet","split"].filter(k=>save.skills[k]).length + (save.skills.dataBonus||0) + (save.core.shield||0) + (save.core.supportFire||0);
-  $("homeRank").textContent = total>=10?"ELITE":total>=6?"VETERAN":total>=2?"OPERATIVE":"ROOKIE";
+  $("homeRank").textContent = total>=10?"ELITE / 精鋭":total>=6?"VETERAN / 熟練":total>=2?"OPERATIVE / 実戦要員":"ROOKIE / 新人";
 }
 function corePos(){ return {x:W/2, y:H*0.52}; }
 
@@ -428,11 +434,11 @@ function updateHUD(){
   $("uiLevel").textContent = level;
   $("uiData").textContent = save.data;
   const maxHP = getMaxHP();
-  $("hpText").textContent = Math.max(0, Math.ceil(hp)) + " / " + maxHP + ((save.core.shield||0)>0 ? "  /  SHIELD "+shieldCharges : "");
+  $("hpText").textContent = Math.max(0, Math.ceil(hp)) + " / " + maxHP + ((save.core.shield||0)>0 ? "  /  SHIELD・シールド "+shieldCharges : "");
   $("hpFill").style.width = (Math.max(0, Math.min(hp, maxHP)) / maxHP * 100) + "%";
   if(boss){
     $("bossBar").classList.remove("hidden");
-    $("bossName").textContent = "BOSS / " + Math.ceil(boss.hp) + " HP";
+    $("bossName").textContent = "BOSS / ボス　" + Math.ceil(boss.hp) + " HP・耐久";
     $("bossFill").style.width = (boss.hp / boss.maxHp * 100) + "%";
   }else{
     $("bossBar").classList.add("hidden");
@@ -587,7 +593,7 @@ function startBattle(special=false){
   hideAllScreens();
   showBattleUI();
   updateHUD();
-  announce(vipRun?"ANOMALY PROTOCOL\nWAVE 1":currentWorld().name+"\nWAVE 1",vipRun?"#d59cff":"#5ef");
+  announce(vipRun?"ANOMALY PROTOCOL / 異常領域\nWAVE 1 / 第1ウェーブ":currentWorld().name+"\nWAVE 1 / 第1ウェーブ",vipRun?"#d59cff":"#5ef");
 }
 
 function makeEnemy(type, pos){
@@ -683,7 +689,7 @@ function tryFire(now){
 function takeDamage(amount){
   if(shieldCharges > 0){
     shieldCharges--;
-    announce("SHIELD BLOCK", "#65f5ff");
+    announce("SHIELD BLOCK / シールド防御", "#65f5ff");
     for(let i=0;i<12;i++) particles.push({x:W/2,y:H*0.52,vx:(Math.random()-0.5)*180,vy:(Math.random()-0.5)*180,life:0.45,color:"#55eaff"});
     updateHUD();
     return false;
@@ -770,49 +776,49 @@ function levelUp(){
   const allOptions = [
     {
       id:"damage",
-      name:"攻撃力",
+      name:"DAMAGE UP / 攻撃力アップ",
       max:4,
-      desc:()=> `ダメージ増加  Lv.${runUpgrades.damage}/4`,
+      desc:()=> `Increase damage / 与えるダメージが増加　Lv.${runUpgrades.damage}/4`,
       can:()=> runUpgrades.damage < 4,
       fn:()=> { runUpgrades.damage++; }
     },
     {
       id:"rate",
-      name:"連射速度",
+      name:"FIRE RATE UP / 連射速度アップ",
       max:4,
-      desc:()=> `連射が速くなる  Lv.${runUpgrades.rate}/4`,
+      desc:()=> `Shoot faster / 弾の発射間隔が短くなる　Lv.${runUpgrades.rate}/4`,
       can:()=> runUpgrades.rate < 4,
       fn:()=> { runUpgrades.rate++; }
     },
     {
       id:"multi",
-      name:"弾数",
+      name:"MULTI SHOT / 同時発射数アップ",
       max:2,
-      desc:()=> `同時発射数増加  Lv.${runUpgrades.multi}/2`,
+      desc:()=> `Fire more bullets at once / 一度に発射する弾数が増える　Lv.${runUpgrades.multi}/2`,
       can:()=> runUpgrades.multi < 2,
       fn:()=> { runUpgrades.multi++; }
     },
     {
       id:"pierce",
-      name:"貫通",
+      name:"PIERCE UP / 貫通力アップ",
       max:3,
-      desc:()=> `弾が貫通しやすくなる  Lv.${runUpgrades.pierce}/3`,
+      desc:()=> `Bullets pierce more enemies / 弾がより多くの敵を貫通する　Lv.${runUpgrades.pierce}/3`,
       can:()=> runUpgrades.pierce < 3,
       fn:()=> { runUpgrades.pierce++; }
     },
     {
       id:"speed",
-      name:"弾速",
+      name:"BULLET SPEED / 弾速アップ",
       max:3,
-      desc:()=> `弾が速くなる  Lv.${runUpgrades.speed}/3`,
+      desc:()=> `Bullets travel faster / 弾の飛ぶ速度が上がる　Lv.${runUpgrades.speed}/3`,
       can:()=> runUpgrades.speed < 3,
       fn:()=> { runUpgrades.speed++; }
     },
     {
       id:"repair",
-      name:"コア回復",
+      name:"CORE REPAIR / コア修復",
       max:99,
-      desc:()=> `コア耐久を最大HPの${[30,25,20,15,10][Math.min(repairCount,4)]}%回復（今回${repairCount+1}回目）`,
+      desc:()=> `Restore ${[30,25,20,15,10][Math.min(repairCount,4)]}% of max HP / 最大耐久の${[30,25,20,15,10][Math.min(repairCount,4)]}%を回復（${repairCount+1}回目）`,
       can:()=> true,
       fn:()=> { const pct=[0.30,0.25,0.20,0.15,0.10][Math.min(repairCount,4)]; const maxHp=getMaxHP(); hp=Math.min(maxHp,hp+maxHp*pct); repairCount++; }
     }
@@ -853,7 +859,7 @@ function nextWave(){
   if(isBossWave){
     spawnLeft = 0;
     bossPending = true;
-    announce("WARNING\nBOSS APPROACHING", "#ff5");
+    announce("WARNING / 警告\nBOSS APPROACHING / ボス接近", "#ff5");
     setTimeout(function(){
       if(running && !paused){
         makeEnemy("boss");
@@ -869,7 +875,7 @@ function nextWave(){
     spawnTimer = Math.max(0.22,0.62-wave*0.003);
     const diff=getDifficulty(wave);
     const boundary=[1,6,21,36,51,76,101].includes(wave);
-    announce(boundary?diff+"\nWAVE "+wave:"WAVE "+wave,stageColor(wave));
+    announce(boundary?diff+" / 難易度\nWAVE / ウェーブ "+wave:"WAVE / ウェーブ "+wave,stageColor(wave));
   }
   updateHUD();
 }
@@ -883,7 +889,7 @@ function gameOver(){
   save.bestWave = Math.max(save.bestWave||0, wave);
   saveGame();
   $("finalScore").textContent = score;
-  $("finalInfo").textContent = "WAVE "+wave+"  /  撃破 "+kills+"体  /  MAX COMBO x"+maxCombo;
+  $("finalInfo").textContent = "WAVE / ウェーブ "+wave+"  /  KILLS・撃破 "+kills+"  /  MAX COMBO・最大コンボ x"+maxCombo;
   hideBattleUI();
   showScreen("gameOver");
 }
@@ -897,7 +903,7 @@ function update(dt, now){
   }
 
   tryFire(now);
-  if(save.vip.overdrive && !overdriveUsed && overdriveTimer===0 && wave>=5){overdriveTimer=6;overdriveUsed=true;announce("VIP OVERDRIVE", "#d59cff");}
+  if(save.vip.overdrive && !overdriveUsed && overdriveTimer===0 && wave>=5){overdriveTimer=6;overdriveUsed=true;announce("VIP OVERDRIVE / VIP強化", "#d59cff");}
   if(overdriveTimer>0)overdriveTimer=Math.max(0,overdriveTimer-dt);
 
   if(spawnLeft > 0){
@@ -1256,6 +1262,55 @@ $("resume").onclick = ()=>{
 };
 $("quitBattle").onclick = goHome;
 
+// Bilingual UI helper: English is the primary label, Japanese is shown directly below.
+const JP_EN = {
+  "自分の弾で敵の弾を打ち消すシステムを解放":"Unlock a system that destroys enemy bullets with your shots",
+  "命中時に周囲の敵も巻き込む爆発弾を解放":"Unlock explosive rounds that damage nearby enemies",
+  "命中した敵の動きを一時停止させる弾を解放":"Unlock EMP rounds that temporarily stop enemies",
+  "敵に当たると別の敵へ跳ね返る弾を解放":"Unlock rounds that bounce from one enemy to another",
+  "飛行中に複数方向へ分散する弾を解放":"Unlock rounds that split into multiple directions",
+  "敵撃破・ウェーブ報酬のDATA獲得量 +10% / Lv":"Earn 10% more DATA from kills and wave rewards per level",
+  "安定した標準弾":"Reliable standard ammunition", "範囲爆発":"Explodes on impact", "敵を一時停止":"Temporarily stops enemies",
+  "敵から敵へ跳ね返る":"Bounces between enemies", "飛行中に3方向へ分散":"Splits into three directions while flying",
+  "最大耐久を +8":"Increase maximum core HP by +8", "受けるダメージを軽減":"Reduce incoming damage",
+  "5ウェーブごとに被ダメージを防ぐ。Lvごとに発動回数 +1（最大5回）":"Blocks incoming damage every 5 waves. +1 charge per level (max 5)",
+  "コアから自動支援射撃。Lvが上がるほど発射間隔が短縮（Lv5で5秒）":"Automatic support fire from the core. Fires faster at higher levels (5 sec at Lv 5)",
+  "出撃時の同時発射数を1発から2発にする（1回限り）":"Start each battle firing 2 bullets instead of 1 (one-time unlock)",
+  "出撃時から弾が1体を貫通する（1回限り）":"Bullets pierce one enemy from the start (one-time unlock)",
+  "出撃時の攻撃力を少しだけ強化（1回限り）":"Slightly increase starting damage (one-time unlock)",
+  "出撃時の弾速を少しだけ強化（1回限り）":"Slightly increase starting bullet speed (one-time unlock)",
+  "標準的な直進タイプ。小型でオレンジ色。":"A small orange enemy that moves straight toward the core",
+  "高速でコアへ突っ込む小型敵。":"A fast enemy that rushes straight toward the core",
+  "低速・高耐久。重装甲の大型敵。":"A heavily armored enemy with high HP and low speed",
+  "撃破されると小型個体に分裂する。":"Splits into smaller enemies when defeated",
+  "左右に不規則な軌道で移動する。":"Moves in an unpredictable zigzag pattern",
+  "複数で出現しやすい標準型。":"A standard enemy that often appears in groups",
+  "距離を取りながら弾を撃つ。":"Keeps its distance and fires projectiles",
+  "周囲の敵をシールドで守る支援機。":"Protects nearby enemies with a shield",
+  "時間経過で小型敵を追加する。":"Creates additional small enemies over time",
+  "停止して狙いを定め、速い弾を撃つ。":"Stops, takes aim, and fires a fast projectile",
+  "近くの敵の耐久を少しずつ回復する。":"Gradually restores the HP of nearby enemies",
+  "移動しない固定砲台。連続射撃を行う。":"A stationary turret that fires repeatedly",
+  "強力な大型ボス。":"A powerful giant boss",
+  "草原の動物園で大脱走。中央のドジなハンターを守り抜け。":"Animals have escaped across the grassland zoo. Protect the clumsy hunter in the center",
+  "食卓の上で食材たちが大暴走。中央のシェフを守り抜け。":"Food has gone wild across the dinner table. Protect the chef in the center",
+  "机の上で文房具が反乱。巨大な筆箱を防衛せよ。":"Stationery has rebelled across the desk. Defend the giant pencil case",
+  "特殊ルールのVIPステージ。敵の出現数が増え、クリア時にボーナスDATAを獲得。":"A VIP stage with special rules, more enemies, and bonus DATA for clearing",
+  "コアをプリズムカラーに変更。":"Change your core to a brilliant prism color",
+  "ネオンシティ仕様の背景アクセントを解放。":"Unlock neon city battlefield effects",
+  "出撃中に一度だけ短時間の攻撃強化を発動。":"Activate a temporary attack boost once per battle",
+  "購入した世界は何度でも切り替え可能。敵の役割・攻撃方法はそのままに、見た目と世界観が変化する。":"Switch freely between worlds you own. Enemy roles and attacks stay the same, while visuals and themes change",
+  "出撃時の小さな初期ボーナス。戦闘中のレベルアップが主役のまま、少しだけ有利に。":"Small starting bonuses that help a little while keeping in-battle level-ups important",
+  "ワールド購入とは別枠の特別機能。":"Special features separate from world purchases",
+  "安定した標準弾":"Reliable standard ammunition",
+  "範囲爆発":"Area explosion",
+  "敵を一時停止":"Temporarily freezes enemies",
+  "敵から敵へ跳ね返る":"Bounces from enemy to enemy",
+  "飛行中に3方向へ分散":"Splits into three directions in flight"
+};
+function biDesc(jp){return `<small>${JP_EN[jp]||jp}</small><small class="jpLine">${jp}</small>`;}
+function biStatus(en,jp){return `${en}<span class="jpLine">${jp}</span>`;}
+
 // 恒久強化（コスト高め）
 function renderSkills(){
   $("skillData").textContent = save.data;
@@ -1274,8 +1329,8 @@ function renderSkills(){
     const cost=item.kind==="upgrade"?item.cost+lv*900:item.cost;
     const maxed=item.kind==="upgrade"?lv>=item.max:unlocked;
     const el=document.createElement("div"); el.className="item"+(unlocked?"":" locked");
-    el.innerHTML=`<b>${item.name}</b><small>${item.desc}</small><small>${item.kind==="upgrade"?`Lv ${lv}/${item.max}`:(unlocked?"UNLOCKED":"LOCKED")}${maxed?"  /  COMPLETE":"  /  "+cost+" DATA"}</small>`;
-    const btn=document.createElement("button"); btn.className="action"; btn.textContent=maxed?"UNLOCKED":(item.kind==="upgrade"&&lv>0?"UPGRADE":"UNLOCK");
+    el.innerHTML=`<b>${item.name}</b>${biDesc(item.desc)}<small>${item.kind==="upgrade"?`LEVEL / レベル ${lv}/${item.max}`:(unlocked?"UNLOCKED / 解放済み":"LOCKED / 未解放")}${maxed?"  /  COMPLETE・完了":"  /  "+cost+" DATA・データ"}</small>`;
+    const btn=document.createElement("button"); btn.className="action"; btn.innerHTML=maxed?"UNLOCKED / 解放済み":(item.kind==="upgrade"&&lv>0?"UPGRADE / 強化":"UNLOCK / 解放");
     btn.disabled=maxed||save.data<cost;
     btn.onclick=()=>{if(maxed||save.data<cost)return;save.data-=cost;save.skills[item.id]=lv+1;saveGame();renderSkills();renderHome();};
     el.appendChild(btn); box.appendChild(el);
@@ -1295,7 +1350,7 @@ function renderAmmoLoadout(){
   if(!ammo.some(a=>a.id===(save.skills.activeAmmo||"standard")&&a.unlocked)) save.skills.activeAmmo="standard";
   ammo.forEach(a=>{
     const btn=document.createElement("button"); btn.className="action";
-    btn.textContent=(a.id===(save.skills.activeAmmo||"standard")?"✓ ":"")+a.name+(a.unlocked?"":" / LOCKED");
+    btn.innerHTML=(a.id===(save.skills.activeAmmo||"standard")?"✓ ":"")+a.name+`<small class="jpLine">${a.desc}</small>`+(a.unlocked?"":" / LOCKED / 未解放");
     btn.disabled=!a.unlocked;
     btn.style.opacity=a.unlocked?"1":".35";
     btn.onclick=()=>{save.skills.activeAmmo=a.id;saveGame();renderAmmoLoadout();};
@@ -1318,9 +1373,9 @@ function renderCore(){
     const cost=item.cost+Math.max(0,lv-(item.unlockFirst?1:0))*500;
     const maxed=lv>=item.max;
     const el=document.createElement("div"); el.className="item"+(lv===0&&item.unlockFirst?" locked":"");
-    const status=item.unlockFirst?(lv===0?"LOCKED":"UNLOCKED"):`Lv ${lv}/${item.max}`;
-    el.innerHTML=`<b>${item.name}</b><small>${item.desc}</small><small>${status}${maxed?"  /  MAX":"  /  "+cost+" DATA"}</small>`;
-    const btn=document.createElement("button"); btn.className="action"; btn.textContent=maxed?"MAX":(item.unlockFirst&&lv===0?"UNLOCK":"RESEARCH");
+    const status=item.unlockFirst?(lv===0?"LOCKED / 未解放":"UNLOCKED / 解放済み"):`Lv ${lv}/${item.max}`;
+    el.innerHTML=`<b>${item.name}</b>${biDesc(item.desc)}<small>${status} / ${status==="LOCKED / 未解放"?"未解放":"解放済み"}${maxed?"  /  MAX・最大":"  /  "+cost+" DATA・データ"}</small>`;
+    const btn=document.createElement("button"); btn.className="action"; btn.textContent=maxed?"MAX / 最大":(item.unlockFirst&&lv===0?"UNLOCK / 解放":"RESEARCH / 研究");
     btn.disabled=maxed||save.data<cost;
     btn.onclick=()=>{if(maxed||save.data<cost)return;save.data-=cost;save.core[item.id]=lv+1;if(item.id==="shield"&&lv===0&&running)shieldCharges=1;saveGame();renderCore();renderHome();};
     el.appendChild(btn); box.appendChild(el);
@@ -1351,8 +1406,8 @@ function renderCollection(){
   PROJECTILES.forEach(p=>{
     const owned=!!save.vip.projectiles?.[p.id],selected=save.vip.selectedProjectile===p.id;
     const el=document.createElement("div");el.className="item";
-    el.innerHTML=`<b>${p.name} ${selected?" / EQUIPPED":""}</b><small>${owned?"OWNED":"UNLOCK / "+p.cost.toLocaleString()+" DATA"} · COSMETIC ONLY</small>`;
-    const btn=document.createElement("button");btn.className="action";btn.textContent=selected?"EQUIPPED":owned?"EQUIP":"UNLOCK";
+    el.innerHTML=`<b>${p.name} ${selected?" / EQUIPPED・装備中":""}</b><small>${owned?"OWNED / 所有済み":"UNLOCK / 解放・"+p.cost.toLocaleString()+" DATA"} · COSMETIC ONLY / 見た目のみ</small>`;
+    const btn=document.createElement("button");btn.className="action";btn.textContent=selected?"EQUIPPED / 装備中":owned?"EQUIP / 装備":"UNLOCK / 解放";
     btn.disabled=selected||(!owned&&save.data<p.cost);
     btn.onclick=()=>{if(!owned){if(save.data<p.cost)return;save.data-=p.cost;save.vip.projectiles[p.id]=true;}save.vip.selectedProjectile=p.id;saveGame();renderCollection();renderHome();};
     el.appendChild(btn);box.appendChild(el);
@@ -1362,15 +1417,15 @@ function renderVIP(){
   $("vipData").textContent=save.data;
   const box=$("vipList");box.innerHTML="";
   const worldTitle=document.createElement("div");worldTitle.className="item vipItem";
-  worldTitle.innerHTML='<b>🌍 WORLD SELECT</b><small>購入した世界は何度でも切り替え可能。敵の役割・攻撃方法はそのままに、見た目と世界観が変化する。</small>';
+  worldTitle.innerHTML='<b>🌍 WORLD SELECT / ワールド選択</b><small>Switch freely between worlds you own / 購入した世界は何度でも切り替え可能。敵の役割・攻撃方法はそのままに、見た目と世界観が変化します。</small>';
   box.appendChild(worldTitle);
   Object.values(WORLD_DATA).forEach(w=>{
     const owned=w.id==="animal"||!!save.vip.worlds[w.id];
     const selected=(save.vip.selectedWorld||"animal")===w.id;
     const el=document.createElement("div");el.className="item vipItem"+(owned?"":" locked");
-    el.innerHTML=`<b>${w.name} ${selected?"/ SELECTED":""}</b><small>${w.tag} — ${w.desc}</small><small>${owned?(selected?"CURRENT WORLD":"OWNED / PERMANENT"):"UNLOCK / "+w.cost.toLocaleString()+" DATA"}</small>`;
+    el.innerHTML=`<b>${w.name} ${selected?"/ SELECTED":""}</b><small>${w.tag}</small>${biDesc(w.desc)}<small>${owned?(selected?"CURRENT WORLD / 選択中":"OWNED / PERMANENT・所有済み"):"UNLOCK / "+w.cost.toLocaleString()+" DATA"}</small>`;
     const btn=document.createElement("button");btn.className="action";
-    btn.textContent=selected?"SELECTED":owned?"SELECT WORLD":"UNLOCK WORLD";
+    btn.textContent=selected?"SELECTED / 選択中":owned?"SELECT WORLD / 世界を選択":"UNLOCK WORLD / 世界を解放";
     btn.disabled=selected||(!owned&&save.data<w.cost);
     btn.onclick=()=>{
       if(!owned){if(save.data<w.cost)return;save.data-=w.cost;save.vip.worlds[w.id]=true;}
@@ -1378,7 +1433,7 @@ function renderVIP(){
     };
     el.appendChild(btn);box.appendChild(el);
   });
-  const starterTitle=document.createElement("div");starterTitle.className="item vipItem";starterTitle.innerHTML='<b>⚡ STARTER KIT</b><small>出撃時の小さな初期ボーナス。戦闘中のレベルアップが主役のまま、少しだけ有利に。</small>';box.appendChild(starterTitle);
+  const starterTitle=document.createElement("div");starterTitle.className="item vipItem";starterTitle.innerHTML='<b>⚡ STARTER KIT / 初期装備</b><small>Small starting bonuses / 出撃時の小さな初期ボーナス。戦闘中のレベルアップを主役に、少しだけ有利になります。</small>';box.appendChild(starterTitle);
   const starter=save.vip.starter||(save.vip.starter={ammo:0,pierce:false,power:false,speed:false});
   const starterOffers=[
     {id:"ammo",name:"STARTER AMMO +1",desc:"出撃時の同時発射数を1発から2発にする（1回限り）",cost:12000},
@@ -1389,24 +1444,24 @@ function renderVIP(){
   starterOffers.forEach(o=>{
     const val=starter[o.id]||0,owned=!!val,cost=o.cost;
     const el=document.createElement("div");el.className="item vipItem";
-    el.innerHTML=`<b>${o.name}</b><small>${o.desc}</small><small>${owned?"UNLOCKED":"ONE-TIME UNLOCK"} · ${owned?"COMPLETE":cost.toLocaleString()+" DATA"}</small>`;
-    const btn=document.createElement("button");btn.className="action";btn.textContent=owned?"UNLOCKED":"UNLOCK";btn.disabled=owned||save.data<cost;
+    el.innerHTML=`<b>${o.name}</b>${biDesc(o.desc)}<small>${owned?"UNLOCKED / 解放済み":"ONE-TIME UNLOCK / 一度限りの解放"} · ${owned?"COMPLETE / 完了":cost.toLocaleString()+" DATA / データ"}</small>`;
+    const btn=document.createElement("button");btn.className="action";btn.textContent=owned?"UNLOCKED / 解放済み":"UNLOCK / 解放";btn.disabled=owned||save.data<cost;
     btn.onclick=()=>{if(owned||save.data<cost)return;save.data-=cost;starter[o.id]=true;saveGame();renderVIP();renderHome();};
     el.appendChild(btn);box.appendChild(el);
   });
-  const collectionJump=document.createElement("button");collectionJump.className="action primary";collectionJump.textContent="🎯 OPEN PROJECTILE COLLECTION";collectionJump.onclick=()=>{renderCollection();showScreen("collection");};box.appendChild(collectionJump);
+  const collectionJump=document.createElement("button");collectionJump.className="action primary";collectionJump.textContent="🎯 OPEN PROJECTILE COLLECTION / 弾コレクションを開く";collectionJump.onclick=()=>{renderCollection();showScreen("collection");};box.appendChild(collectionJump);
   const offers=[
     {id:"specialStage",name:"ANOMALY PROTOCOL",desc:"特殊ルールのVIPステージ。敵の出現数が増え、クリア時にボーナスDATAを獲得。",cost:10000},
     {id:"coreSkin",name:"CORE SKIN / PRISM",desc:"コアをプリズムカラーに変更。",cost:12000},
     {id:"bgSkin",name:"BATTLEFIELD / NEON CITY",desc:"ネオンシティ仕様の背景アクセントを解放。",cost:16000},
     {id:"overdrive",name:"OVERDRIVE SYSTEM",desc:"出撃中に一度だけ短時間の攻撃強化を発動。",cost:25000}
   ];
-  const title=document.createElement("div");title.className="item vipItem";title.innerHTML='<b>♛ VIP SYSTEMS</b><small>ワールド購入とは別枠の特別機能。</small>';box.appendChild(title);
-  if(save.vip.specialStage){const launch=document.createElement("button");launch.className="action primary";launch.textContent="▶ ENTER ANOMALY PROTOCOL";launch.onclick=()=>{startBattle(true);};box.appendChild(launch);}
+  const title=document.createElement("div");title.className="item vipItem";title.innerHTML='<b>♛ VIP SYSTEMS / VIP特典</b><small>ワールド購入とは別枠の特別機能。</small>';box.appendChild(title);
+  if(save.vip.specialStage){const launch=document.createElement("button");launch.className="action primary";launch.textContent="▶ ENTER ANOMALY PROTOCOL / 特殊ステージ開始";launch.onclick=()=>{startBattle(true);};box.appendChild(launch);}
   offers.forEach(o=>{
     const owned=!!save.vip[o.id];const el=document.createElement("div");el.className="item vipItem"+(owned?"":" locked");
-    el.innerHTML=`<b>${o.name}</b><small>${o.desc}</small><small>${owned?"OWNED / PERMANENT":"VIP ACCESS / "+o.cost.toLocaleString()+" DATA"}</small>`;
-    const btn=document.createElement("button");btn.className="action";btn.textContent=owned?"OWNED":"PURCHASE";btn.disabled=owned||save.data<o.cost;
+    el.innerHTML=`<b>${o.name}</b><small>${o.desc}</small><small>${owned?"OWNED / PERMANENT・所有済み":"VIP ACCESS / "+o.cost.toLocaleString()+" DATA"}</small>`;
+    const btn=document.createElement("button");btn.className="action";btn.textContent=owned?"OWNED":"PURCHASE / 購入";btn.disabled=owned||save.data<o.cost;
     btn.onclick=()=>{if(owned||save.data<o.cost)return;save.data-=o.cost;save.vip[o.id]=true;saveGame();renderVIP();renderHome();};
     el.appendChild(btn);box.appendChild(el);
   });
@@ -1419,7 +1474,7 @@ function renderDatabase(){
     const found = save.discovered.indexOf(e.id) !== -1;
     const el = document.createElement("div");
     el.className = "item"+(found?"":" locked");
-    el.innerHTML = `<b>${found?e.name:"UNKNOWN"}</b><small>${found?e.desc:"未確認"}</small>`;
+    el.innerHTML = `<b>${found?e.name:"UNKNOWN / 未確認"}</b>${found?biDesc(e.desc):"<small>Not discovered yet / まだ遭遇していません</small>"}`;
     box.appendChild(el);
   });
 }
